@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconGripVertical, IconMinus, IconSearch, IconX } from '@tabler/icons-react';
+import { IconArrowsDiagonal2, IconMinus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   createVarsResolver,
@@ -14,18 +14,27 @@ import {
   useProps,
   useStyles,
   type BoxProps,
+  type MantineRadius,
+  type MantineShadow,
 } from '@mantine/core';
 import { useMantineWindow } from './hooks/use-mantine-window';
 import classes from './Window.module.css';
 
-export type WindowStylesNames = 'root';
+export type WindowStylesNames = 'root' | 'header' | 'resizeHandle';
 
 export type WindowCssVariables = {
   root: '--mantine-window-background';
+  header: never;
+  resizeHandle: never;
 };
 
 export interface WindowBaseProps {
   title?: string;
+
+  radius?: MantineRadius | number;
+  withBorder?: boolean;
+  shadow?: MantineShadow;
+
   children?: React.ReactNode;
 }
 
@@ -45,6 +54,8 @@ const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
     root: {
       '--mantine-window-background': 'var(--mantine-color-default)',
     },
+    header: {},
+    resizeHandle: {},
   };
 });
 
@@ -98,6 +109,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     <Paper
       ref={windowRef}
       onClick={bringToFront}
+      {...others}
       {...getStyles('root', {
         style: {
           left: position.x,
@@ -110,32 +122,29 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     >
       {/* Header */}
       <div
-        className={classes.header}
+        {...getStyles('header')}
         onMouseDown={handleMouseDownDrag}
         onDoubleClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Flex align="center" gap="xs" miw={0}>
-          <IconGripVertical size={16} style={{ cursor: 'move' }} />
+          <Flex align="center" gap="sm">
+            <ActionIcon radius={256} size="xs" color="red" onClick={() => setIsVisible(false)}>
+              <IconX size={14} />
+            </ActionIcon>
+            <ActionIcon
+              radius={256}
+              size="xs"
+              color="yellow"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+              <IconMinus size={14} />
+            </ActionIcon>
+          </Flex>
           <Flex align="center" gap="xs" miw={0}>
-            <IconSearch size={14} />
             <Text size="sm" fw={600} truncate>
               {title}
             </Text>
           </Flex>
-        </Flex>
-
-        <Flex align="center" gap={4}>
-          <ActionIcon
-            size="sm"
-            variant="subtle"
-            color="gray"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-          >
-            <IconMinus size={14} />
-          </ActionIcon>
-          <ActionIcon size="sm" variant="subtle" color="gray" onClick={() => setIsVisible(false)}>
-            <IconX size={14} />
-          </ActionIcon>
         </Flex>
       </div>
 
@@ -147,11 +156,15 @@ export const Window = factory<WindowFactory>((_props, ref) => {
           </ScrollArea>
 
           {/* Resize handle */}
-          <div
-            className={classes.resizeHandle}
+          <ActionIcon
+            size="xs"
+            variant="transparent"
             data-resize-handle
             onMouseDown={handleMouseDownResize}
-          />
+            {...getStyles('resizeHandle')}
+          >
+            <IconArrowsDiagonal2 />
+          </ActionIcon>
         </>
       )}
     </Paper>

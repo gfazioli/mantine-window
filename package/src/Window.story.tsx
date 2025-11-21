@@ -19,3 +19,33 @@ export function Usage() {
     </Stack>
   );
 }
+
+export function WithBorder() {
+  return (
+    <Stack>
+      <Window title="Hello World" withBorder>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function Radius() {
+  return (
+    <Stack>
+      <Window title="Hello World" radius={32} withBorder>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function Shadow() {
+  return (
+    <Stack>
+      <Window title="Hello World" shadow="sm">
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
