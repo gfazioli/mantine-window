@@ -1,0 +1,34 @@
+.root {
+  font-size: 14px;
+}
+
+.key {
+  color: black;
+  font-size: 18px;
+  font-weight: 800;
+  background-color: orange;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.value {
+  &[data-type='string'] {
+    color: red;
+  }
+}
+
+.ellipsis {
+  color: rgb(255, 0, 106);
+  font-size: 20px;
+}
+
+.bracket {
+  font-weight: 800;
+  font-size: 32px;
+  color: violet;
+}
+
+.indentGuide {
+  --json-tree-indent-guide-color-0: rgb(255, 0, 0);
+  --json-tree-indent-guide-color-1: rgb(0, 255, 102);
+}

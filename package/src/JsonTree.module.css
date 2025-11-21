@@ -1,0 +1,107 @@
+.root {
+  font-family: var(--json-tree-font-family);
+  font-size: var(--json-tree-font-size);
+}
+
+.header {
+  background-color: var(--json-tree-header-background-color, inherit);
+  padding: var(--mantine-spacing-xs);
+
+  &[data-sticky='true'] {
+    position: sticky;
+    top: var(--json-tree-header-sticky-offset, 0);
+    z-index: 3;
+  }
+}
+
+.keyValueSeparator {
+  font-size: inherit;
+  color: inherit;
+}
+
+.key {
+  font-weight: 500;
+  font-size: inherit;
+  color: var(--json-tree-color-key);
+}
+
+.value {
+  font-family: var(--json-tree-value-font-family, var(--json-tree-font-family));
+  padding: 2px 6px;
+  border-radius: var(--mantine-radius-sm);
+  background-color: transparent;
+  font-size: inherit;
+
+  &[data-type='string'] {
+    color: var(--json-tree-color-string);
+  }
+
+  &[data-type='number'] {
+    color: var(--json-tree-color-number);
+  }
+
+  &[data-type='boolean'] {
+    color: var(--json-tree-color-boolean);
+  }
+
+  &[data-type='null'],
+  &[data-type='undefined'] {
+    color: var(--json-tree-color-null);
+    font-style: italic;
+  }
+}
+
+.bracket {
+  font-weight: 700;
+  font-size: inherit;
+  font-family: var(--json-tree-font-family);
+  color: var(--json-tree-color-bracket);
+  user-select: none;
+}
+
+.ellipsis {
+  font-size: inherit;
+  color: var(--mantine-color-dark-3);
+}
+
+.copyButton {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  &:focus {
+    opacity: 1;
+  }
+}
+
+.root:hover .copyButton {
+  opacity: 1;
+}
+
+.indentGuide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  pointer-events: none;
+  opacity: 0.4;
+
+  &[data-color-index='0'] {
+    background-color: var(--json-tree-indent-guide-color-0);
+  }
+
+  &[data-color-index='1'] {
+    background-color: var(--json-tree-indent-guide-color-1);
+  }
+
+  &[data-color-index='2'] {
+    background-color: var(--json-tree-indent-guide-color-2);
+  }
+
+  &[data-color-index='3'] {
+    background-color: var(--json-tree-indent-guide-color-3);
+  }
+
+  &[data-color-index='4'] {
+    background-color: var(--json-tree-indent-guide-color-4);
+  }
+}
