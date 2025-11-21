@@ -1532,9 +1532,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gfazioli/mantine-json-tree@workspace:*, @gfazioli/mantine-json-tree@workspace:package":
+"@gfazioli/mantine-window@workspace:*, @gfazioli/mantine-window@workspace:package":
   version: 0.0.0-use.local
-  resolution: "@gfazioli/mantine-json-tree@workspace:package"
+  resolution: "@gfazioli/mantine-window@workspace:package"
   peerDependencies:
     "@mantine/core": ">=7.0.0"
     "@mantine/hooks": ">=7.0.0"
@@ -7259,7 +7259,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "extension-template-docs@workspace:docs"
   dependencies:
-    "@gfazioli/mantine-json-tree": "workspace:*"
+    "@gfazioli/mantine-window": "workspace:*"
     "@mantine/code-highlight": "npm:8.3.8"
     "@mantine/core": "npm:8.3.8"
     "@mantine/hooks": "npm:8.3.8"

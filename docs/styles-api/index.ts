@@ -1,5 +1,5 @@
-import { JsonTreeStylesApi } from './JsonTree.styles-api';
+import { WindowStylesApi } from './Window.styles-api';
 
 export const STYLES_API_DATA = {
-  JsonTree: JsonTreeStylesApi,
+  Window: WindowStylesApi,
 };

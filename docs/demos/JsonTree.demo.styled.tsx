@@ -1,16 +1,16 @@
-import { JsonTree } from '@gfazioli/mantine-json-tree';
+import { Window } from '@gfazioli/mantine-window';
 import { MantineDemo } from '@mantinex/demo';
 import { data, dataCode } from './data';
-import classes from './JsonTree.module.css';
+import classes from './Window.module.css';
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { Window } from "@gfazioli/mantine-window";
 import { data } from './data';
-import classes from './JsonTree.module.css';
+import classes from './Window.module.css';
 
 function Demo() {
   return (
-    <JsonTree
+    <Window
       classNames={classes}
       title="demo.json"
       showIndentGuides
@@ -69,7 +69,7 @@ const moduleCss = `
 
 function Demo() {
   return (
-    <JsonTree
+    <Window
       classNames={classes}
       title="demo.json"
       showIndentGuides
@@ -87,7 +87,7 @@ export const styled: MantineDemo = {
   defaultExpanded: false,
   code: [
     { fileName: 'Demo.tsx', code, language: 'tsx' },
-    { fileName: 'JsonTree.module.css', code: moduleCss, language: 'css' },
+    { fileName: 'Window.module.css', code: moduleCss, language: 'css' },
     { fileName: 'data.ts', code: dataCode, language: 'tsx' },
   ],
 };

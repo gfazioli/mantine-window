@@ -1,7 +1,7 @@
-export { configurator } from './JsonTree.demo.configurator';
-export { customIcons } from './JsonTree.demo.customIcons';
-export { indentGuides } from './JsonTree.demo.indentGuides';
-export { sticky } from './JsonTree.demo.sticky';
-export { styled } from './JsonTree.demo.styled';
-export { stylesApi } from './JsonTree.demo.stylesApi';
-export { values } from './JsonTree.demo.values';
+export { configurator } from './Window.demo.configurator';
+export { customIcons } from './Window.demo.customIcons';
+export { indentGuides } from './Window.demo.indentGuides';
+export { sticky } from './Window.demo.sticky';
+export { styled } from './Window.demo.styled';
+export { stylesApi } from './Window.demo.stylesApi';
+export { values } from './Window.demo.values';

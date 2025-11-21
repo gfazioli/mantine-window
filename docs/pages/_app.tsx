@@ -1,6 +1,6 @@
-import '@mantine/core/styles.css';
-import '@gfazioli/mantine-json-tree/styles.css';
+import '@gfazioli/mantine-window/styles.css';
 import '@mantine/code-highlight/styles.css';
+import '@mantine/core/styles.css';
 import '@mantinex/demo/styles.css';
 import '@mantinex/mantine-header/styles.css';
 import '@mantinex/mantine-logo/styles.css';
@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider theme={theme}>
       <Head>
-        <title>Mantine JsonTree</title>
+        <title>Mantine Window</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"

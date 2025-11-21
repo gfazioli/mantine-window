@@ -1,15 +1,15 @@
-import { JsonTree } from '@gfazioli/mantine-json-tree';
+import { Window } from '@gfazioli/mantine-window';
 import { MantineDemo } from '@mantinex/demo';
-import { JsonTreeStylesApi } from '../styles-api/JsonTree.styles-api';
+import { WindowStylesApi } from '../styles-api/Window.styles-api';
 import { data } from './data';
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { Window } from "@gfazioli/mantine-window";
 import { data } from './data';
 
 function Demo() {
   return (
-    <JsonTree{{props}}
+    <Window{{props}}
       title="demo.json"
       showIndentGuides
       showItemsCount
@@ -25,7 +25,7 @@ function Demo() {
 
 function Demo(props: any) {
   return (
-    <JsonTree
+    <Window
       title="demo.json"
       showIndentGuides
       showItemsCount
@@ -41,7 +41,7 @@ function Demo(props: any) {
 
 export const stylesApi: MantineDemo = {
   type: 'styles-api',
-  data: JsonTreeStylesApi,
+  data: WindowStylesApi,
   component: Demo,
   code,
   centered: true,

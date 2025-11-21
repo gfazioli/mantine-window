@@ -1,14 +1,14 @@
 {
-  "name": "@gfazioli/mantine-json-tree",
+  "name": "@gfazioli/mantine-window",
   "version": "1.0.0",
   "description": "A Mantine extension component that renders interactive JSON trees with syntax highlighting, collapsible nodes, copy-to-clipboard, and configurable expansion depth.",
-  "homepage": "https://gfazioli.github.io/mantine-json-tree/",
+  "homepage": "https://gfazioli.github.io/mantine-window/",
   "packageManager": "yarn@4.0.1",
   "license": "MIT",
   "author": "Giovambattista Fazioli <giovambattista.fazioli@gmail.com>",
   "keywords": [
     "extension",
-    "json-tree",
+    "window",
     "json-view",
     "mantine",
     "react",
@@ -32,7 +32,7 @@
     "./styles.css": "./dist/styles.css",
     "./styles.layer.css": "./dist/styles.layer.css"
   },
-  "repository": "https://github.com/gfazioli/mantine-json-tree.git",
+  "repository": "https://github.com/gfazioli/mantine-window.git",
   "peerDependencies": {
     "@mantine/core": ">=7.0.0",
     "@mantine/hooks": ">=7.0.0",
@@ -40,5 +40,5 @@
     "react": "^18.x || ^19.x",
     "react-dom": "^18.x || ^19.x"
   },
-  "bugs": "https://github.com/gfazioli/mantine-json-tree/issues"
+  "bugs": "https://github.com/gfazioli/mantine-window/issues"
 }

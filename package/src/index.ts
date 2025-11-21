@@ -1,8 +1,8 @@
-export { JsonTree } from './JsonTree';
+export { Window } from './Window';
 export type {
-  JsonTreeBaseProps,
-  JsonTreeCssVariables,
-  JsonTreeFactory,
-  JsonTreeProps,
-  JsonTreeStylesNames,
-} from './JsonTree';
+  WindowBaseProps,
+  WindowCssVariables,
+  WindowFactory,
+  WindowProps,
+  WindowStylesNames,
+} from './Window';

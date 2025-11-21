@@ -1,17 +1,17 @@
-import { JsonTree, JsonTreeProps } from '@gfazioli/mantine-json-tree';
+import { Window, WindowProps } from '@gfazioli/mantine-window';
 import { ScrollArea } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
 import { data, dataCode } from './data';
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { Window } from "@gfazioli/mantine-window";
 import { ScrollArea } from '@mantine/core';
 import { data } from './data';
 
 function Demo() {
   return (
     <ScrollArea style={{ height: 300 }}>
-      <JsonTree{{props}}
+      <Window{{props}}
         data={data}
         title="data.json"
         defaultExpanded
@@ -25,10 +25,10 @@ function Demo() {
 }
 `;
 
-function Demo(props: JsonTreeProps) {
+function Demo(props: WindowProps) {
   return (
     <ScrollArea style={{ height: 300 }}>
-      <JsonTree
+      <Window
         {...props}
         data={data}
         title="data.json"

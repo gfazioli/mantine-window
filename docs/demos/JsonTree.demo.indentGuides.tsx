@@ -1,14 +1,14 @@
-import { JsonTree } from '@gfazioli/mantine-json-tree';
+import { Window } from '@gfazioli/mantine-window';
 import { MantineDemo } from '@mantinex/demo';
 import { data, dataCode } from './data';
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { Window } from "@gfazioli/mantine-window";
 import { data } from './data';
 
 function Demo() {
   return (
-    <JsonTree 
+    <Window 
       data={data} 
       defaultExpanded 
       maxDepth={-1}
@@ -21,7 +21,7 @@ function Demo() {
 
 function Demo() {
   return (
-    <JsonTree
+    <Window
       data={data}
       defaultExpanded
       maxDepth={-1}

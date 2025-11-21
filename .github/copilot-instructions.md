@@ -1,8 +1,8 @@
-# Copilot Instructions for Mantine JsonTree Component
+# Copilot Instructions for Mantine Window Component
 
 ## Project Overview
 
-This repository contains a Mantine-based JSON tree viewer component (`@gfazioli/mantine-json-tree`). It's an interactive JSON tree viewer built with Mantine's Tree component, featuring collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations.
+This repository contains a Mantine-based JSON tree viewer component (`@gfazioli/mantine-window`). It's an interactive JSON tree viewer built with Mantine's Tree component, featuring collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations.
 
 ## Project Purpose
 
@@ -29,9 +29,9 @@ The component is designed for:
 
 - `package/`: Main package source code
   - `src/`: Component source files
-    - `JsonTree.tsx`: Main component
-    - `JsonTree.module.css`: Component styles
-    - `JsonTree.test.tsx`: Component tests
+    - `Window.tsx`: Main component
+    - `Window.module.css`: Component styles
+    - `Window.test.tsx`: Component tests
     - `lib/`: Utility functions and helpers
 - `docs/`: Documentation site
 - `scripts/`: Build and release scripts
@@ -115,7 +115,7 @@ npm run syncpack            # Check dependency version mismatches
 
 ## Key Files and Their Purpose
 
-- `package/src/JsonTree.tsx`: Main component implementation
+- `package/src/Window.tsx`: Main component implementation
 - `package/src/lib/`: Helper functions and utilities
 - `package/package.json`: Package metadata and dependencies
 - `rollup.config.mjs`: Build configuration
@@ -191,9 +191,9 @@ The repository uses GitHub Actions for CI:
 
 ## Documentation
 
-- Demo and documentation: https://gfazioli.github.io/mantine-json-tree/
-- NPM package: https://www.npmjs.com/package/@gfazioli/mantine-json-tree
-- Issues: https://github.com/gfazioli/mantine-json-tree/issues
+- Demo and documentation: https://gfazioli.github.io/mantine-window/
+- NPM package: https://www.npmjs.com/package/@gfazioli/mantine-window
+- Issues: https://github.com/gfazioli/mantine-window/issues
 
 ## Support and Community
 

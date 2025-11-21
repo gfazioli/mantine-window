@@ -25,12 +25,12 @@ export interface PackageData {
 }
 
 export const PACKAGE_DATA: PackageData = {
-  packageName: '@gfazioli/mantine-json-tree',
+  packageName: '@gfazioli/mantine-window',
   packageDescription:
     'A Mantine extension component that renders interactive JSON trees with syntax highlighting, collapsible nodes, copy-to-clipboard, and configurable expansion depth.',
-  mdxFileUrl: 'https://github.com/gfazioli/mantine-json-tree/blob/master/docs/docs.mdx',
-  repositoryUrl: 'https://github.com/gfazioli/mantine-json-tree',
-  licenseUrl: 'https://github.com/gfazioli/mantine-json-tree/blob/master/LICENSE',
+  mdxFileUrl: 'https://github.com/gfazioli/mantine-window/blob/master/docs/docs.mdx',
+  repositoryUrl: 'https://github.com/gfazioli/mantine-window',
+  licenseUrl: 'https://github.com/gfazioli/mantine-window/blob/master/LICENSE',
   author: {
     name: 'Giovambattista Fazioli',
     githubUsername: 'gfazioli',

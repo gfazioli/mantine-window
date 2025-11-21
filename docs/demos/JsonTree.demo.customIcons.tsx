@@ -1,10 +1,10 @@
-import { JsonTree } from '@gfazioli/mantine-json-tree';
+import { Window } from '@gfazioli/mantine-window';
 import { Paper, SimpleGrid, Text, Title } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
 import { data, dataCode } from './data';
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { Window } from "@gfazioli/mantine-window";
 import { Paper, SimpleGrid, Text, Title } from '@mantine/core';
 import { data } from './data';
 
@@ -13,7 +13,7 @@ function Demo() {
     <SimpleGrid cols={3}>
       <Paper withBorder p="md">
         <Title order={4}>Only Expand Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
@@ -22,7 +22,7 @@ function Demo() {
       </Paper>
       <Paper withBorder p="md">
         <Title order={4}>Only Collapse Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
@@ -31,7 +31,7 @@ function Demo() {
       </Paper>
       <Paper withBorder p="md">
         <Title order={4}>Both Expand and Collapse Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
@@ -53,7 +53,7 @@ function Demo() {
     <SimpleGrid cols={3}>
       <Paper withBorder p="md">
         <Title order={4}>Only Expand Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
@@ -62,7 +62,7 @@ function Demo() {
       </Paper>
       <Paper withBorder p="md">
         <Title order={4}>Only Collapse Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
@@ -71,7 +71,7 @@ function Demo() {
       </Paper>
       <Paper withBorder p="md">
         <Title order={4}>Both Expand and Collapse Icons</Title>
-        <JsonTree
+        <Window
           title="demo.json"
           showIndentGuides
           data={data}
