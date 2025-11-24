@@ -339,11 +339,10 @@ export const Window = factory<WindowFactory>((_props, _) => {
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
           <Flex align="center" gap="xs" miw={0}>
-            <Flex align="center" gap="sm">
+            <Flex align="center" gap={8}>
               {withCloseButton && (
                 <ActionIcon
                   radius={256}
-                  size="xs"
                   color="red"
                   onClick={handleClose}
                   {...getStyles('closeButton')}
@@ -354,7 +353,6 @@ export const Window = factory<WindowFactory>((_props, _) => {
               {withCollapseButton && collapsable && (
                 <ActionIcon
                   radius={256}
-                  size="xs"
                   color="yellow"
                   onClick={() => setIsCollapsed(!isCollapsed)}
                   {...getStyles('collapseButton')}

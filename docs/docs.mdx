@@ -23,37 +23,7 @@ The `Window` is interactive JSON tree viewer component built with [Mantine's Tre
 
 <Demo data={demos.configurator} />
 
-## Syntax Highlighting values
 
-Below is an example of syntax highlighting for different JSON value types: strings, numbers, booleans, nulls, objects, and arrays. Each type is displayed in a distinct color for better readability.
-
-<Demo data={demos.values} />
-
-## Indent Guides
-
-Display vertical lines to visualize nesting levels, similar to Visual Studio Code. The guides use 5 distinct colors that cycle for deeper nesting levels.
-
-<Demo data={demos.indentGuides} />
-
-## Sticky Header
-
-You may enable sticky headers for better context when scrolling through large JSON structures. When enabled, the header of each expanded node remains visible at the top of the scrollable area as you navigate through its child elements. You can also set an offset to accommodate fixed headers in your layout.
-
-<Demo data={demos.sticky} />
-
-## Icons
-
-You can customize the expand/collapse icons used in the `Window` component by providing your own icons via the `expandControlIcon` and `collapseControlIcon` props. The default icons are simple chevrons, but you can replace them with any React component or icon of your choice.
-
-> Note: If only the `expandControlIcon` is provided, the component will automatically use it for both expand and collapse states, by rotating (90deg) it accordingly. If only the `collapseControlIcon` is provided, the default expand icon will be used. Of course, you can provide both icons for complete customization.
-
-<Demo data={demos.customIcons} />
-
-## Style the component with classNames
-
-You can style the `Window` component using the `classNames` prop to target specific inner elements. This allows for granular customization of the component's appearance.
-
-<Demo data={demos.styled} />
 
 ## Styles API
 

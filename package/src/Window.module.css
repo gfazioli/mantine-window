@@ -64,6 +64,7 @@
 .closeButton,
 .collapseButton,
 .windowToolsButton {
+  --ai-size: 12px;
   svg {
     transition: opacity 350ms ease;
     opacity: 0;
