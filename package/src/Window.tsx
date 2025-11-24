@@ -56,6 +56,7 @@ export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
 export type DraggableMode = 'none' | 'window' | 'header' | 'both';
 
 export interface WindowBaseProps {
+  /** Whether the window is opened for controlled usage */
   opened?: boolean;
 
   /** Title of the window */
