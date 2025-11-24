@@ -32,13 +32,13 @@ export function useMantineWindow(props: WindowBaseProps) {
   const [positionStorage, setPositionStorage] = useLocalStorage({
     key: persistState && `${key}-window-position`,
     defaultValue: defaultPosition,
-    getInitialValueInEffect: false,
+    getInitialValueInEffect: true,
   });
 
   const [sizeStorage, setSizeStorage] = useLocalStorage({
     key: persistState && `${key}-window-size`,
     defaultValue: defaultSize,
-    getInitialValueInEffect: false,
+    getInitialValueInEffect: true,
   });
 
   const [positionState, setPositionState] = useState<WindowPosition>(defaultPosition);

@@ -227,6 +227,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
   const props = useProps('Window', defaultProps, _props);
 
   const {
+    opened,
     color,
     title,
     children,
