@@ -2,6 +2,7 @@ import React from 'react';
 import { IconArrowsDiagonal2, IconMinus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
+  Box,
   createVarsResolver,
   Factory,
   factory,
@@ -20,10 +21,11 @@ import {
 import { useMantineWindow } from './hooks/use-mantine-window';
 import classes from './Window.module.css';
 
-export type WindowStylesNames = 'root' | 'header' | 'resizeHandle';
+export type WindowStylesNames = 'root' | 'container' | 'header' | 'resizeHandle';
 
 export type WindowCssVariables = {
   root: '--mantine-window-background';
+  container: never;
   header: never;
   resizeHandle: never;
 };
@@ -47,13 +49,16 @@ export type WindowFactory = Factory<{
   vars: WindowCssVariables;
 }>;
 
-export const defaultProps: Partial<WindowProps> = {};
+export const defaultProps: Partial<WindowProps> = {
+  withBorder: true,
+};
 
 const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
   return {
     root: {
       '--mantine-window-background': 'var(--mantine-color-default)',
     },
+    container: {},
     header: {},
     resizeHandle: {},
   };
@@ -120,53 +125,55 @@ export const Window = factory<WindowFactory>((_props, ref) => {
         },
       })}
     >
-      {/* Header */}
-      <div
-        {...getStyles('header')}
-        onMouseDown={handleMouseDownDrag}
-        onDoubleClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        <Flex align="center" gap="xs" miw={0}>
-          <Flex align="center" gap="sm">
-            <ActionIcon radius={256} size="xs" color="red" onClick={() => setIsVisible(false)}>
-              <IconX size={14} />
-            </ActionIcon>
-            <ActionIcon
-              radius={256}
-              size="xs"
-              color="yellow"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              <IconMinus size={14} />
-            </ActionIcon>
-          </Flex>
+      <Box {...getStyles('container')}>
+        {/* Header */}
+        <div
+          {...getStyles('header')}
+          onMouseDown={handleMouseDownDrag}
+          onDoubleClick={() => setIsCollapsed(!isCollapsed)}
+        >
           <Flex align="center" gap="xs" miw={0}>
-            <Text size="sm" fw={600} truncate>
-              {title}
-            </Text>
+            <Flex align="center" gap="sm">
+              <ActionIcon radius={256} size="xs" color="red" onClick={() => setIsVisible(false)}>
+                <IconX size={14} />
+              </ActionIcon>
+              <ActionIcon
+                radius={256}
+                size="xs"
+                color="yellow"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+              >
+                <IconMinus size={14} />
+              </ActionIcon>
+            </Flex>
+            <Flex align="center" gap="xs" miw={0}>
+              <Text size="sm" fw={600} truncate>
+                {title}
+              </Text>
+            </Flex>
           </Flex>
-        </Flex>
-      </div>
+        </div>
 
-      {/* Content */}
-      {!isCollapsed && (
-        <>
-          <ScrollArea className={classes.content} style={{ height: size.height - 40 }}>
-            {children}
-          </ScrollArea>
+        {/* Content */}
+        {!isCollapsed && (
+          <>
+            <ScrollArea className={classes.content} style={{ height: size.height - 40 }}>
+              {children}
+            </ScrollArea>
 
-          {/* Resize handle */}
-          <ActionIcon
-            size="xs"
-            variant="transparent"
-            data-resize-handle
-            onMouseDown={handleMouseDownResize}
-            {...getStyles('resizeHandle')}
-          >
-            <IconArrowsDiagonal2 />
-          </ActionIcon>
-        </>
-      )}
+            {/* Resize handle */}
+            <ActionIcon
+              size="xs"
+              variant="transparent"
+              data-resize-handle
+              onMouseDown={handleMouseDownResize}
+              {...getStyles('resizeHandle')}
+            >
+              <IconArrowsDiagonal2 />
+            </ActionIcon>
+          </>
+        )}
+      </Box>
     </Paper>
   );
 });

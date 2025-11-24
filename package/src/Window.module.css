@@ -1,9 +1,19 @@
 .root {
   position: fixed;
   background: var(--mantine-window-background);
+  border-radius: var(--mantine-radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 4px;
+}
+
+.container {
+  border: 1px solid var(--mantine-color-dark-3);
+  border-radius: calc(var(--mantine-radius-lg) - 4px);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .header {
