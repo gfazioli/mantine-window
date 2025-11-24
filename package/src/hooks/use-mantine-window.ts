@@ -320,10 +320,18 @@ export function useMantineWindow(props: WindowBaseProps) {
 
         // Apply drag bounds if provided
         if (dragBounds) {
-          if (dragBounds.minX !== undefined) newX = Math.max(dragBounds.minX, newX);
-          if (dragBounds.maxX !== undefined) newX = Math.min(dragBounds.maxX, newX);
-          if (dragBounds.minY !== undefined) newY = Math.max(dragBounds.minY, newY);
-          if (dragBounds.maxY !== undefined) newY = Math.min(dragBounds.maxY, newY);
+          if (dragBounds.minX !== undefined) {
+            newX = Math.max(dragBounds.minX, newX);
+          }
+          if (dragBounds.maxX !== undefined) {
+            newX = Math.min(dragBounds.maxX, newX);
+          }
+          if (dragBounds.minY !== undefined) {
+            newY = Math.max(dragBounds.minY, newY);
+          }
+          if (dragBounds.maxY !== undefined) {
+            newY = Math.min(dragBounds.maxY, newY);
+          }
         } else {
           // Default bounds: keep within viewport
           newX = Math.max(0, Math.min(newX, window.innerWidth - size.width));
@@ -345,12 +353,16 @@ export function useMantineWindow(props: WindowBaseProps) {
         // Helper to clamp width and height
         const clampWidth = (w: number) => {
           let clamped = Math.max(minWidth, w);
-          if (maxWidth !== undefined) clamped = Math.min(maxWidth, clamped);
+          if (maxWidth !== undefined) {
+            clamped = Math.min(maxWidth, clamped);
+          }
           return clamped;
         };
         const clampHeight = (h: number) => {
           let clamped = Math.max(minHeight, h);
-          if (maxHeight !== undefined) clamped = Math.min(maxHeight, clamped);
+          if (maxHeight !== undefined) {
+            clamped = Math.min(maxHeight, clamped);
+          }
           return clamped;
         };
 

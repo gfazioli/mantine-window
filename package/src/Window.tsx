@@ -23,7 +23,6 @@ import {
   Stack,
   StylesApiProps,
   Text,
-  useMantineTheme,
   useProps,
   useStyles,
   type BoxProps,
@@ -193,7 +192,7 @@ export const defaultProps: Partial<WindowProps> = {
   minHeight: 100,
 };
 
-const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
+const varsResolver = createVarsResolver<WindowFactory>((_, { radius }) => {
   return {
     root: {
       '--window-background': 'var(--mantine-color-default)',
@@ -216,7 +215,7 @@ const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) =
   };
 });
 
-export const Window = factory<WindowFactory>((_props, ref) => {
+export const Window = factory<WindowFactory>((_props, _) => {
   const props = useProps('Window', defaultProps, _props);
 
   const {
@@ -254,8 +253,6 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     varsResolver,
   });
 
-  const theme = useMantineTheme();
-
   const {
     bringToFront,
     windowRef,
@@ -280,6 +277,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
 
+  /** eslint-disable-next-line no-unused-vars */
   function WindowTools() {
     return (
       <Popover radius="md" width={200} position="bottom-start" withArrow shadow="md" withinPortal>
@@ -333,10 +331,10 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     >
       <Box {...getStyles('container')}>
         {/* Header */}
-        <div
+        <Box
           {...getStyles('header')}
           onClick={bringToFront}
-          data-window-draggable={draggableHeader ? true : undefined}
+          mod={{ 'window-draggable': draggableHeader }}
           onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
@@ -371,7 +369,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
               </Text>
             </Flex>
           </Flex>
-        </div>
+        </Box>
 
         {/* Content */}
         {!isCollapsed && (

@@ -4,7 +4,7 @@ import { Window } from './Window';
 
 describe('Window', () => {
   it('renders without crashing', () => {
-    const { container } = render(<Window data={[]} />);
+    const { container } = render(<Window />);
     expect(container).toBeTruthy();
   });
 });

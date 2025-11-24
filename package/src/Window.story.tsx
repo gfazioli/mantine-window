@@ -9,8 +9,6 @@ export default {
   argTypes: {},
 };
 
-const data = {};
-
 export function Usage() {
   return (
     <Stack>
@@ -264,8 +262,14 @@ export function WithCallbacks() {
       <Window
         title="With Callbacks"
         opened
-        onPositionChange={(pos) => console.log('Position changed:', pos)}
-        onSizeChange={(size) => console.log('Size changed:', size)}
+        onPositionChange={(pos) => {
+          // eslint-disable-next-line no-console
+          console.log('Position changed:', pos);
+        }}
+        onSizeChange={(size) => {
+          // eslint-disable-next-line no-console
+          console.log('Size changed:', size);
+        }}
       >
         <Title order={4}>Open console to see callbacks</Title>
         <p>Move or resize this window to trigger callbacks</p>
@@ -314,14 +318,20 @@ export function FullExample() {
           minY: 0,
           maxY: typeof window !== 'undefined' ? window.innerHeight - 100 : 700,
         }}
-        persistState={true}
+        persistState
         resizable="both"
         draggable="both"
         withBorder
         shadow="lg"
         radius="md"
-        onPositionChange={(pos) => console.log('Position:', pos)}
-        onSizeChange={(size) => console.log('Size:', size)}
+        onPositionChange={(pos) => {
+          // eslint-disable-next-line no-console
+          console.log('Position:', pos);
+        }}
+        onSizeChange={(size) => {
+          // eslint-disable-next-line no-console
+          console.log('Size:', size);
+        }}
       >
         <Title order={4}>Fully Configured Window</Title>
         <Stack gap="sm">
