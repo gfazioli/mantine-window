@@ -1,32 +1,77 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
-import type { WindowBaseProps } from '../Window';
-
-const MIN_WIDTH = 250;
-const MIN_HEIGHT = 100;
-const INITIAL_WIDTH = 400;
-const INITIAL_HEIGHT = 400;
+import type { WindowBaseProps, WindowPosition, WindowSize } from '../Window';
 
 export function useMantineWindow(props: WindowBaseProps) {
-  const { title, collapsed, opened, onClose, id } = props;
+  const {
+    title,
+    collapsed,
+    opened,
+    onClose,
+    id,
+    persistState = true,
+    defaultPosition = { x: 20, y: 100 },
+    defaultSize = { width: 400, height: 400 },
+    minWidth = 250,
+    minHeight = 100,
+    maxWidth,
+    maxHeight,
+    dragBounds,
+    onPositionChange,
+    onSizeChange,
+  } = props;
 
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(9998);
 
-  const key = (id || title).toLocaleLowerCase().replace(/\s+/g, '-');
+  const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
 
-  const [position, setPosition] = useLocalStorage({
-    key: `${key}-debug-position`,
-    defaultValue: { x: 20, y: 100 },
+  // Use localStorage if persistState is true, otherwise use regular state
+  const [positionStorage, setPositionStorage] = useLocalStorage({
+    key: `${key}-window-position`,
+    defaultValue: defaultPosition,
     getInitialValueInEffect: false,
   });
 
-  const [size, setSize] = useLocalStorage({
-    key: `${key}-debug-size`,
-    defaultValue: { width: INITIAL_WIDTH, height: INITIAL_HEIGHT },
+  const [sizeStorage, setSizeStorage] = useLocalStorage({
+    key: `${key}-window-size`,
+    defaultValue: defaultSize,
     getInitialValueInEffect: false,
   });
+
+  const [positionState, setPositionState] = useState<WindowPosition>(defaultPosition);
+  const [sizeState, setSizeState] = useState<WindowSize>(defaultSize);
+
+  // Select the appropriate state based on persistState
+  const position = persistState ? positionStorage : positionState;
+  const size = persistState ? sizeStorage : sizeState;
+
+  const setPosition = useCallback(
+    (newPosition: WindowPosition | ((prev: WindowPosition) => WindowPosition)) => {
+      const pos = typeof newPosition === 'function' ? newPosition(position) : newPosition;
+      if (persistState) {
+        setPositionStorage(pos);
+      } else {
+        setPositionState(pos);
+      }
+      onPositionChange?.(pos);
+    },
+    [persistState, position, setPositionStorage, onPositionChange]
+  );
+
+  const setSize = useCallback(
+    (newSize: WindowSize | ((prev: WindowSize) => WindowSize)) => {
+      const sz = typeof newSize === 'function' ? newSize(size) : newSize;
+      if (persistState) {
+        setSizeStorage(sz);
+      } else {
+        setSizeState(sz);
+      }
+      onSizeChange?.(sz);
+    },
+    [persistState, size, setSizeStorage, onSizeChange]
+  );
   const [isMounted, setIsMounted] = useState(false);
 
   const windowRef = useRef<HTMLDivElement>(null);
@@ -270,14 +315,20 @@ export function useMantineWindow(props: WindowBaseProps) {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging.current) {
-        const newX = Math.max(
-          0,
-          Math.min(e.clientX - dragStart.current.x, window.innerWidth - size.width)
-        );
-        const newY = Math.max(
-          0,
-          Math.min(e.clientY - dragStart.current.y, window.innerHeight - 50)
-        );
+        let newX = e.clientX - dragStart.current.x;
+        let newY = e.clientY - dragStart.current.y;
+
+        // Apply drag bounds if provided
+        if (dragBounds) {
+          if (dragBounds.minX !== undefined) newX = Math.max(dragBounds.minX, newX);
+          if (dragBounds.maxX !== undefined) newX = Math.min(dragBounds.maxX, newX);
+          if (dragBounds.minY !== undefined) newY = Math.max(dragBounds.minY, newY);
+          if (dragBounds.maxY !== undefined) newY = Math.min(dragBounds.maxY, newY);
+        } else {
+          // Default bounds: keep within viewport
+          newX = Math.max(0, Math.min(newX, window.innerWidth - size.width));
+          newY = Math.max(0, Math.min(newY, window.innerHeight - 50));
+        }
 
         setPosition({ x: newX, y: newY });
       }
@@ -291,39 +342,51 @@ export function useMantineWindow(props: WindowBaseProps) {
         let newX = resizeStart.current.posX;
         let newY = resizeStart.current.posY;
 
+        // Helper to clamp width and height
+        const clampWidth = (w: number) => {
+          let clamped = Math.max(minWidth, w);
+          if (maxWidth !== undefined) clamped = Math.min(maxWidth, clamped);
+          return clamped;
+        };
+        const clampHeight = (h: number) => {
+          let clamped = Math.max(minHeight, h);
+          if (maxHeight !== undefined) clamped = Math.min(maxHeight, clamped);
+          return clamped;
+        };
+
         switch (resizeDirection.current) {
           case 'topLeft':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width - deltaX);
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height - deltaY);
+            newWidth = clampWidth(resizeStart.current.width - deltaX);
+            newHeight = clampHeight(resizeStart.current.height - deltaY);
             newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
             newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
             break;
           case 'top':
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height - deltaY);
+            newHeight = clampHeight(resizeStart.current.height - deltaY);
             newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
             break;
           case 'topRight':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width + deltaX);
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height - deltaY);
+            newWidth = clampWidth(resizeStart.current.width + deltaX);
+            newHeight = clampHeight(resizeStart.current.height - deltaY);
             newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
             break;
           case 'right':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width + deltaX);
+            newWidth = clampWidth(resizeStart.current.width + deltaX);
             break;
           case 'bottomRight':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width + deltaX);
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height + deltaY);
+            newWidth = clampWidth(resizeStart.current.width + deltaX);
+            newHeight = clampHeight(resizeStart.current.height + deltaY);
             break;
           case 'bottom':
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height + deltaY);
+            newHeight = clampHeight(resizeStart.current.height + deltaY);
             break;
           case 'bottomLeft':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width - deltaX);
-            newHeight = Math.max(MIN_HEIGHT, resizeStart.current.height + deltaY);
+            newWidth = clampWidth(resizeStart.current.width - deltaX);
+            newHeight = clampHeight(resizeStart.current.height + deltaY);
             newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
             break;
           case 'left':
-            newWidth = Math.max(MIN_WIDTH, resizeStart.current.width - deltaX);
+            newWidth = clampWidth(resizeStart.current.width - deltaX);
             newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
             break;
         }
@@ -354,7 +417,19 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, [size.width, size.height, position.x, position.y]);
+  }, [
+    size.width,
+    size.height,
+    position.x,
+    position.y,
+    dragBounds,
+    minWidth,
+    minHeight,
+    maxWidth,
+    maxHeight,
+    setPosition,
+    setSize,
+  ]);
 
   return {
     isCollapsed,

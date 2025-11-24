@@ -71,6 +71,31 @@ export type WindowCssVariables = {
 export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
 export type DraggableMode = 'none' | 'window' | 'header' | 'both';
 
+export interface WindowBounds {
+  /** Minimum x coordinate (left boundary) */
+  minX?: number;
+  /** Maximum x coordinate (right boundary) */
+  maxX?: number;
+  /** Minimum y coordinate (top boundary) */
+  minY?: number;
+  /** Maximum y coordinate (bottom boundary) */
+  maxY?: number;
+}
+
+export interface WindowSize {
+  /** Width in pixels */
+  width: number;
+  /** Height in pixels */
+  height: number;
+}
+
+export interface WindowPosition {
+  /** X coordinate in pixels */
+  x: number;
+  /** Y coordinate in pixels */
+  y: number;
+}
+
 export interface WindowBaseProps {
   /** Whether the window is opened for controlled usage */
   opened?: boolean;
@@ -111,6 +136,36 @@ export interface WindowBaseProps {
   /** Called when the window is closed */
   onClose?: () => void;
 
+  /** Initial position of the window. If not provided, defaults to { x: 20, y: 100 } */
+  defaultPosition?: WindowPosition;
+
+  /** Initial size of the window. If not provided, defaults to { width: 400, height: 400 } */
+  defaultSize?: WindowSize;
+
+  /** Minimum width in pixels during resize. Default: 250 */
+  minWidth?: number;
+
+  /** Minimum height in pixels during resize. Default: 100 */
+  minHeight?: number;
+
+  /** Maximum width in pixels during resize. If not provided, no maximum limit */
+  maxWidth?: number;
+
+  /** Maximum height in pixels during resize. If not provided, no maximum limit */
+  maxHeight?: number;
+
+  /** Boundaries for dragging the window. If not provided, window can be dragged anywhere within viewport */
+  dragBounds?: WindowBounds;
+
+  /** Whether to persist position and size in localStorage. Default: true */
+  persistState?: boolean;
+
+  /** Called when the window is moved */
+  onPositionChange?: (position: WindowPosition) => void;
+
+  /** Called when the window is resized */
+  onSizeChange?: (size: WindowSize) => void;
+
   /** Window content */
   children?: React.ReactNode;
 }
@@ -133,6 +188,9 @@ export const defaultProps: Partial<WindowProps> = {
   withCloseButton: true,
   withCollapseButton: true,
   collapsable: true,
+  persistState: true,
+  minWidth: 250,
+  minHeight: 100,
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
