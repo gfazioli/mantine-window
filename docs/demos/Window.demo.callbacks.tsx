@@ -36,8 +36,14 @@ function Demo() {
         defaultSize={{ width: 400, height: 300 }}
         persistState={false}
         withinPortal={false}
-        onPositionChange={(pos) => console.log('Position changed:', pos)}
-        onSizeChange={(size) => console.log('Size changed:', size)}
+        onPositionChange={(pos) => {
+          // eslint-disable-next-line no-console
+          console.log('Position changed:', pos);
+        }}
+        onSizeChange={(size) => {
+          // eslint-disable-next-line no-console
+          console.log('Size changed:', size);
+        }}
       >
         <Title order={4}>Open console to see callbacks</Title>
         <p>Move or resize this window to trigger callbacks</p>

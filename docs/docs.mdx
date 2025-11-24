@@ -61,9 +61,9 @@ Restrict the draggable area of the window using the `dragBounds` prop. This ensu
 
 ## Persistence
 
-By default, the window's position and size are persisted in localStorage. You can disable this behavior by setting `persistState={false}`. This is useful when you want the window to always start at the same position and size.
+Enable state persistence to save the window's position and size in localStorage by setting `persistState={true}` (default is `true`). When enabled, the window will remember its position and size across page refreshes. Set `persistState={false}` to disable this behavior and always start at the default position and size.
 
-<Demo data={demos.noPersistence} />
+<Demo data={demos.persistence} />
 
 ## Callbacks
 

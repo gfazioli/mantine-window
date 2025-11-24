@@ -8,5 +8,5 @@ export { dragBounds } from './Window.demo.dragBounds';
 export { minMaxSize } from './Window.demo.minMaxSize';
 export { multiple } from './Window.demo.multiple';
 export { noCollapsable } from './Window.demo.noCollapsable';
-export { noPersistence } from './Window.demo.noPersistence';
+export { persistence } from './Window.demo.persistence';
 export { stylesApi } from './Window.demo.stylesApi';

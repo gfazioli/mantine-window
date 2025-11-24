@@ -245,6 +245,10 @@ export const Window = factory<WindowFactory>((_props, _) => {
     maxWidth,
     maxHeight,
     dragBounds,
+    defaultPosition,
+    defaultSize,
+    onPositionChange,
+    onSizeChange,
 
     classNames,
     style,

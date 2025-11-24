@@ -9,7 +9,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     opened,
     onClose,
     id,
-    persistState = true,
+    persistState = false,
     withinPortal = true,
     defaultPosition = { x: 20, y: 100 },
     defaultSize = { width: 400, height: 400 },
@@ -24,19 +24,19 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
-  const [zIndex, setZIndex] = useState(9998);
+  const [zIndex, setZIndex] = useState(200);
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
 
   // Use localStorage if persistState is true, otherwise use regular state
   const [positionStorage, setPositionStorage] = useLocalStorage({
-    key: `${key}-window-position`,
+    key: persistState && `${key}-window-position`,
     defaultValue: defaultPosition,
     getInitialValueInEffect: false,
   });
 
   const [sizeStorage, setSizeStorage] = useLocalStorage({
-    key: `${key}-window-size`,
+    key: persistState && `${key}-window-size`,
     defaultValue: defaultSize,
     getInitialValueInEffect: false,
   });
@@ -73,7 +73,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     },
     [persistState, size, setSizeStorage, onSizeChange]
   );
-  const [isMounted, setIsMounted] = useState(false);
 
   const windowRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -100,14 +99,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
-  // Initialize position on client side only
-  useEffect(() => {
-    setIsMounted(true);
-    if (typeof window !== 'undefined') {
-      //setPosition({ x: 20, y: Math.max(100, window.innerHeight - 500) });
-    }
   }, []);
 
   const bringToFront = useCallback(() => {
@@ -460,7 +451,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     zIndex,
     position,
     size,
-    isMounted,
     windowRef,
     handleMouseDownDrag,
     handleMouseDownResizeTopLeft,

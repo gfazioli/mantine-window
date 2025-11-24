@@ -9,15 +9,17 @@ function Demo() {
   return (
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        title="No Persistence"
+        title="With Persistence"
+        id="persistent-window-demo"
         opened
         defaultPosition={{ x: 50, y: 50 }}
         defaultSize={{ width: 400, height: 300 }}
-        persistState={false}
+        persistState
         withinPortal={false}
       >
-        <Title order={4}>Position and size are not saved</Title>
-        <p>Refresh the page and this window will return to default position</p>
+        <Title order={4}>Position and size are saved in localStorage</Title>
+        <p>Move or resize this window, then refresh the page</p>
+        <p>The window will remember its last position and size</p>
       </Window>
     </Box>
   );
@@ -28,21 +30,23 @@ function Demo() {
   return (
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        title="No Persistence"
+        title="With Persistence"
+        id="persistent-window-demo"
         opened
         defaultPosition={{ x: 50, y: 50 }}
         defaultSize={{ width: 400, height: 300 }}
-        persistState={false}
+        persistState
         withinPortal={false}
       >
-        <Title order={4}>Position and size are not saved</Title>
-        <p>Refresh the page and this window will return to default position</p>
+        <Title order={4}>Position and size are saved in localStorage</Title>
+        <p>Move or resize this window, then refresh the page</p>
+        <p>The window will remember its last position and size</p>
       </Window>
     </Box>
   );
 }
 
-export const noPersistence: MantineDemo = {
+export const persistence: MantineDemo = {
   type: 'code',
   component: Demo,
   code,

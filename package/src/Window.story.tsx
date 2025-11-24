@@ -255,10 +255,10 @@ export function WithDragBounds() {
   );
 }
 
-export function NoPersistence() {
+export function Persistence() {
   return (
     <Stack>
-      <Window title="No Persistence" opened persistState={false}>
+      <Window title="Persistence Example" opened persistState>
         <Title order={4}>Position and size are not saved</Title>
         <p>Refresh the page and this window will return to default position</p>
       </Window>
