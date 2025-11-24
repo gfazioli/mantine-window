@@ -5,6 +5,7 @@ export const WindowStylesApi: StylesApiData<WindowFactory> = {
   selectors: {
     root: 'Root element',
     container: 'Container wrapping the window',
+    content: 'Window content area',
     header: 'Window header',
     title: 'Window title',
     closeButton: 'Close button',
@@ -31,6 +32,7 @@ export const WindowStylesApi: StylesApiData<WindowFactory> = {
     collapseButton: {},
     windowToolsButton: {},
     container: {},
+    content: {},
     resizeHandleTopLeft: {},
     resizeHandleTopRight: {},
     resizeHandleBottomLeft: {},

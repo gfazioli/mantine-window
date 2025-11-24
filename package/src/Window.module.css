@@ -34,7 +34,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--mantine-spacing-xs);
-  min-height: 40px;
+  height: 40px;
   color: var(--mantine-color-dark-1);
 
   &[data-window-draggable='true'] {

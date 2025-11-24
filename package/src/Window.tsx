@@ -36,6 +36,7 @@ import classes from './Window.module.css';
 export type WindowStylesNames =
   | 'root'
   | 'container'
+  | 'content'
   | 'header'
   | 'title'
   | 'closeButton'
@@ -53,6 +54,7 @@ export type WindowStylesNames =
 export type WindowCssVariables = {
   root: '--window-background' | '--window-radius';
   container: never;
+  content: never;
   header: never;
   title: never;
   closeButton: never;
@@ -207,6 +209,7 @@ const varsResolver = createVarsResolver<WindowFactory>((_, { radius }) => {
       '--window-radius': radius === undefined ? 'var(--mantine-radius-lg)' : getRadius(radius),
     },
     container: {},
+    content: {},
     header: {},
     title: {},
     closeButton: {},
@@ -395,7 +398,13 @@ export const Window = factory<WindowFactory>((_props, _) => {
         {/* Content */}
         {!isCollapsed && (
           <>
-            <ScrollArea className={classes.content} style={{ height: size.height - 40 }}>
+            <ScrollArea
+              {...getStyles('content', {
+                style: {
+                  height: size.height - 40,
+                },
+              })}
+            >
               {children}
             </ScrollArea>
 

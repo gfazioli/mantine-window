@@ -40,11 +40,13 @@ You can control the open and close state of the `Window` component using the `op
 The `withinPortal` prop controls how the window is positioned. When `withinPortal={true}` (default), the window uses fixed positioning relative to the viewport. When `withinPortal={false}`, it uses absolute positioning relative to its parent container.
 
 **Fixed positioning (withinPortal=true):**
+
 - Window stays in place when scrolling
 - Positioned relative to the browser viewport
 - Best for modals and overlays
 
 **Absolute positioning (withinPortal=false):**
+
 - Window is constrained within parent container
 - Parent must have `position: relative`
 - Best for embedded UI components

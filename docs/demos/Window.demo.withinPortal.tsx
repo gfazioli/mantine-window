@@ -79,7 +79,7 @@ function Demo() {
         title="Fixed Window (Portal)"
         opened={portalOpened}
         onClose={closePortal}
-        withinPortal={true}
+        withinPortal
         persistState={false}
         defaultPosition={{ x: 100, y: 100 }}
       >
