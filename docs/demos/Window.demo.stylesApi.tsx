@@ -33,6 +33,7 @@ function Demo(props: any) {
         maxWidth={500}
         maxHeight={500}
         persistState={false}
+        withinPortal={false}
         {...props}
       >
         <Title order={4}>This is a window with data</Title>
