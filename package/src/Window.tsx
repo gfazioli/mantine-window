@@ -7,6 +7,7 @@ import {
   Factory,
   factory,
   Flex,
+  getRadius,
   Paper,
   ScrollArea,
   StylesApiProps,
@@ -25,6 +26,7 @@ export type WindowStylesNames =
   | 'root'
   | 'container'
   | 'header'
+  | 'title'
   | 'closeButton'
   | 'collapseButton'
   | 'resizeHandleTopLeft'
@@ -37,9 +39,10 @@ export type WindowStylesNames =
   | 'resizeHandleLeft';
 
 export type WindowCssVariables = {
-  root: '--mantine-window-background';
+  root: '--window-background' | '--window-radius';
   container: never;
   header: never;
+  title: never;
   closeButton: never;
   collapseButton: never;
   resizeHandleTopLeft: never;
@@ -59,7 +62,10 @@ export interface WindowBaseProps {
   /** Whether the window is opened for controlled usage */
   opened?: boolean;
 
-  /** Title of the window */
+  /** Unique id of the window. Used to store window position and size. If not provided, the title is used */
+  id?: string;
+
+  /** Title of the window. Used as a fallback id if no id is provided */
   title?: string;
 
   /** Radius of the window */
@@ -107,6 +113,7 @@ export type WindowFactory = Factory<{
 
 export const defaultProps: Partial<WindowProps> = {
   withBorder: true,
+  shadow: 'md',
   resizable: 'both',
   draggable: 'both',
   collapsed: false,
@@ -115,13 +122,15 @@ export const defaultProps: Partial<WindowProps> = {
   collapsable: true,
 };
 
-const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
+const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
   return {
     root: {
-      '--mantine-window-background': 'var(--mantine-color-default)',
+      '--window-background': 'var(--mantine-color-default)',
+      '--window-radius': radius === undefined ? 'var(--mantine-radius-lg)' : getRadius(radius),
     },
     container: {},
     header: {},
+    title: {},
     closeButton: {},
     collapseButton: {},
     resizeHandleTopLeft: {},
@@ -148,6 +157,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     collapsable,
     withCloseButton,
     onClose,
+    radius,
 
     classNames,
     style,
@@ -254,7 +264,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
               )}
             </Flex>
             <Flex align="center" gap="xs" miw={0}>
-              <Text size="sm" fw={600} truncate>
+              <Text size="sm" truncate {...getStyles('title')}>
                 {title}
               </Text>
             </Flex>

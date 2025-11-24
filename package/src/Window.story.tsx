@@ -21,6 +21,16 @@ export function Usage() {
   );
 }
 
+export function LongTitle() {
+  return (
+    <Stack>
+      <Window title="Hello, World! Very Long Title Example" opened>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
 export function Controlled() {
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -158,6 +168,19 @@ export function NoCollapsable() {
   return (
     <Stack>
       <Window title="Hello World" opened collapsable={false}>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function Multiple() {
+  return (
+    <Stack>
+      <Window title="Window 1" id="w-1" opened>
+        <Title order={4}>This is a window</Title>
+      </Window>
+      <Window title="Window 2" id="w-2" opened>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>

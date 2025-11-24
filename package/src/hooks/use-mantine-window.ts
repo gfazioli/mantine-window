@@ -8,13 +8,13 @@ const INITIAL_WIDTH = 400;
 const INITIAL_HEIGHT = 400;
 
 export function useMantineWindow(props: WindowBaseProps) {
-  const { title, collapsed, opened, onClose } = props;
+  const { title, collapsed, opened, onClose, id } = props;
 
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(9998);
 
-  const key = title.toLocaleLowerCase().replace(/\s+/g, '-');
+  const key = (id || title).toLocaleLowerCase().replace(/\s+/g, '-');
 
   const [position, setPosition] = useLocalStorage({
     key: `${key}-debug-position`,
