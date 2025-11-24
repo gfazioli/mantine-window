@@ -1,7 +1,7 @@
 {
   "name": "@gfazioli/mantine-window",
-  "version": "1.0.0",
-  "description": "A Mantine extension component that renders interactive JSON trees with syntax highlighting, collapsible nodes, copy-to-clipboard, and configurable expansion depth.",
+  "version": "0.5.0",
+  "description": "A Mantine extension component that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, and flexible control over position, size, and interaction modes.",
   "homepage": "https://gfazioli.github.io/mantine-window/",
   "packageManager": "yarn@4.0.1",
   "license": "MIT",
@@ -9,7 +9,6 @@
   "keywords": [
     "extension",
     "window",
-    "json-view",
     "mantine",
     "react",
     "react-component",

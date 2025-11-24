@@ -24,7 +24,7 @@ This component is created on top of the [Mantine](https://mantine.dev/) library.
 [![Mantine UI Library](https://img.shields.io/badge/-MANTINE_UI_LIBRARY-blue?style=for-the-badge&labelColor=black&logo=mantine
 )](https://mantine.dev/)
 
-An interactive JSON tree viewer component built with Mantine's Tree component. Features collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations. Perfect for debugging API responses, exploring complex data structures, and developer tools.
+A fully-featured floating window component for Mantine applications. Provides draggable windows with customizable drag modes (header-only, full-window, or both), 8-directional resizing (top, right, bottom, left, and corners), collapsible content with smooth animations, and persistent state management via localStorage. Configure initial position, size constraints (min/max width/height), drag boundaries, and control interaction modes (none, vertical, horizontal, or both for resizing). Includes z-index management for multi-window scenarios, close/collapse buttons, and event callbacks for position and size changes. Perfect for building desktop-like interfaces, modals, tool panels, and floating widgets.
 
 [![Mantine Extensions](https://img.shields.io/badge/-Watch_the_Video-blue?style=for-the-badge&labelColor=black&logo=youtube
 )](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4)
@@ -57,9 +57,16 @@ import '@gfazioli/mantine-window/styles.css';
 
 ```tsx
 import { Window } from '@gfazioli/mantine-window';
+import { Title } from '@mantine/core';
 
 function Demo() {
-  return <Window data={{ key: "value" }} />;
+  return (
+    <Stack>
+      <Window title="Hello World" opened>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
 }
 ```
 
