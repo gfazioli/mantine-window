@@ -35,6 +35,22 @@ You can control the open and close state of the `Window` component using the `op
 
 <Demo data={demos.controlled} />
 
+## Within Portal vs Container
+
+The `withinPortal` prop controls how the window is positioned. When `withinPortal={true}` (default), the window uses fixed positioning relative to the viewport. When `withinPortal={false}`, it uses absolute positioning relative to its parent container.
+
+**Fixed positioning (withinPortal=true):**
+- Window stays in place when scrolling
+- Positioned relative to the browser viewport
+- Best for modals and overlays
+
+**Absolute positioning (withinPortal=false):**
+- Window is constrained within parent container
+- Parent must have `position: relative`
+- Best for embedded UI components
+
+<Demo data={demos.withinPortal} />
+
 ## Custom Position
 
 You can set the initial position of the window using the `defaultPosition` prop. This is useful when you want the window to appear at a specific location on the screen.

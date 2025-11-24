@@ -10,3 +10,4 @@ export { multiple } from './Window.demo.multiple';
 export { noCollapsable } from './Window.demo.noCollapsable';
 export { persistence } from './Window.demo.persistence';
 export { stylesApi } from './Window.demo.stylesApi';
+export { withinPortal } from './Window.demo.withinPortal';
