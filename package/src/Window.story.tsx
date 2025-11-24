@@ -19,6 +19,16 @@ export function Usage() {
   );
 }
 
+export function Color() {
+  return (
+    <Stack>
+      <Window title="Hello World" opened color="teal">
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
 export function LongTitle() {
   return (
     <Stack>

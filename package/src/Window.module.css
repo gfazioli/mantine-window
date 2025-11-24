@@ -8,7 +8,6 @@
   padding: 4px;
 
   &[data-window-draggable='true'] {
-    cursor: move;
     user-select: none;
   }
 }
@@ -39,13 +38,12 @@
   color: var(--mantine-color-dark-1);
 
   &[data-window-draggable='true'] {
-    cursor: move;
     user-select: none;
   }
 }
 
 .header:active {
-  cursor: grabbing;
+  cursor: default;
 }
 
 .title {

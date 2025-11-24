@@ -127,7 +127,6 @@ export function useMantineWindow(props: WindowBaseProps) {
         x: e.clientX - position.x,
         y: e.clientY - position.y,
       };
-      document.body.style.cursor = 'move';
       document.body.style.userSelect = 'none';
       e.preventDefault();
     },
@@ -437,7 +436,6 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
-      document.body.style.cursor = '';
     };
   }, [
     size.width,

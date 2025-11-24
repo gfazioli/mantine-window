@@ -26,6 +26,7 @@ import {
   useProps,
   useStyles,
   type BoxProps,
+  type MantineColor,
   type MantineRadius,
   type MantineShadow,
 } from '@mantine/core';
@@ -99,6 +100,9 @@ export interface WindowBaseProps {
   /** Whether the window is opened for controlled usage */
   opened?: boolean;
 
+  /** Color of the window */
+  color?: MantineColor;
+
   /** Unique id of the window. Used to store window position and size. If not provided, the title is used */
   id?: string;
 
@@ -156,10 +160,10 @@ export interface WindowBaseProps {
   /** Boundaries for dragging the window. If not provided, window can be dragged anywhere within viewport */
   dragBounds?: WindowBounds;
 
-  /** Whether to persist position and size in localStorage. Default: true */
+  /** Whether to persist position and size in localStorage. You have to set the `id` or `title` prop for persistence to work. Default: false */
   persistState?: boolean;
 
-  /** If true, window is positioned relative to the viewport. If false, positioned relative to parent container. Default: false */
+  /** If true, window is positioned relative to the viewport. If false, positioned relative to parent container. Default: true */
   withinPortal?: boolean;
 
   /** Called when the window is moved */
@@ -190,8 +194,8 @@ export const defaultProps: Partial<WindowProps> = {
   withCloseButton: true,
   withCollapseButton: true,
   collapsable: true,
-  persistState: true,
-  withinPortal: false,
+  persistState: false,
+  withinPortal: true,
   minWidth: 250,
   minHeight: 100,
 };
@@ -223,6 +227,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
   const props = useProps('Window', defaultProps, _props);
 
   const {
+    color,
     title,
     children,
     resizable,
@@ -329,6 +334,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       onClick={bringToFront}
       data-window-draggable={draggableWindow ? true : undefined}
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
+      bg={color}
       {...others}
       {...getStyles('root', {
         style: {
