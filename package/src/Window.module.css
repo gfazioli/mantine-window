@@ -65,11 +65,13 @@
 .collapseButton,
 .windowToolsButton {
   --ai-size: 12px;
+
   svg {
     transition: opacity 350ms ease;
     opacity: 0;
     color: var(--mantine-color-dark-9);
   }
+
   &:hover {
     svg {
       opacity: 1;

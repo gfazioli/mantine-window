@@ -282,7 +282,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
 
-  /** eslint-disable-next-line no-unused-vars */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function WindowTools() {
     return (
       <Popover radius="md" width={200} position="bottom-start" withArrow shadow="md" withinPortal>
