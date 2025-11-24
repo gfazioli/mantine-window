@@ -8,7 +8,7 @@ const INITIAL_WIDTH = 400;
 const INITIAL_HEIGHT = 400;
 
 export function useMantineWindow(props: WindowBaseProps) {
-  const { title, collapsed, collapsable, opened, onClose } = props;
+  const { title, collapsed, opened, onClose } = props;
 
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
