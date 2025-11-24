@@ -159,6 +159,9 @@ export interface WindowBaseProps {
   /** Whether to persist position and size in localStorage. Default: true */
   persistState?: boolean;
 
+  /** If true, window is positioned relative to the viewport. If false, positioned relative to parent container. Default: true */
+  withinPortal?: boolean;
+
   /** Called when the window is moved */
   onPositionChange?: (position: WindowPosition) => void;
 
@@ -188,6 +191,7 @@ export const defaultProps: Partial<WindowProps> = {
   withCollapseButton: true,
   collapsable: true,
   persistState: true,
+  withinPortal: true,
   minWidth: 250,
   minHeight: 100,
 };
@@ -229,6 +233,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     withCloseButton,
     onClose,
     radius,
+    withinPortal,
 
     classNames,
     style,
@@ -321,6 +326,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       {...others}
       {...getStyles('root', {
         style: {
+          position: withinPortal ? 'fixed' : 'absolute',
           left: position.x,
           top: position.y,
           width: size.width,

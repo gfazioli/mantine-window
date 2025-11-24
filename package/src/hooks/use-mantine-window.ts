@@ -10,6 +10,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     onClose,
     id,
     persistState = true,
+    withinPortal = true,
     defaultPosition = { x: 20, y: 100 },
     defaultSize = { width: 400, height: 400 },
     minWidth = 250,
@@ -333,9 +334,22 @@ export function useMantineWindow(props: WindowBaseProps) {
             newY = Math.min(dragBounds.maxY, newY);
           }
         } else {
-          // Default bounds: keep within viewport
-          newX = Math.max(0, Math.min(newX, window.innerWidth - size.width));
-          newY = Math.max(0, Math.min(newY, window.innerHeight - 50));
+          // Default bounds: keep within viewport or parent container
+          if (withinPortal) {
+            // Global viewport bounds
+            newX = Math.max(0, Math.min(newX, window.innerWidth - size.width));
+            newY = Math.max(0, Math.min(newY, window.innerHeight - 50));
+          } else {
+            // Parent container bounds
+            const parent = windowRef.current?.offsetParent;
+            if (parent instanceof HTMLElement) {
+              const parentRect = parent.getBoundingClientRect();
+              const parentWidth = parent.clientWidth;
+              const parentHeight = parent.clientHeight;
+              newX = Math.max(0, Math.min(newX, parentWidth - size.width));
+              newY = Math.max(0, Math.min(newY, parentHeight - 50));
+            }
+          }
         }
 
         setPosition({ x: newX, y: newY });
@@ -439,6 +453,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     minHeight,
     maxWidth,
     maxHeight,
+    withinPortal,
     setPosition,
     setSize,
   ]);

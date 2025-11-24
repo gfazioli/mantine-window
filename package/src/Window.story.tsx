@@ -299,6 +299,132 @@ export function Centered() {
   );
 }
 
+export function WithinContainer() {
+  return (
+    <Stack>
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 600,
+          border: '2px dashed var(--mantine-color-blue-5)',
+          borderRadius: 8,
+          overflow: 'hidden',
+          background: 'var(--mantine-color-default)',
+          padding: 10,
+        }}
+      >
+        <Title
+          order={5}
+          style={{
+            marginBottom: 10,
+            color: 'var(--mantine-color-blue-5)',
+          }}
+        >
+          Container with position: relative
+        </Title>
+        <Window
+          title="Window in Container"
+          id="container-window"
+          opened
+          withinPortal={false}
+          defaultPosition={{ x: 50, y: 80 }}
+          defaultSize={{ width: 400, height: 300 }}
+          persistState={false}
+        >
+          <Stack gap="sm">
+            <Title order={4}>Contained Window</Title>
+            <p>✅ This window is positioned relative to its parent container</p>
+            <p>✅ Try dragging it - it cannot leave the blue bordered area</p>
+            <p>✅ Position is absolute, not fixed</p>
+            <p>
+              <strong>withinPortal={'{false}'}</strong>
+            </p>
+          </Stack>
+        </Window>
+      </div>
+    </Stack>
+  );
+}
+
+export function MultipleContainers() {
+  return (
+    <Stack gap="xl">
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 400,
+          border: '2px dashed var(--mantine-color-red-5)',
+          borderRadius: 8,
+          overflow: 'hidden',
+          background: 'var(--mantine-color-gray-0)',
+        }}
+      >
+        <Title
+          order={5}
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            color: 'var(--mantine-color-red-5)',
+          }}
+        >
+          Container 1
+        </Title>
+        <Window
+          title="Window 1"
+          id="multi-container-1"
+          opened
+          withinPortal={false}
+          defaultPosition={{ x: 20, y: 50 }}
+          defaultSize={{ width: 350, height: 250 }}
+          persistState={false}
+        >
+          <Title order={4}>Container 1 Window</Title>
+          <p>This window lives in container 1</p>
+        </Window>
+      </div>
+
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 400,
+          border: '2px dashed var(--mantine-color-green-5)',
+          borderRadius: 8,
+          overflow: 'hidden',
+          background: 'var(--mantine-color-gray-0)',
+        }}
+      >
+        <Title
+          order={5}
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            color: 'var(--mantine-color-green-5)',
+          }}
+        >
+          Container 2
+        </Title>
+        <Window
+          title="Window 2"
+          id="multi-container-2"
+          opened
+          withinPortal={false}
+          defaultPosition={{ x: 20, y: 50 }}
+          defaultSize={{ width: 350, height: 250 }}
+          persistState={false}
+        >
+          <Title order={4}>Container 2 Window</Title>
+          <p>This window lives in container 2</p>
+        </Window>
+      </div>
+    </Stack>
+  );
+}
+
 export function FullExample() {
   return (
     <Stack>
