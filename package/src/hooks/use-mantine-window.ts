@@ -46,7 +46,7 @@ export function useMantineWindow(props: WindowBaseProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (windowRef.current && !windowRef.current.contains(event.target as Node)) {
-        setZIndex(9998);
+        setZIndex(199);
       }
     };
 
@@ -65,7 +65,7 @@ export function useMantineWindow(props: WindowBaseProps) {
   }, []);
 
   const bringToFront = useCallback(() => {
-    setZIndex(9999);
+    setZIndex(200);
   }, []);
 
   // Handle dragging

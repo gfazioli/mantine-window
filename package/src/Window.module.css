@@ -62,15 +62,23 @@
 }
 
 .closeButton,
-.collapseButton {
+.collapseButton,
+.windowToolsButton {
   svg {
-    visibility: hidden;
+    transition: opacity 350ms ease;
+    opacity: 0;
     color: var(--mantine-color-dark-9);
   }
   &:hover {
     svg {
-      visibility: visible;
+      opacity: 1;
     }
+  }
+}
+
+.windowToolsButton {
+  svg {
+    transform: rotateZ(-45deg);
   }
 }
 

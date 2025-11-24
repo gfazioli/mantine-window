@@ -1,5 +1,13 @@
 import React from 'react';
-import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
+import {
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+  IconBoxAlignLeftFilled,
+  IconCaretUpDownFilled,
+  IconMinus,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -8,8 +16,11 @@ import {
   factory,
   Flex,
   getRadius,
+  Group,
   Paper,
+  Popover,
   ScrollArea,
+  Stack,
   StylesApiProps,
   Text,
   useMantineTheme,
@@ -29,6 +40,7 @@ export type WindowStylesNames =
   | 'title'
   | 'closeButton'
   | 'collapseButton'
+  | 'windowToolsButton'
   | 'resizeHandleTopLeft'
   | 'resizeHandleTop'
   | 'resizeHandleTopRight'
@@ -45,6 +57,7 @@ export type WindowCssVariables = {
   title: never;
   closeButton: never;
   collapseButton: never;
+  windowToolsButton: never;
   resizeHandleTopLeft: never;
   resizeHandleTop: never;
   resizeHandleTopRight: never;
@@ -133,6 +146,7 @@ const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) =
     title: {},
     closeButton: {},
     collapseButton: {},
+    windowToolsButton: {},
     resizeHandleTopLeft: {},
     resizeHandleTop: {},
     resizeHandleTopRight: {},
@@ -207,6 +221,36 @@ export const Window = factory<WindowFactory>((_props, ref) => {
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
+
+  function WindowTools() {
+    return (
+      <Popover radius="md" width={200} position="bottom-start" withArrow shadow="md" withinPortal>
+        <Popover.Target>
+          <ActionIcon radius={256} size="xs" color="green" {...getStyles('windowToolsButton')}>
+            <IconCaretUpDownFilled size={14} />
+          </ActionIcon>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <Stack>
+            <Text size="xs" c="dimmed">
+              Fill and position
+            </Text>
+            <Group>
+              <ActionIcon variant="light">
+                <IconArrowsMaximize size={14} />
+              </ActionIcon>
+              <ActionIcon variant="light">
+                <IconArrowsMinimize size={14} />
+              </ActionIcon>
+              <ActionIcon variant="light">
+                <IconBoxAlignLeftFilled size={14} />
+              </ActionIcon>
+            </Group>
+          </Stack>
+        </Popover.Dropdown>
+      </Popover>
+    );
+  }
 
   if (!isVisible) {
     return null;
