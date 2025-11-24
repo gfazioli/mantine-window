@@ -47,10 +47,78 @@
   word-break: break-word;
 }
 
-.resizeHandle {
+.resizeHandleTopLeft {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  cursor: nwse-resize;
+  width: 8px;
+  height: 8px;
+}
+
+.resizeHandleTop {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+  width: 40px;
+  height: 4px;
+}
+
+.resizeHandleTopRight {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  cursor: nesw-resize;
+  width: 8px;
+  height: 8px;
+}
+
+.resizeHandleRight {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+  width: 4px;
+  height: 40px;
+}
+
+.resizeHandleBottomRight {
   position: absolute;
   right: 2px;
   bottom: 2px;
   cursor: nwse-resize;
-  color: var(--mantine-color-dark-1);
+  width: 8px;
+  height: 8px;
+}
+
+.resizeHandleBottom {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+  width: 40px;
+  height: 4px;
+}
+
+.resizeHandleBottomLeft {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  cursor: nesw-resize;
+  width: 8px;
+  height: 8px;
+}
+
+.resizeHandleLeft {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+  width: 4px;
+  height: 40px;
 }

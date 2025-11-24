@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconArrowsDiagonal2, IconMinus, IconX } from '@tabler/icons-react';
+import { IconMinus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -21,14 +21,34 @@ import {
 import { useMantineWindow } from './hooks/use-mantine-window';
 import classes from './Window.module.css';
 
-export type WindowStylesNames = 'root' | 'container' | 'header' | 'resizeHandle';
+export type WindowStylesNames =
+  | 'root'
+  | 'container'
+  | 'header'
+  | 'resizeHandleTopLeft'
+  | 'resizeHandleTop'
+  | 'resizeHandleTopRight'
+  | 'resizeHandleRight'
+  | 'resizeHandleBottomRight'
+  | 'resizeHandleBottom'
+  | 'resizeHandleBottomLeft'
+  | 'resizeHandleLeft';
 
 export type WindowCssVariables = {
   root: '--mantine-window-background';
   container: never;
   header: never;
-  resizeHandle: never;
+  resizeHandleTopLeft: never;
+  resizeHandleTop: never;
+  resizeHandleTopRight: never;
+  resizeHandleRight: never;
+  resizeHandleBottomRight: never;
+  resizeHandleBottom: never;
+  resizeHandleBottomLeft: never;
+  resizeHandleLeft: never;
 };
+
+export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
 
 export interface WindowBaseProps {
   title?: string;
@@ -36,6 +56,8 @@ export interface WindowBaseProps {
   radius?: MantineRadius | number;
   withBorder?: boolean;
   shadow?: MantineShadow;
+
+  resizable?: ResizableMode;
 
   children?: React.ReactNode;
 }
@@ -51,6 +73,7 @@ export type WindowFactory = Factory<{
 
 export const defaultProps: Partial<WindowProps> = {
   withBorder: true,
+  resizable: 'both',
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
@@ -60,7 +83,14 @@ const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
     },
     container: {},
     header: {},
-    resizeHandle: {},
+    resizeHandleTopLeft: {},
+    resizeHandleTop: {},
+    resizeHandleTopRight: {},
+    resizeHandleRight: {},
+    resizeHandleBottomRight: {},
+    resizeHandleBottom: {},
+    resizeHandleBottomLeft: {},
+    resizeHandleLeft: {},
   };
 });
 
@@ -70,6 +100,7 @@ export const Window = factory<WindowFactory>((_props, ref) => {
   const {
     title,
     children,
+    resizable,
 
     classNames,
     style,
@@ -107,7 +138,14 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     setIsVisible,
     zIndex,
     handleMouseDownDrag,
-    handleMouseDownResize,
+    handleMouseDownResizeTopLeft,
+    handleMouseDownResizeTop,
+    handleMouseDownResizeTopRight,
+    handleMouseDownResizeRight,
+    handleMouseDownResizeBottomRight,
+    handleMouseDownResizeBottom,
+    handleMouseDownResizeBottomLeft,
+    handleMouseDownResizeLeft,
   } = useMantineWindow(props);
 
   return (
@@ -161,16 +199,84 @@ export const Window = factory<WindowFactory>((_props, ref) => {
               {children}
             </ScrollArea>
 
-            {/* Resize handle */}
-            <ActionIcon
-              size="xs"
-              variant="transparent"
-              data-resize-handle
-              onMouseDown={handleMouseDownResize}
-              {...getStyles('resizeHandle')}
-            >
-              <IconArrowsDiagonal2 />
-            </ActionIcon>
+            {/* Resize handles */}
+            {resizable !== 'none' && (
+              <>
+                {/* Corner handles */}
+                {resizable === 'both' && (
+                  <>
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeTopLeft}
+                      {...getStyles('resizeHandleTopLeft')}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeTopRight}
+                      {...getStyles('resizeHandleTopRight')}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeBottomRight}
+                      {...getStyles('resizeHandleBottomRight')}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeBottomLeft}
+                      {...getStyles('resizeHandleBottomLeft')}
+                    />
+                  </>
+                )}
+
+                {/* Vertical handles */}
+                {(resizable === 'vertical' || resizable === 'both') && (
+                  <>
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeTop}
+                      {...getStyles('resizeHandleTop')}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeBottom}
+                      {...getStyles('resizeHandleBottom')}
+                    />
+                  </>
+                )}
+
+                {/* Horizontal handles */}
+                {(resizable === 'horizontal' || resizable === 'both') && (
+                  <>
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeRight}
+                      {...getStyles('resizeHandleRight')}
+                    />
+                    <ActionIcon
+                      size="xs"
+                      variant="transparent"
+                      data-resize-handle
+                      onMouseDown={handleMouseDownResizeLeft}
+                      {...getStyles('resizeHandleLeft')}
+                    />
+                  </>
+                )}
+              </>
+            )}
           </>
         )}
       </Box>
