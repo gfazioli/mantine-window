@@ -35,6 +35,60 @@ You can control the open and close state of the `Window` component using the `op
 
 <Demo data={demos.controlled} />
 
+## Custom Position
+
+You can set the initial position of the window using the `defaultPosition` prop. This is useful when you want the window to appear at a specific location on the screen.
+
+<Demo data={demos.customPosition} />
+
+## Custom Size
+
+Set custom initial dimensions for the window using the `defaultSize` prop. This allows you to control the width and height of the window when it first appears.
+
+<Demo data={demos.customSize} />
+
+## Min/Max Size Constraints
+
+Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. This prevents the window from becoming too small or too large.
+
+<Demo data={demos.minMaxSize} />
+
+## Drag Boundaries
+
+Restrict the draggable area of the window using the `dragBounds` prop. This ensures the window stays within specific boundaries and cannot be dragged outside the defined area.
+
+<Demo data={demos.dragBounds} />
+
+## Persistence
+
+By default, the window's position and size are persisted in localStorage. You can disable this behavior by setting `persistState={false}`. This is useful when you want the window to always start at the same position and size.
+
+<Demo data={demos.noPersistence} />
+
+## Callbacks
+
+Use `onPositionChange` and `onSizeChange` callbacks to respond to window movements and resize operations. These callbacks receive the current position or size as arguments.
+
+<Demo data={demos.callbacks} />
+
+## Centered Window
+
+Create a centered, fixed window that cannot be moved or resized by combining `defaultPosition`, `defaultSize`, `resizable="none"`, and `draggable="none"` props.
+
+<Demo data={demos.centered} />
+
+## Multiple Windows
+
+You can render multiple windows in the same container. Each window maintains its own z-index and can be brought to the front by clicking on it. Use unique `id` props to ensure proper state persistence.
+
+<Demo data={demos.multiple} />
+
+## Disable Collapsing
+
+Prevent the window from being collapsed by setting `collapsable={false}`. This removes the collapse functionality, including the double-click handler on the header.
+
+<Demo data={demos.noCollapsable} />
+
 ## Styles API
 
 `Window` supports [Styles API](https://mantine.dev/styles/styles-api/), you can add styles to any inner element of the component with `classNames` prop. Follow [Styles API](https://mantine.dev/styles/styles-api/) documentation to learn more.

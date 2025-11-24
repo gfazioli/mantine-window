@@ -1,3 +1,12 @@
+export { callbacks } from './Window.demo.callbacks';
+export { centered } from './Window.demo.centered';
 export { configurator } from './Window.demo.configurator';
 export { controlled } from './Window.demo.controlled';
+export { customPosition } from './Window.demo.customPosition';
+export { customSize } from './Window.demo.customSize';
+export { dragBounds } from './Window.demo.dragBounds';
+export { minMaxSize } from './Window.demo.minMaxSize';
+export { multiple } from './Window.demo.multiple';
+export { noCollapsable } from './Window.demo.noCollapsable';
+export { noPersistence } from './Window.demo.noPersistence';
 export { stylesApi } from './Window.demo.stylesApi';
