@@ -39,6 +39,19 @@
   cursor: grabbing;
 }
 
+.closeButton,
+.collapseButton {
+  svg {
+    visibility: hidden;
+    color: var(--mantine-color-dark-9);
+  }
+  &:hover {
+    svg {
+      visibility: visible;
+    }
+  }
+}
+
 .content {
   flex: 1;
   overflow: auto;

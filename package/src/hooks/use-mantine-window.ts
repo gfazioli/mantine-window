@@ -8,10 +8,10 @@ const INITIAL_WIDTH = 400;
 const INITIAL_HEIGHT = 400;
 
 export function useMantineWindow(props: WindowBaseProps) {
-  const { title, collapsed } = props;
+  const { title, collapsed, collapsable, opened, onClose } = props;
 
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(9998);
 
   const key = title.toLocaleLowerCase().replace(/\s+/g, '-');
@@ -34,6 +34,10 @@ export function useMantineWindow(props: WindowBaseProps) {
   const isResizing = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
+
+  useEffect(() => {
+    setIsVisible(opened ?? false);
+  }, [opened]);
 
   useEffect(() => {
     setIsCollapsed(collapsed ?? false);
@@ -255,6 +259,13 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleClose = useCallback(() => {
+    if (onClose) {
+      return onClose();
+    }
+    setIsVisible(false);
+  }, [onClose]);
+
   // Mouse move and up handlers
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -364,6 +375,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     handleMouseDownResizeBottom,
     handleMouseDownResizeBottomLeft,
     handleMouseDownResizeLeft,
+    handleClose,
     bringToFront,
   } as const;
 }

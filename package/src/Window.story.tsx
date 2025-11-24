@@ -1,5 +1,6 @@
 import React from 'react';
-import { Stack, Title } from '@mantine/core';
+import { Button, Stack, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { Window } from './Window';
 
 export default {
@@ -13,7 +14,20 @@ const data = {};
 export function Usage() {
   return (
     <Stack>
-      <Window title="Hello World">
+      <Window title="Hello World" opened>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function Controlled() {
+  const [opened, { open, close }] = useDisclosure(false);
+
+  return (
+    <Stack>
+      <Button onClick={open}>Open window</Button>
+      <Window title="Hello World" opened={opened} onClose={close}>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -23,7 +37,7 @@ export function Usage() {
 export function Collapsed() {
   return (
     <Stack>
-      <Window title="Hello World" collapsed>
+      <Window title="Hello World" opened collapsed>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -33,7 +47,7 @@ export function Collapsed() {
 export function WithoutBorder() {
   return (
     <Stack>
-      <Window title="Hello World" withBorder={false}>
+      <Window title="Hello World" opened withBorder={false}>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -43,7 +57,7 @@ export function WithoutBorder() {
 export function Radius() {
   return (
     <Stack>
-      <Window title="Hello World" radius={4} withBorder>
+      <Window title="Hello World" opened radius={4} withBorder>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -53,7 +67,7 @@ export function Radius() {
 export function Shadow() {
   return (
     <Stack>
-      <Window title="Hello World" shadow="sm">
+      <Window title="Hello World" opened shadow="sm">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -63,7 +77,7 @@ export function Shadow() {
 export function ResizeNone() {
   return (
     <Stack>
-      <Window title="Hello World" resizable="none">
+      <Window title="Hello World" opened resizable="none">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -73,7 +87,7 @@ export function ResizeNone() {
 export function ResizeVertical() {
   return (
     <Stack>
-      <Window title="Hello World" resizable="vertical">
+      <Window title="Hello World" opened resizable="vertical">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -83,7 +97,7 @@ export function ResizeVertical() {
 export function ResizeHorizontal() {
   return (
     <Stack>
-      <Window title="Hello World" resizable="horizontal">
+      <Window title="Hello World" opened resizable="horizontal">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -93,7 +107,7 @@ export function ResizeHorizontal() {
 export function DraggableNone() {
   return (
     <Stack>
-      <Window title="Hello World" draggable="none">
+      <Window title="Hello World" opened draggable="none">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -103,7 +117,7 @@ export function DraggableNone() {
 export function DraggableHeader() {
   return (
     <Stack>
-      <Window title="Hello World" draggable="header">
+      <Window title="Hello World" opened draggable="header">
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>
@@ -113,7 +127,37 @@ export function DraggableHeader() {
 export function DraggableWindow() {
   return (
     <Stack>
-      <Window title="Hello World" draggable="window">
+      <Window title="Hello World" opened draggable="window">
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function WithoutCloseButton() {
+  return (
+    <Stack>
+      <Window title="Hello World" opened withCloseButton={false}>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function WithoutCollapseButton() {
+  return (
+    <Stack>
+      <Window title="Hello World" opened withCollapseButton={false}>
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
+export function NoCollapsable() {
+  return (
+    <Stack>
+      <Window title="Hello World" opened collapsable={false}>
         <Title order={4}>This is a window</Title>
       </Window>
     </Stack>

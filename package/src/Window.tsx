@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconMinus, IconX } from '@tabler/icons-react';
+import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -25,6 +25,8 @@ export type WindowStylesNames =
   | 'root'
   | 'container'
   | 'header'
+  | 'closeButton'
+  | 'collapseButton'
   | 'resizeHandleTopLeft'
   | 'resizeHandleTop'
   | 'resizeHandleTopRight'
@@ -38,6 +40,8 @@ export type WindowCssVariables = {
   root: '--mantine-window-background';
   container: never;
   header: never;
+  closeButton: never;
+  collapseButton: never;
   resizeHandleTopLeft: never;
   resizeHandleTop: never;
   resizeHandleTopRight: never;
@@ -52,6 +56,8 @@ export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
 export type DraggableMode = 'none' | 'window' | 'header' | 'both';
 
 export interface WindowBaseProps {
+  opened?: boolean;
+
   /** Title of the window */
   title?: string;
 
@@ -70,7 +76,20 @@ export interface WindowBaseProps {
   /** Draggable mode of the window */
   draggable?: DraggableMode;
 
+  /** Whether the window is initially collapsed */
   collapsed?: boolean;
+
+  /** Whether the window has a collapse button */
+  withCollapseButton?: boolean;
+
+  /** Whether the window is collapsable */
+  collapsable?: boolean;
+
+  /** Whether the window has a close button */
+  withCloseButton?: boolean;
+
+  /** Called when the window is closed */
+  onClose?: () => void;
 
   /** Window content */
   children?: React.ReactNode;
@@ -90,6 +109,9 @@ export const defaultProps: Partial<WindowProps> = {
   resizable: 'both',
   draggable: 'both',
   collapsed: false,
+  withCloseButton: true,
+  withCollapseButton: true,
+  collapsable: true,
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
@@ -99,6 +121,8 @@ const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
     },
     container: {},
     header: {},
+    closeButton: {},
+    collapseButton: {},
     resizeHandleTopLeft: {},
     resizeHandleTop: {},
     resizeHandleTopRight: {},
@@ -119,6 +143,10 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     resizable,
     draggable,
     collapsed,
+    withCollapseButton,
+    collapsable,
+    withCloseButton,
+    onClose,
 
     classNames,
     style,
@@ -164,10 +192,15 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     handleMouseDownResizeBottom,
     handleMouseDownResizeBottomLeft,
     handleMouseDownResizeLeft,
+    handleClose,
   } = useMantineWindow(props);
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <Paper
@@ -193,21 +226,32 @@ export const Window = factory<WindowFactory>((_props, ref) => {
           onClick={bringToFront}
           data-window-draggable={draggableHeader ? true : undefined}
           onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
-          onDoubleClick={() => setIsCollapsed(!isCollapsed)}
+          onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
           <Flex align="center" gap="xs" miw={0}>
             <Flex align="center" gap="sm">
-              <ActionIcon radius={256} size="xs" color="red" onClick={() => setIsVisible(false)}>
-                <IconX size={14} />
-              </ActionIcon>
-              <ActionIcon
-                radius={256}
-                size="xs"
-                color="yellow"
-                onClick={() => setIsCollapsed(!isCollapsed)}
-              >
-                <IconMinus size={14} />
-              </ActionIcon>
+              {withCloseButton && (
+                <ActionIcon
+                  radius={256}
+                  size="xs"
+                  color="red"
+                  onClick={handleClose}
+                  {...getStyles('closeButton')}
+                >
+                  <IconX size={14} />
+                </ActionIcon>
+              )}
+              {withCollapseButton && collapsable && (
+                <ActionIcon
+                  radius={256}
+                  size="xs"
+                  color="yellow"
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  {...getStyles('collapseButton')}
+                >
+                  {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
+                </ActionIcon>
+              )}
             </Flex>
             <Flex align="center" gap="xs" miw={0}>
               <Text size="sm" fw={600} truncate>
