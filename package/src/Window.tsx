@@ -182,7 +182,6 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     isCollapsed,
     setIsCollapsed,
     isVisible,
-    setIsVisible,
     zIndex,
     handleMouseDownDrag,
     handleMouseDownResizeTopLeft,
