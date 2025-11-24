@@ -19,7 +19,13 @@ import '@gfazioli/mantine-window/styles.layer.css';
 
 ## Usage
 
-The `Window` is interactive JSON tree viewer component built with [Mantine's Tree component](https://mantine.dev/core/tree/). Features collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations. Perfect for debugging API responses, exploring complex data structures, and developer tools.
+The `Window` component allows you to create draggable and resizable windows within your application. It provides a familiar desktop-like experience for users. You can customize the appearance and behavior of the windows using various props. Also, you can choose whether the window should be rendered within a portal or relative to its parent container using the `withinPortal` prop.
+
+> **Note:** 
+>
+> Usually, you would want to use the `Window` component within a portal to avoid layout issues. However, if you want the window to be constrained within a specific container, you can set the `withinPortal` prop to `false` and the container should have `position: relative` style. 
+>
+> For example, in the demos below, the `Window` component is rendered relative to its parent container which has `position: relative` style.
 
 <Demo data={demos.configurator} />
 
