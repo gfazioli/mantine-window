@@ -49,16 +49,30 @@ export type WindowCssVariables = {
 };
 
 export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
+export type DraggableMode = 'none' | 'window' | 'header' | 'both';
 
 export interface WindowBaseProps {
+  /** Title of the window */
   title?: string;
 
+  /** Radius of the window */
   radius?: MantineRadius | number;
+
+  /** Whether the window has a border */
   withBorder?: boolean;
+
+  /** Shadow of the window */
   shadow?: MantineShadow;
 
+  /** Resizable mode of the window */
   resizable?: ResizableMode;
 
+  /** Draggable mode of the window */
+  draggable?: DraggableMode;
+
+  collapsed?: boolean;
+
+  /** Window content */
   children?: React.ReactNode;
 }
 
@@ -74,6 +88,8 @@ export type WindowFactory = Factory<{
 export const defaultProps: Partial<WindowProps> = {
   withBorder: true,
   resizable: 'both',
+  draggable: 'both',
+  collapsed: false,
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, {}) => {
@@ -101,6 +117,8 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     title,
     children,
     resizable,
+    draggable,
+    collapsed,
 
     classNames,
     style,
@@ -148,10 +166,15 @@ export const Window = factory<WindowFactory>((_props, ref) => {
     handleMouseDownResizeLeft,
   } = useMantineWindow(props);
 
+  const draggableHeader = draggable === 'header' || draggable === 'both';
+  const draggableWindow = draggable === 'window' || draggable === 'both';
+
   return (
     <Paper
       ref={windowRef}
       onClick={bringToFront}
+      data-window-draggable={draggableWindow ? true : undefined}
+      onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
       {...others}
       {...getStyles('root', {
         style: {
@@ -167,7 +190,9 @@ export const Window = factory<WindowFactory>((_props, ref) => {
         {/* Header */}
         <div
           {...getStyles('header')}
-          onMouseDown={handleMouseDownDrag}
+          onClick={bringToFront}
+          data-window-draggable={draggableHeader ? true : undefined}
+          onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
           onDoubleClick={() => setIsCollapsed(!isCollapsed)}
         >
           <Flex align="center" gap="xs" miw={0}>

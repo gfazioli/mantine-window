@@ -8,9 +8,9 @@ const INITIAL_WIDTH = 400;
 const INITIAL_HEIGHT = 400;
 
 export function useMantineWindow(props: WindowBaseProps) {
-  const { title } = props;
+  const { title, collapsed } = props;
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(true);
   const [zIndex, setZIndex] = useState(9998);
 
@@ -34,6 +34,10 @@ export function useMantineWindow(props: WindowBaseProps) {
   const isResizing = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
+
+  useEffect(() => {
+    setIsCollapsed(collapsed ?? false);
+  }, [collapsed]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

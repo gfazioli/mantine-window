@@ -6,6 +6,11 @@
   flex-direction: column;
   overflow: hidden;
   padding: 4px;
+
+  &[data-window-draggable='true'] {
+    cursor: move;
+    user-select: none;
+  }
 }
 
 .container {
@@ -21,10 +26,13 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--mantine-spacing-xs);
-  cursor: move;
-  user-select: none;
   min-height: 40px;
   color: var(--mantine-color-dark-1);
+
+  &[data-window-draggable='true'] {
+    cursor: move;
+    user-select: none;
+  }
 }
 
 .header:active {
