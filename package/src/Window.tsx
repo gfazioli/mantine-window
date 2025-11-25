@@ -391,7 +391,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
               )}
             </Flex>
             <Flex align="center" gap="xs" miw={0}>
-              <Text size="sm" truncate {...getStyles('title')}>
+              <Text truncate {...getStyles('title')}>
                 {title}
               </Text>
             </Flex>
