@@ -25,6 +25,7 @@ export const WindowStylesApi: StylesApiData<WindowFactory> = {
     root: {
       '--window-background': 'Background color of the window',
       '--window-radius': 'Border radius of the window',
+      '--window-shadow': 'Box shadow of the window',
     },
     header: {},
     title: {},
