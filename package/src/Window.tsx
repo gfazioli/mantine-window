@@ -16,8 +16,8 @@ import {
   factory,
   Flex,
   getRadius,
+  getShadow,
   Group,
-  Paper,
   Popover,
   ScrollArea,
   Stack,
@@ -52,7 +52,7 @@ export type WindowStylesNames =
   | 'resizeHandleLeft';
 
 export type WindowCssVariables = {
-  root: '--window-background' | '--window-radius';
+  root: '--window-background' | '--window-radius' | '--window-shadow';
   container: never;
   content: never;
   header: never;
@@ -202,11 +202,12 @@ export const defaultProps: Partial<WindowProps> = {
   minHeight: 100,
 };
 
-const varsResolver = createVarsResolver<WindowFactory>((_, { radius }) => {
+const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
   return {
     root: {
       '--window-background': 'var(--mantine-color-default)',
       '--window-radius': radius === undefined ? 'var(--mantine-radius-lg)' : getRadius(radius),
+      '--window-shadow': getShadow(shadow),
     },
     container: {},
     content: {},
@@ -253,6 +254,8 @@ export const Window = factory<WindowFactory>((_props, _) => {
     defaultSize,
     onPositionChange,
     onSizeChange,
+    withBorder,
+    mod,
 
     classNames,
     style,
@@ -337,10 +340,10 @@ export const Window = factory<WindowFactory>((_props, _) => {
   }
 
   return (
-    <Paper
+    <Box
       ref={windowRef}
       onClick={bringToFront}
-      data-window-draggable={draggableWindow ? true : undefined}
+      mod={[{ 'data-with-border': withBorder, 'data-window-draggable': draggableWindow }, mod]}
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
       bg={color}
       {...others}
@@ -489,7 +492,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
           </>
         )}
       </Box>
-    </Paper>
+    </Box>
   );
 });
 

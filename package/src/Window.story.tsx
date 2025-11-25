@@ -92,6 +92,16 @@ export function Shadow() {
   );
 }
 
+export function WithoutShadow() {
+  return (
+    <Stack>
+      <Window title="Hello World" opened shadow="none">
+        <Title order={4}>This is a window</Title>
+      </Window>
+    </Stack>
+  );
+}
+
 export function ResizeNone() {
   return (
     <Stack>

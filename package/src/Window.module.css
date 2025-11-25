@@ -2,6 +2,7 @@
   position: fixed;
   background: var(--window-background);
   border-radius: var(--window-radius);
+  box-shadow: var(--window-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -9,6 +10,14 @@
 
   &[data-window-draggable='true'] {
     user-select: none;
+  }
+
+  &:where([data-with-border]) {
+    border: rem(1px) solid var(--mantine-color-gray-1);
+
+    @mixin dark {
+      border: rem(1px) solid var(--mantine-color-gray-8);
+    }
   }
 }
 
@@ -62,7 +71,7 @@
 .closeButton,
 .collapseButton,
 .windowToolsButton {
-  --ai-size: 12px;
+  --ai-size: 12px !important;
 
   svg {
     transition: opacity 350ms ease;
