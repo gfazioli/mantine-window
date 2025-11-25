@@ -417,30 +417,22 @@ export const Window = factory<WindowFactory>((_props, _) => {
                 {/* Corner handles */}
                 {resizable === 'both' && (
                   <>
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTopLeft}
                       {...getStyles('resizeHandleTopLeft')}
                     />
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTopRight}
                       {...getStyles('resizeHandleTopRight')}
                     />
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottomRight}
                       {...getStyles('resizeHandleBottomRight')}
                     />
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottomLeft}
                       {...getStyles('resizeHandleBottomLeft')}
@@ -451,16 +443,12 @@ export const Window = factory<WindowFactory>((_props, _) => {
                 {/* Vertical handles */}
                 {(resizable === 'vertical' || resizable === 'both') && (
                   <>
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTop}
                       {...getStyles('resizeHandleTop')}
                     />
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottom}
                       {...getStyles('resizeHandleBottom')}
@@ -471,16 +459,12 @@ export const Window = factory<WindowFactory>((_props, _) => {
                 {/* Horizontal handles */}
                 {(resizable === 'horizontal' || resizable === 'both') && (
                   <>
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeRight}
                       {...getStyles('resizeHandleRight')}
                     />
-                    <ActionIcon
-                      size="xs"
-                      variant="transparent"
+                    <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeLeft}
                       {...getStyles('resizeHandleLeft')}
