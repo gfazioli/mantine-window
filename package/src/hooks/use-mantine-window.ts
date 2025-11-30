@@ -139,6 +139,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         y: touch.clientY - position.y,
       };
       document.body.style.userSelect = 'none';
+      e.preventDefault();
     },
     [position, bringToFront]
   );
