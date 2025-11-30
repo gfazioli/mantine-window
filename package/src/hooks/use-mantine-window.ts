@@ -650,6 +650,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         isDragging.current = false;
         isResizing.current = false;
         document.body.style.userSelect = '';
+        document.body.style.cursor = '';
       }
     };
 
