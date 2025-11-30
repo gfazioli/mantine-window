@@ -291,22 +291,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     zIndex,
     handleMouseDownDrag,
     handleTouchStartDrag,
-    handleMouseDownResizeTopLeft,
-    handleTouchStartResizeTopLeft,
-    handleMouseDownResizeTop,
-    handleTouchStartResizeTop,
-    handleMouseDownResizeTopRight,
-    handleTouchStartResizeTopRight,
-    handleMouseDownResizeRight,
-    handleTouchStartResizeRight,
-    handleMouseDownResizeBottomRight,
-    handleTouchStartResizeBottomRight,
-    handleMouseDownResizeBottom,
-    handleTouchStartResizeBottom,
-    handleMouseDownResizeBottomLeft,
-    handleTouchStartResizeBottomLeft,
-    handleMouseDownResizeLeft,
-    handleTouchStartResizeLeft,
+    resizeHandlers,
     handleClose,
   } = useMantineWindow(props);
 
@@ -430,26 +415,22 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   <>
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeTopLeft}
-                      onTouchStart={handleTouchStartResizeTopLeft}
+                      {...resizeHandlers.topLeft}
                       {...getStyles('resizeHandleTopLeft')}
                     />
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeTopRight}
-                      onTouchStart={handleTouchStartResizeTopRight}
+                      {...resizeHandlers.topRight}
                       {...getStyles('resizeHandleTopRight')}
                     />
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeBottomRight}
-                      onTouchStart={handleTouchStartResizeBottomRight}
+                      {...resizeHandlers.bottomRight}
                       {...getStyles('resizeHandleBottomRight')}
                     />
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeBottomLeft}
-                      onTouchStart={handleTouchStartResizeBottomLeft}
+                      {...resizeHandlers.bottomLeft}
                       {...getStyles('resizeHandleBottomLeft')}
                     />
                   </>
@@ -460,14 +441,12 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   <>
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeTop}
-                      onTouchStart={handleTouchStartResizeTop}
+                      {...resizeHandlers.top}
                       {...getStyles('resizeHandleTop')}
                     />
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeBottom}
-                      onTouchStart={handleTouchStartResizeBottom}
+                      {...resizeHandlers.bottom}
                       {...getStyles('resizeHandleBottom')}
                     />
                   </>
@@ -478,14 +457,12 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   <>
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeRight}
-                      onTouchStart={handleTouchStartResizeRight}
+                      {...resizeHandlers.right}
                       {...getStyles('resizeHandleRight')}
                     />
                     <Box
                       data-resize-handle
-                      onMouseDown={handleMouseDownResizeLeft}
-                      onTouchStart={handleTouchStartResizeLeft}
+                      {...resizeHandlers.left}
                       {...getStyles('resizeHandleLeft')}
                     />
                   </>

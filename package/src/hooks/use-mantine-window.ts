@@ -1,6 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import type { WindowBaseProps, WindowPosition, WindowSize } from '../Window';
+
+export type ResizeDirection =
+  | 'topLeft'
+  | 'top'
+  | 'topRight'
+  | 'right'
+  | 'bottomRight'
+  | 'bottom'
+  | 'bottomLeft'
+  | 'left';
+
+const CURSOR_MAP: Record<ResizeDirection, string> = {
+  topLeft: 'nwse-resize',
+  top: 'ns-resize',
+  topRight: 'nesw-resize',
+  right: 'ew-resize',
+  bottomRight: 'nwse-resize',
+  bottom: 'ns-resize',
+  bottomLeft: 'nesw-resize',
+  left: 'ew-resize',
+};
+
+export interface ResizeHandlers {
+  onMouseDown: (e: React.MouseEvent) => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+}
 
 export function useMantineWindow(props: WindowBaseProps) {
   const {
@@ -131,10 +157,6 @@ export function useMantineWindow(props: WindowBaseProps) {
         return;
       }
 
-      if (!e.touches[0]) {
-        return;
-      }
-
       const touch = e.touches[0];
       bringToFront();
       isDragging.current = true;
@@ -149,358 +171,64 @@ export function useMantineWindow(props: WindowBaseProps) {
   );
 
   // Handle resizing
-  const resizeDirection = useRef<string>('');
+  const resizeDirection = useRef<ResizeDirection | ''>('');
 
-  const handleMouseDownResizeTopLeft = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'topLeft';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
+  // Factory function to create resize handlers for a specific direction
+  const createResizeHandlers = useCallback(
+    (direction: ResizeDirection): ResizeHandlers => {
+      const onMouseDown = (e: React.MouseEvent) => {
+        bringToFront();
+        isResizing.current = true;
+        resizeDirection.current = direction;
+        resizeStart.current = {
+          x: e.clientX,
+          y: e.clientY,
+          width: size.width,
+          height: size.height,
+          posX: position.x,
+          posY: position.y,
+        };
+        document.body.style.cursor = CURSOR_MAP[direction];
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+        e.stopPropagation();
       };
-      document.body.style.cursor = 'nwse-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
+
+      const onTouchStart = (e: React.TouchEvent) => {
+        const touch = e.touches[0];
+        bringToFront();
+        isResizing.current = true;
+        resizeDirection.current = direction;
+        resizeStart.current = {
+          x: touch.clientX,
+          y: touch.clientY,
+          width: size.width,
+          height: size.height,
+          posX: position.x,
+          posY: position.y,
+        };
+        document.body.style.userSelect = 'none';
+        e.stopPropagation();
+      };
+
+      return { onMouseDown, onTouchStart };
     },
     [size, position, bringToFront]
   );
 
-  const handleTouchStartResizeTopLeft = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'topLeft';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeTop = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'top';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'ns-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeTop = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'top';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeTopRight = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'topRight';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'nesw-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeTopRight = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'topRight';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeRight = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'right';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'ew-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeRight = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'right';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeBottomRight = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottomRight';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'nwse-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeBottomRight = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottomRight';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeBottom = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottom';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'ns-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeBottom = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottom';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeBottomLeft = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottomLeft';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'nesw-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeBottomLeft = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'bottomLeft';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleMouseDownResizeLeft = useCallback(
-    (e: React.MouseEvent) => {
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'left';
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.cursor = 'ew-resize';
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
-  );
-
-  const handleTouchStartResizeLeft = useCallback(
-    (e: React.TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-      const touch = e.touches[0];
-      bringToFront();
-      isResizing.current = true;
-      resizeDirection.current = 'left';
-      resizeStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        width: size.width,
-        height: size.height,
-        posX: position.x,
-        posY: position.y,
-      };
-      document.body.style.userSelect = 'none';
-      e.stopPropagation();
-    },
-    [size, position, bringToFront]
+  // Memoized resize handlers for each direction
+  const resizeHandlers = useMemo(
+    () => ({
+      topLeft: createResizeHandlers('topLeft'),
+      top: createResizeHandlers('top'),
+      topRight: createResizeHandlers('topRight'),
+      right: createResizeHandlers('right'),
+      bottomRight: createResizeHandlers('bottomRight'),
+      bottom: createResizeHandlers('bottom'),
+      bottomLeft: createResizeHandlers('bottomLeft'),
+      left: createResizeHandlers('left'),
+    }),
+    [createResizeHandlers]
   );
 
   const handleClose = useCallback(() => {
@@ -645,9 +373,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
       if (isDragging.current || isResizing.current) {
         const touch = e.touches[0];
         if (isDragging.current) {
@@ -714,22 +439,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     windowRef,
     handleMouseDownDrag,
     handleTouchStartDrag,
-    handleMouseDownResizeTopLeft,
-    handleTouchStartResizeTopLeft,
-    handleMouseDownResizeTop,
-    handleTouchStartResizeTop,
-    handleMouseDownResizeTopRight,
-    handleTouchStartResizeTopRight,
-    handleMouseDownResizeRight,
-    handleTouchStartResizeRight,
-    handleMouseDownResizeBottomRight,
-    handleTouchStartResizeBottomRight,
-    handleMouseDownResizeBottom,
-    handleTouchStartResizeBottom,
-    handleMouseDownResizeBottomLeft,
-    handleTouchStartResizeBottomLeft,
-    handleMouseDownResizeLeft,
-    handleTouchStartResizeLeft,
+    resizeHandlers,
     handleClose,
     bringToFront,
   } as const;
