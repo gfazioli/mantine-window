@@ -1,6 +1,6 @@
 {
   "name": "@gfazioli/mantine-window",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "A Mantine extension component that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, and flexible control over position, size, and interaction modes.",
   "homepage": "https://gfazioli.github.io/mantine-window/",
   "packageManager": "yarn@4.0.1",
