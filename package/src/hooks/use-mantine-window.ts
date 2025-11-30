@@ -139,7 +139,6 @@ export function useMantineWindow(props: WindowBaseProps) {
         y: touch.clientY - position.y,
       };
       document.body.style.userSelect = 'none';
-      e.preventDefault();
     },
     [position, bringToFront]
   );
@@ -650,7 +649,6 @@ export function useMantineWindow(props: WindowBaseProps) {
         isDragging.current = false;
         isResizing.current = false;
         document.body.style.userSelect = '';
-        document.body.style.cursor = '';
       }
     };
 
@@ -668,7 +666,6 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
       document.body.style.userSelect = '';
-      document.body.style.cursor = '';
     };
   }, [applyDragBounds, handleResize, setPosition]);
 
