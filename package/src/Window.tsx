@@ -290,14 +290,23 @@ export const Window = factory<WindowFactory>((_props, _) => {
     isVisible,
     zIndex,
     handleMouseDownDrag,
+    handleTouchStartDrag,
     handleMouseDownResizeTopLeft,
+    handleTouchStartResizeTopLeft,
     handleMouseDownResizeTop,
+    handleTouchStartResizeTop,
     handleMouseDownResizeTopRight,
+    handleTouchStartResizeTopRight,
     handleMouseDownResizeRight,
+    handleTouchStartResizeRight,
     handleMouseDownResizeBottomRight,
+    handleTouchStartResizeBottomRight,
     handleMouseDownResizeBottom,
+    handleTouchStartResizeBottom,
     handleMouseDownResizeBottomLeft,
+    handleTouchStartResizeBottomLeft,
     handleMouseDownResizeLeft,
+    handleTouchStartResizeLeft,
     handleClose,
   } = useMantineWindow(props);
 
@@ -345,6 +354,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       onClick={bringToFront}
       mod={[{ 'data-with-border': withBorder, 'data-window-draggable': draggableWindow }, mod]}
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
+      onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
       bg={color}
       {...others}
       {...getStyles('root', {
@@ -365,6 +375,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
           onClick={bringToFront}
           mod={{ 'window-draggable': draggableHeader }}
           onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
+          onTouchStart={draggableHeader ? handleTouchStartDrag : undefined}
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
           <Flex align="center" gap="xs" miw={0}>
@@ -420,21 +431,25 @@ export const Window = factory<WindowFactory>((_props, _) => {
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTopLeft}
+                      onTouchStart={handleTouchStartResizeTopLeft}
                       {...getStyles('resizeHandleTopLeft')}
                     />
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTopRight}
+                      onTouchStart={handleTouchStartResizeTopRight}
                       {...getStyles('resizeHandleTopRight')}
                     />
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottomRight}
+                      onTouchStart={handleTouchStartResizeBottomRight}
                       {...getStyles('resizeHandleBottomRight')}
                     />
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottomLeft}
+                      onTouchStart={handleTouchStartResizeBottomLeft}
                       {...getStyles('resizeHandleBottomLeft')}
                     />
                   </>
@@ -446,11 +461,13 @@ export const Window = factory<WindowFactory>((_props, _) => {
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeTop}
+                      onTouchStart={handleTouchStartResizeTop}
                       {...getStyles('resizeHandleTop')}
                     />
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeBottom}
+                      onTouchStart={handleTouchStartResizeBottom}
                       {...getStyles('resizeHandleBottom')}
                     />
                   </>
@@ -462,11 +479,13 @@ export const Window = factory<WindowFactory>((_props, _) => {
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeRight}
+                      onTouchStart={handleTouchStartResizeRight}
                       {...getStyles('resizeHandleRight')}
                     />
                     <Box
                       data-resize-handle
                       onMouseDown={handleMouseDownResizeLeft}
+                      onTouchStart={handleTouchStartResizeLeft}
                       {...getStyles('resizeHandleLeft')}
                     />
                   </>

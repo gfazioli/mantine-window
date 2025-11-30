@@ -58,7 +58,12 @@ export const configurator: MantineDemo = {
   maxWidth: 500,
   code: [{ fileName: 'Demo.tsx', code, language: 'tsx' }],
   controls: [
-    { prop: 'color', type: 'color', initialValue: 'none', libraryValue: 'none' },
+    {
+      prop: 'color',
+      type: 'color',
+      initialValue: 'var(--mantine-color-default)',
+      libraryValue: 'var(--mantine-color-default)',
+    },
     {
       type: 'string',
       prop: 'title',

@@ -105,7 +105,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     setZIndex(200);
   }, []);
 
-  // Handle dragging
+  // Handle dragging (mouse)
   const handleMouseDownDrag = useCallback(
     (e: React.MouseEvent) => {
       if ((e.target as HTMLElement).closest('[data-resize-handle]')) {
@@ -120,6 +120,25 @@ export function useMantineWindow(props: WindowBaseProps) {
       };
       document.body.style.userSelect = 'none';
       e.preventDefault();
+    },
+    [position, bringToFront]
+  );
+
+  // Handle dragging (touch)
+  const handleTouchStartDrag = useCallback(
+    (e: React.TouchEvent) => {
+      if ((e.target as HTMLElement).closest('[data-resize-handle]')) {
+        return;
+      }
+
+      const touch = e.touches[0];
+      bringToFront();
+      isDragging.current = true;
+      dragStart.current = {
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y,
+      };
+      document.body.style.userSelect = 'none';
     },
     [position, bringToFront]
   );
@@ -148,6 +167,26 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleTouchStartResizeTopLeft = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'topLeft';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
   const handleMouseDownResizeTop = useCallback(
     (e: React.MouseEvent) => {
       bringToFront();
@@ -164,6 +203,26 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.body.style.cursor = 'ns-resize';
       document.body.style.userSelect = 'none';
       e.preventDefault();
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
+  const handleTouchStartResizeTop = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'top';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
       e.stopPropagation();
     },
     [size, position, bringToFront]
@@ -190,6 +249,26 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleTouchStartResizeTopRight = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'topRight';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
   const handleMouseDownResizeRight = useCallback(
     (e: React.MouseEvent) => {
       bringToFront();
@@ -206,6 +285,26 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.body.style.cursor = 'ew-resize';
       document.body.style.userSelect = 'none';
       e.preventDefault();
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
+  const handleTouchStartResizeRight = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'right';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
       e.stopPropagation();
     },
     [size, position, bringToFront]
@@ -232,6 +331,26 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleTouchStartResizeBottomRight = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'bottomRight';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
   const handleMouseDownResizeBottom = useCallback(
     (e: React.MouseEvent) => {
       bringToFront();
@@ -248,6 +367,26 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.body.style.cursor = 'ns-resize';
       document.body.style.userSelect = 'none';
       e.preventDefault();
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
+  const handleTouchStartResizeBottom = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'bottom';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
       e.stopPropagation();
     },
     [size, position, bringToFront]
@@ -274,6 +413,26 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleTouchStartResizeBottomLeft = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'bottomLeft';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
   const handleMouseDownResizeLeft = useCallback(
     (e: React.MouseEvent) => {
       bringToFront();
@@ -295,6 +454,26 @@ export function useMantineWindow(props: WindowBaseProps) {
     [size, position, bringToFront]
   );
 
+  const handleTouchStartResizeLeft = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      bringToFront();
+      isResizing.current = true;
+      resizeDirection.current = 'left';
+      resizeStart.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        posX: position.x,
+        posY: position.y,
+      };
+      document.body.style.userSelect = 'none';
+      e.stopPropagation();
+    },
+    [size, position, bringToFront]
+  );
+
   const handleClose = useCallback(() => {
     if (onClose) {
       return onClose();
@@ -302,111 +481,157 @@ export function useMantineWindow(props: WindowBaseProps) {
     setIsVisible(false);
   }, [onClose]);
 
-  // Mouse move and up handlers
+  // Helper to clamp width and height
+  const clampWidth = useCallback(
+    (w: number) => {
+      let clamped = Math.max(minWidth, w);
+      if (maxWidth !== undefined) {
+        clamped = Math.min(maxWidth, clamped);
+      }
+      return clamped;
+    },
+    [minWidth, maxWidth]
+  );
+
+  const clampHeight = useCallback(
+    (h: number) => {
+      let clamped = Math.max(minHeight, h);
+      if (maxHeight !== undefined) {
+        clamped = Math.min(maxHeight, clamped);
+      }
+      return clamped;
+    },
+    [minHeight, maxHeight]
+  );
+
+  // Helper to apply bounds during drag
+  const applyDragBounds = useCallback(
+    (newX: number, newY: number): { x: number; y: number } => {
+      let boundedX = newX;
+      let boundedY = newY;
+
+      if (dragBounds) {
+        if (dragBounds.minX !== undefined) {
+          boundedX = Math.max(dragBounds.minX, boundedX);
+        }
+        if (dragBounds.maxX !== undefined) {
+          boundedX = Math.min(dragBounds.maxX, boundedX);
+        }
+        if (dragBounds.minY !== undefined) {
+          boundedY = Math.max(dragBounds.minY, boundedY);
+        }
+        if (dragBounds.maxY !== undefined) {
+          boundedY = Math.min(dragBounds.maxY, boundedY);
+        }
+      } else if (withinPortal) {
+        // Global viewport bounds
+        boundedX = Math.max(0, Math.min(boundedX, window.innerWidth - size.width));
+        boundedY = Math.max(0, Math.min(boundedY, window.innerHeight - 50));
+      } else {
+        // Parent container bounds
+        const parent = windowRef.current?.offsetParent;
+        if (parent instanceof HTMLElement) {
+          const parentWidth = parent.clientWidth;
+          const parentHeight = parent.clientHeight;
+          boundedX = Math.max(0, Math.min(boundedX, parentWidth - size.width));
+          boundedY = Math.max(0, Math.min(boundedY, parentHeight - 50));
+        }
+      }
+
+      return { x: boundedX, y: boundedY };
+    },
+    [dragBounds, withinPortal, size.width]
+  );
+
+  // Helper to handle resize logic
+  const handleResize = useCallback(
+    (clientX: number, clientY: number) => {
+      const deltaX = clientX - resizeStart.current.x;
+      const deltaY = clientY - resizeStart.current.y;
+
+      let newWidth = size.width;
+      let newHeight = size.height;
+      let newX = resizeStart.current.posX;
+      let newY = resizeStart.current.posY;
+
+      switch (resizeDirection.current) {
+        case 'topLeft':
+          newWidth = clampWidth(resizeStart.current.width - deltaX);
+          newHeight = clampHeight(resizeStart.current.height - deltaY);
+          newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
+          newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          break;
+        case 'top':
+          newHeight = clampHeight(resizeStart.current.height - deltaY);
+          newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          break;
+        case 'topRight':
+          newWidth = clampWidth(resizeStart.current.width + deltaX);
+          newHeight = clampHeight(resizeStart.current.height - deltaY);
+          newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          break;
+        case 'right':
+          newWidth = clampWidth(resizeStart.current.width + deltaX);
+          break;
+        case 'bottomRight':
+          newWidth = clampWidth(resizeStart.current.width + deltaX);
+          newHeight = clampHeight(resizeStart.current.height + deltaY);
+          break;
+        case 'bottom':
+          newHeight = clampHeight(resizeStart.current.height + deltaY);
+          break;
+        case 'bottomLeft':
+          newWidth = clampWidth(resizeStart.current.width - deltaX);
+          newHeight = clampHeight(resizeStart.current.height + deltaY);
+          newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
+          break;
+        case 'left':
+          newWidth = clampWidth(resizeStart.current.width - deltaX);
+          newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
+          break;
+      }
+
+      setSize({ width: newWidth, height: newHeight });
+      if (newX !== resizeStart.current.posX || newY !== resizeStart.current.posY) {
+        setPosition({ x: newX, y: newY });
+      }
+    },
+    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition]
+  );
+
+  // Mouse and touch move/up/end handlers
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging.current) {
-        let newX = e.clientX - dragStart.current.x;
-        let newY = e.clientY - dragStart.current.y;
-
-        // Apply drag bounds if provided
-        if (dragBounds) {
-          if (dragBounds.minX !== undefined) {
-            newX = Math.max(dragBounds.minX, newX);
-          }
-          if (dragBounds.maxX !== undefined) {
-            newX = Math.min(dragBounds.maxX, newX);
-          }
-          if (dragBounds.minY !== undefined) {
-            newY = Math.max(dragBounds.minY, newY);
-          }
-          if (dragBounds.maxY !== undefined) {
-            newY = Math.min(dragBounds.maxY, newY);
-          }
-        } else if (withinPortal) {
-          // Global viewport bounds
-          newX = Math.max(0, Math.min(newX, window.innerWidth - size.width));
-          newY = Math.max(0, Math.min(newY, window.innerHeight - 50));
-        } else {
-          // Parent container bounds
-          const parent = windowRef.current?.offsetParent;
-          if (parent instanceof HTMLElement) {
-            const parentWidth = parent.clientWidth;
-            const parentHeight = parent.clientHeight;
-            newX = Math.max(0, Math.min(newX, parentWidth - size.width));
-            newY = Math.max(0, Math.min(newY, parentHeight - 50));
-          }
-        }
-
-        setPosition({ x: newX, y: newY });
+        const newPos = applyDragBounds(
+          e.clientX - dragStart.current.x,
+          e.clientY - dragStart.current.y
+        );
+        setPosition(newPos);
       }
 
       if (isResizing.current) {
-        const deltaX = e.clientX - resizeStart.current.x;
-        const deltaY = e.clientY - resizeStart.current.y;
+        handleResize(e.clientX, e.clientY);
+      }
+    };
 
-        let newWidth = size.width;
-        let newHeight = size.height;
-        let newX = resizeStart.current.posX;
-        let newY = resizeStart.current.posY;
-
-        // Helper to clamp width and height
-        const clampWidth = (w: number) => {
-          let clamped = Math.max(minWidth, w);
-          if (maxWidth !== undefined) {
-            clamped = Math.min(maxWidth, clamped);
-          }
-          return clamped;
-        };
-        const clampHeight = (h: number) => {
-          let clamped = Math.max(minHeight, h);
-          if (maxHeight !== undefined) {
-            clamped = Math.min(maxHeight, clamped);
-          }
-          return clamped;
-        };
-
-        switch (resizeDirection.current) {
-          case 'topLeft':
-            newWidth = clampWidth(resizeStart.current.width - deltaX);
-            newHeight = clampHeight(resizeStart.current.height - deltaY);
-            newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
-            newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
-            break;
-          case 'top':
-            newHeight = clampHeight(resizeStart.current.height - deltaY);
-            newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
-            break;
-          case 'topRight':
-            newWidth = clampWidth(resizeStart.current.width + deltaX);
-            newHeight = clampHeight(resizeStart.current.height - deltaY);
-            newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
-            break;
-          case 'right':
-            newWidth = clampWidth(resizeStart.current.width + deltaX);
-            break;
-          case 'bottomRight':
-            newWidth = clampWidth(resizeStart.current.width + deltaX);
-            newHeight = clampHeight(resizeStart.current.height + deltaY);
-            break;
-          case 'bottom':
-            newHeight = clampHeight(resizeStart.current.height + deltaY);
-            break;
-          case 'bottomLeft':
-            newWidth = clampWidth(resizeStart.current.width - deltaX);
-            newHeight = clampHeight(resizeStart.current.height + deltaY);
-            newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
-            break;
-          case 'left':
-            newWidth = clampWidth(resizeStart.current.width - deltaX);
-            newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
-            break;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDragging.current || isResizing.current) {
+        const touch = e.touches[0];
+        if (isDragging.current) {
+          const newPos = applyDragBounds(
+            touch.clientX - dragStart.current.x,
+            touch.clientY - dragStart.current.y
+          );
+          setPosition(newPos);
         }
 
-        setSize({ width: newWidth, height: newHeight });
-        if (newX !== resizeStart.current.posX || newY !== resizeStart.current.posY) {
-          setPosition({ x: newX, y: newY });
+        if (isResizing.current) {
+          handleResize(touch.clientX, touch.clientY);
         }
+
+        // Prevent scrolling while dragging/resizing
+        e.preventDefault();
       }
     };
 
@@ -419,29 +644,30 @@ export function useMantineWindow(props: WindowBaseProps) {
       }
     };
 
+    const handleTouchEnd = () => {
+      if (isDragging.current || isResizing.current) {
+        isDragging.current = false;
+        isResizing.current = false;
+        document.body.style.userSelect = '';
+      }
+    };
+
     // Always attach listeners
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
       document.body.style.userSelect = '';
     };
-  }, [
-    size.width,
-    size.height,
-    position.x,
-    position.y,
-    dragBounds,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-    withinPortal,
-    setPosition,
-    setSize,
-  ]);
+  }, [applyDragBounds, handleResize, setPosition]);
 
   return {
     isCollapsed,
@@ -453,14 +679,23 @@ export function useMantineWindow(props: WindowBaseProps) {
     size,
     windowRef,
     handleMouseDownDrag,
+    handleTouchStartDrag,
     handleMouseDownResizeTopLeft,
+    handleTouchStartResizeTopLeft,
     handleMouseDownResizeTop,
+    handleTouchStartResizeTop,
     handleMouseDownResizeTopRight,
+    handleTouchStartResizeTopRight,
     handleMouseDownResizeRight,
+    handleTouchStartResizeRight,
     handleMouseDownResizeBottomRight,
+    handleTouchStartResizeBottomRight,
     handleMouseDownResizeBottom,
+    handleTouchStartResizeBottom,
     handleMouseDownResizeBottomLeft,
+    handleTouchStartResizeBottomLeft,
     handleMouseDownResizeLeft,
+    handleTouchStartResizeLeft,
     handleClose,
     bringToFront,
   } as const;
