@@ -131,6 +131,10 @@ export function useMantineWindow(props: WindowBaseProps) {
         return;
       }
 
+      if (!e.touches[0]) {
+        return;
+      }
+
       const touch = e.touches[0];
       bringToFront();
       isDragging.current = true;
@@ -170,6 +174,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeTopLeft = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -211,6 +218,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeTop = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -252,6 +262,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeTopRight = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -293,6 +306,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeRight = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -334,6 +350,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeBottomRight = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -375,6 +394,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeBottom = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -416,6 +438,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeBottomLeft = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
@@ -457,6 +482,9 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const handleTouchStartResizeLeft = useCallback(
     (e: React.TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       const touch = e.touches[0];
       bringToFront();
       isResizing.current = true;
