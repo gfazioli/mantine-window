@@ -668,6 +668,7 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
       document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     };
   }, [applyDragBounds, handleResize, setPosition]);
 
