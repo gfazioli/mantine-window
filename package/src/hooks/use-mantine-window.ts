@@ -617,6 +617,9 @@ export function useMantineWindow(props: WindowBaseProps) {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) {
+        return;
+      }
       if (isDragging.current || isResizing.current) {
         const touch = e.touches[0];
         if (isDragging.current) {
