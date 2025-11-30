@@ -12,10 +12,6 @@
   overflow: hidden;
   padding: 4px;
 
-  &[data-window-draggable='true'] {
-    user-select: none;
-  }
-
   &:where([data-with-border]) {
     border: rem(1px) solid var(--mantine-color-gray-1);
 
@@ -49,9 +45,12 @@
   padding: var(--mantine-spacing-xs);
   height: 40px;
   color: var(--mantine-color-dark-1);
+  -webkit-touch-callout: none;
 
   &[data-window-draggable='true'] {
     user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
   }
 }
 
@@ -119,6 +118,9 @@
   top: 0;
   width: var(--window-handle-square);
   height: var(--window-handle-square);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleTop {
@@ -129,6 +131,9 @@
   cursor: ns-resize;
   width: var(--window-handle-length);
   height: var(--window-handle-size);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleTopRight {
@@ -138,6 +143,9 @@
   top: 0;
   width: var(--window-handle-square);
   height: var(--window-handle-square);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleRight {
@@ -148,6 +156,9 @@
   top: 50%;
   width: var(--window-handle-size);
   height: var(--window-handle-length);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleBottomRight {
@@ -157,6 +168,9 @@
   cursor: nwse-resize;
   width: var(--window-handle-square);
   height: var(--window-handle-square);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleBottom {
@@ -167,6 +181,9 @@
   cursor: ns-resize;
   width: var(--window-handle-length);
   height: var(--window-handle-size);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleBottomLeft {
@@ -176,6 +193,9 @@
   cursor: nesw-resize;
   width: var(--window-handle-square);
   height: var(--window-handle-square);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .resizeHandleLeft {
@@ -186,4 +206,7 @@
   cursor: ew-resize;
   width: var(--window-handle-size);
   height: var(--window-handle-length);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
