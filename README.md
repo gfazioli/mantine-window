@@ -1,12 +1,6 @@
 # Mantine Window Component
 
-<div align="center">
-
-https://github.com/user-attachments/assets/7f80b2c0-90b1-442f-82c8-fddb75cca14e
-
-</div>
-
----
+<img width="1376" height="768" alt="Gemini_Generated_Image_hr8hs4hr8hs4hr8h" src="https://github.com/user-attachments/assets/159a1cf3-b3aa-4eed-9586-c63af9974cac" />
 
 <div align="center">
   
@@ -73,5 +67,12 @@ function Demo() {
 <div align="center">
   
 [![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-window&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-window&Timeline)
+
+---
+<div align="center">
+
+https://github.com/user-attachments/assets/7f80b2c0-90b1-442f-82c8-fddb75cca14e
+
+</div>
 
 </div>
