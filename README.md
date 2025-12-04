@@ -1,6 +1,6 @@
 # Mantine Window Component
 
-<img width="1376" height="768" alt="Gemini_Generated_Image_hr8hs4hr8hs4hr8h" src="https://github.com/user-attachments/assets/159a1cf3-b3aa-4eed-9586-c63af9974cac" />
+<img width="2752" height="1536" alt="Mantine Window" src="https://github.com/user-attachments/assets/398a2a91-34d2-4819-a10a-791057e5b2ef" />
 
 <div align="center">
   
@@ -18,7 +18,9 @@ This component is created on top of the [Mantine](https://mantine.dev/) library.
 [![Mantine UI Library](https://img.shields.io/badge/-MANTINE_UI_LIBRARY-blue?style=for-the-badge&labelColor=black&logo=mantine
 )](https://mantine.dev/)
 
-A fully-featured floating window component for Mantine applications. Provides draggable windows with customizable drag modes (header-only, full-window, or both), 8-directional resizing (top, right, bottom, left, and corners), collapsible content with smooth animations, and persistent state management via localStorage. Configure initial position, size constraints (min/max width/height), drag boundaries, and control interaction modes (none, vertical, horizontal, or both for resizing). Includes z-index management for multi-window scenarios, close/collapse buttons, and event callbacks for position and size changes. Perfect for building desktop-like interfaces, modals, tool panels, and floating widgets.
+A fully-featured floating window component for Mantine applications. Provides draggable windows with customizable drag modes (header-only, full-window, or both), 8-directional resizing (top, right, bottom, left, and corners), collapsible content with smooth animations, and persistent state management via localStorage. 
+
+Configure initial position, size constraints (min/max width/height), drag boundaries, and control interaction modes (none, vertical, horizontal, or both for resizing). Includes z-index management for multi-window scenarios, close/collapse buttons, and event callbacks for position and size changes. Perfect for building desktop-like interfaces, modals, tool panels, and floating widgets.
 
 [![Mantine Extensions](https://img.shields.io/badge/-Watch_the_Video-blue?style=for-the-badge&labelColor=black&logo=youtube
 )](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4)
@@ -68,11 +70,7 @@ function Demo() {
   
 [![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-window&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-window&Timeline)
 
----
-<div align="center">
+</div>
 
 https://github.com/user-attachments/assets/7f80b2c0-90b1-442f-82c8-fddb75cca14e
 
-</div>
-
-</div>
