@@ -15,22 +15,15 @@
 
 This component is created on top of the [Mantine](https://mantine.dev/) library.
 
-[![Mantine UI Library](https://img.shields.io/badge/-MANTINE_UI_LIBRARY-blue?style=for-the-badge&labelColor=black&logo=mantine
-)](https://mantine.dev/)
+[Mantine Window](https://gfazioli.github.io/mantine-window/) is a versatile UI container that brings a familiar desktop‑like window experience to React applications built with Mantine. 
 
-A fully-featured floating window component for Mantine applications. Provides draggable windows with customizable drag modes (header-only, full-window, or both), 8-directional resizing (top, right, bottom, left, and corners), collapsible content with smooth animations, and persistent state management via localStorage. 
+You can render windows in a portal for fixed, scroll‑independent overlays, or constrain them to a specific parent by setting withinPortal to false and using a relative container. The component supports both uncontrolled defaults (position and size) and controlled visibility via opened/onClose, plus optional drag boundaries to keep windows within prescribed X/Y ranges. 
 
-Configure initial position, size constraints (min/max width/height), drag boundaries, and control interaction modes (none, vertical, horizontal, or both for resizing). Includes z-index management for multi-window scenarios, close/collapse buttons, and event callbacks for position and size changes. Perfect for building desktop-like interfaces, modals, tool panels, and floating widgets.
+For state continuity, it can persist position and size to localStorage, and it exposes onPositionChange and onSizeChange callbacks for reacting to user interactions. The window’s behavior and chrome are configurable—draggable and resizable modes, collapse/close buttons, non‑collapsible headers, and centered, immovable presets—while appearance is tailored through Mantine’s Styles API with fine‑grained classNames for internal elements. Together, these features make it a robust foundation for modals, tools, and embedded UI panels in complex interfaces.
 
-[![Mantine Extensions](https://img.shields.io/badge/-Watch_the_Video-blue?style=for-the-badge&labelColor=black&logo=youtube
-)](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4)
-[![Demo and Documentation](https://img.shields.io/badge/-Demo_%26_Documentation-blue?style=for-the-badge&labelColor=black&logo=typescript
-)](https://gfazioli.github.io/mantine-window/)
-[![Mantine Extensions HUB](https://img.shields.io/badge/-Mantine_Extensions_Hub-blue?style=for-the-badge&labelColor=blue
-)](https://mantine-extensions.vercel.app/)
-
-
-👉 You can find more components on the [Mantine Extensions Hub](https://mantine-extensions.vercel.app/) library.
+> [!note]
+>
+> → [Demo and Documentation](https://gfazioli.github.io/mantine-window/) → [Youtube Video](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4) → [More Mantine Components](https://mantine-extensions.vercel.app/)
 
 ## Installation
 
@@ -65,12 +58,8 @@ function Demo() {
   );
 }
 ```
-
-<div align="center">
-  
-[![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-window&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-window&Timeline)
-
-</div>
-
+---
 https://github.com/user-attachments/assets/7f80b2c0-90b1-442f-82c8-fddb75cca14e
 
+---
+[![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-window&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-window&Timeline)
