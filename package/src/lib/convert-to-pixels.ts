@@ -28,25 +28,38 @@ export function convertToPixels(
 
   // Handle pixels (e.g., "300px")
   if (stringValue.endsWith('px')) {
-    return parseFloat(stringValue);
+    const parsed = parseFloat(stringValue);
+    return isFinite(parsed) ? parsed : undefined;
   }
 
   // Handle viewport height (e.g., "50vh")
   if (stringValue.endsWith('vh')) {
     const percentage = parseFloat(stringValue);
-    return (percentage / 100) * window.innerHeight;
+    if (!isFinite(percentage)) {
+      return undefined;
+    }
+    const result = (percentage / 100) * window.innerHeight;
+    return isFinite(result) ? result : undefined;
   }
 
   // Handle viewport width (e.g., "80vw")
   if (stringValue.endsWith('vw')) {
     const percentage = parseFloat(stringValue);
-    return (percentage / 100) * window.innerWidth;
+    if (!isFinite(percentage)) {
+      return undefined;
+    }
+    const result = (percentage / 100) * window.innerWidth;
+    return isFinite(result) ? result : undefined;
   }
 
   // Handle percentage (e.g., "50%")
   if (stringValue.endsWith('%') && referenceSize !== undefined) {
     const percentage = parseFloat(stringValue);
-    return (percentage / 100) * referenceSize;
+    if (!isFinite(percentage)) {
+      return undefined;
+    }
+    const result = (percentage / 100) * referenceSize;
+    return isFinite(result) ? result : undefined;
   }
 
   // If no unit is specified, try to parse as a number
