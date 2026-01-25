@@ -275,17 +275,37 @@ export function useMantineWindow(props: WindowBaseProps) {
       let boundedY = newY;
 
       if (dragBounds) {
-        if (dragBounds.minX !== undefined) {
-          boundedX = Math.max(dragBounds.minX, boundedX);
+        // Get reference dimensions for percentage calculations
+        let refWidth = window.innerWidth;
+        let refHeight = window.innerHeight;
+
+        if (!withinPortal) {
+          const parent = windowRef.current?.offsetParent;
+          if (parent instanceof HTMLElement) {
+            refWidth = parent.clientWidth;
+            refHeight = parent.clientHeight;
+          }
         }
-        if (dragBounds.maxX !== undefined) {
-          boundedX = Math.min(dragBounds.maxX, boundedX);
+
+        // Convert bounds to pixels, using appropriate reference dimension
+        // For X coordinates, use width as reference for percentages
+        const minXPx = convertToPixels(dragBounds.minX, refWidth);
+        const maxXPx = convertToPixels(dragBounds.maxX, refWidth);
+        // For Y coordinates, use height as reference for percentages
+        const minYPx = convertToPixels(dragBounds.minY, refHeight);
+        const maxYPx = convertToPixels(dragBounds.maxY, refHeight);
+
+        if (minXPx !== undefined) {
+          boundedX = Math.max(minXPx, boundedX);
         }
-        if (dragBounds.minY !== undefined) {
-          boundedY = Math.max(dragBounds.minY, boundedY);
+        if (maxXPx !== undefined) {
+          boundedX = Math.min(maxXPx, boundedX);
         }
-        if (dragBounds.maxY !== undefined) {
-          boundedY = Math.min(dragBounds.maxY, boundedY);
+        if (minYPx !== undefined) {
+          boundedY = Math.max(minYPx, boundedY);
+        }
+        if (maxYPx !== undefined) {
+          boundedY = Math.min(maxYPx, boundedY);
         }
       } else if (withinPortal) {
         // Global viewport bounds

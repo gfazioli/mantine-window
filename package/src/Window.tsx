@@ -74,14 +74,14 @@ export type ResizableMode = 'none' | 'vertical' | 'horizontal' | 'both';
 export type DraggableMode = 'none' | 'window' | 'header' | 'both';
 
 export interface WindowBounds {
-  /** Minimum x coordinate (left boundary) */
-  minX?: number;
-  /** Maximum x coordinate (right boundary) */
-  maxX?: number;
-  /** Minimum y coordinate (top boundary) */
-  minY?: number;
-  /** Maximum y coordinate (bottom boundary) */
-  maxY?: number;
+  /** Minimum x coordinate (left boundary). Supports pixels (number), viewport width ('10vw'), viewport height ('5vh'), or percentages ('10%'). */
+  minX?: number | string;
+  /** Maximum x coordinate (right boundary). Supports pixels (number), viewport width ('90vw'), viewport height ('95vh'), or percentages ('90%'). */
+  maxX?: number | string;
+  /** Minimum y coordinate (top boundary). Supports pixels (number), viewport width ('5vw'), viewport height ('10vh'), or percentages ('10%'). */
+  minY?: number | string;
+  /** Maximum y coordinate (bottom boundary). Supports pixels (number), viewport width ('95vw'), viewport height ('90vh'), or percentages ('90%'). */
+  maxY?: number | string;
 }
 
 export interface WindowSize {

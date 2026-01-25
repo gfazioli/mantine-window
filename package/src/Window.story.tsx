@@ -564,3 +564,103 @@ export function MixedConstraints() {
     </Stack>
   );
 }
+
+export function ViewportDragBounds() {
+  return (
+    <Stack>
+      <Window
+        title="Viewport-based Drag Bounds"
+        opened
+        defaultPosition={{ x: 100, y: 100 }}
+        defaultSize={{ width: 400, height: 300 }}
+        dragBounds={{
+          minX: '10vw',
+          maxX: '70vw',
+          minY: '10vh',
+          maxY: '70vh',
+        }}
+        persistState={false}
+      >
+        <Title order={4}>Viewport-based Boundaries</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>X Bounds:</strong> 10vw to 70vw
+          </p>
+          <p>
+            <strong>Y Bounds:</strong> 10vh to 70vh
+          </p>
+          <p>Try dragging this window - it stays within viewport-based boundaries!</p>
+          <p>Resize your browser to see bounds adapt.</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function PercentageDragBounds() {
+  return (
+    <Stack>
+      <Window
+        title="Percentage Drag Bounds"
+        opened
+        defaultPosition={{ x: 50, y: 50 }}
+        defaultSize={{ width: 350, height: 280 }}
+        dragBounds={{
+          minX: '5%',
+          maxX: '75%',
+          minY: '5%',
+          maxY: '75%',
+        }}
+        persistState={false}
+      >
+        <Title order={4}>Percentage Boundaries</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>X Bounds:</strong> 5% to 75%
+          </p>
+          <p>
+            <strong>Y Bounds:</strong> 5% to 75%
+          </p>
+          <p>Boundaries are percentage of viewport/container size.</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function MixedDragBounds() {
+  return (
+    <Stack>
+      <Window
+        title="Mixed Unit Drag Bounds"
+        opened
+        defaultPosition={{ x: 100, y: 100 }}
+        defaultSize={{ width: 400, height: 300 }}
+        dragBounds={{
+          minX: 50,
+          maxX: '80vw',
+          minY: '10vh',
+          maxY: 600,
+        }}
+        persistState={false}
+      >
+        <Title order={4}>Mixed Unit Boundaries</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Min X:</strong> 50px (fixed)
+          </p>
+          <p>
+            <strong>Max X:</strong> 80vw (viewport-based)
+          </p>
+          <p>
+            <strong>Min Y:</strong> 10vh (viewport-based)
+          </p>
+          <p>
+            <strong>Max Y:</strong> 600px (fixed)
+          </p>
+          <p>Mix different unit types for flexible boundaries!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
