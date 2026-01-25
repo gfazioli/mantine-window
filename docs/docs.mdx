@@ -89,6 +89,24 @@ Restrict the draggable area of the window using the `dragBounds` prop. This ensu
 
 <Demo data={demos.dragBounds} />
 
+## Viewport-based Drag Boundaries
+
+Use viewport units (`vw` for width, `vh` for height) to create responsive drag boundaries that adapt to the browser window size. This is useful for ensuring windows stay within proportional boundaries regardless of screen size.
+
+<Demo data={demos.viewportDragBounds} />
+
+## Percentage Drag Boundaries
+
+Define drag boundaries using percentage values relative to the viewport or container size. Percentages provide a flexible way to constrain window movement proportionally.
+
+<Demo data={demos.percentageDragBounds} />
+
+## Mixed Unit Drag Boundaries
+
+Combine different unit types (pixels, viewport units, percentages) for drag boundaries to create sophisticated constraints that meet your specific requirements.
+
+<Demo data={demos.mixedDragBounds} />
+
 ## Persistence
 
 Enable state persistence to save the window's position and size in localStorage by setting `persistState={true}` (default is `true`). When enabled, the window will remember its position and size across page refreshes. Set `persistState={false}` to disable this behavior and always start at the default position and size.
