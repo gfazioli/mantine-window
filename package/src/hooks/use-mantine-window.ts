@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
+import { convertToPixels } from '../lib/convert-to-pixels';
 import type { WindowBaseProps, WindowPosition, WindowSize } from '../Window';
 
 export type ResizeDirection =
@@ -241,9 +242,12 @@ export function useMantineWindow(props: WindowBaseProps) {
   // Helper to clamp width and height
   const clampWidth = useCallback(
     (w: number) => {
-      let clamped = Math.max(minWidth, w);
-      if (maxWidth !== undefined) {
-        clamped = Math.min(maxWidth, clamped);
+      const minWidthPx = convertToPixels(minWidth) ?? 250;
+      const maxWidthPx = convertToPixels(maxWidth);
+
+      let clamped = Math.max(minWidthPx, w);
+      if (maxWidthPx !== undefined) {
+        clamped = Math.min(maxWidthPx, clamped);
       }
       return clamped;
     },
@@ -252,9 +256,12 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const clampHeight = useCallback(
     (h: number) => {
-      let clamped = Math.max(minHeight, h);
-      if (maxHeight !== undefined) {
-        clamped = Math.min(maxHeight, clamped);
+      const minHeightPx = convertToPixels(minHeight) ?? 100;
+      const maxHeightPx = convertToPixels(maxHeight);
+
+      let clamped = Math.max(minHeightPx, h);
+      if (maxHeightPx !== undefined) {
+        clamped = Math.min(maxHeightPx, clamped);
       }
       return clamped;
     },

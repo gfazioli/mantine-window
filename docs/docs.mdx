@@ -71,6 +71,18 @@ Control the minimum and maximum dimensions during resize operations using `minWi
 
 <Demo data={demos.minMaxSize} />
 
+## Viewport-based Constraints
+
+You can use viewport units (`vw` for width, `vh` for height) to create responsive constraints that adapt to the browser window size. This is particularly useful for creating windows that scale proportionally with the viewport.
+
+<Demo data={demos.viewportConstraints} />
+
+## Mixed Unit Constraints
+
+Mix different unit types for more flexible sizing. You can combine fixed pixel values with viewport units to create hybrid constraints that work best for your use case.
+
+<Demo data={demos.mixedConstraints} />
+
 ## Drag Boundaries
 
 Restrict the draggable area of the window using the `dragBounds` prop. This ensures the window stays within specific boundaries and cannot be dragged outside the defined area.
