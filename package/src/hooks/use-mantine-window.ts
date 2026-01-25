@@ -249,9 +249,19 @@ export function useMantineWindow(props: WindowBaseProps) {
       if (maxWidthPx !== undefined) {
         clamped = Math.min(maxWidthPx, clamped);
       }
+
+      // Constrain to container size when not using portal
+      if (!withinPortal) {
+        const parent = windowRef.current?.offsetParent;
+        if (parent instanceof HTMLElement) {
+          const parentWidth = parent.clientWidth;
+          clamped = Math.min(clamped, parentWidth);
+        }
+      }
+
       return clamped;
     },
-    [minWidth, maxWidth]
+    [minWidth, maxWidth, withinPortal]
   );
 
   const clampHeight = useCallback(
@@ -263,9 +273,19 @@ export function useMantineWindow(props: WindowBaseProps) {
       if (maxHeightPx !== undefined) {
         clamped = Math.min(maxHeightPx, clamped);
       }
+
+      // Constrain to container size when not using portal
+      if (!withinPortal) {
+        const parent = windowRef.current?.offsetParent;
+        if (parent instanceof HTMLElement) {
+          const parentHeight = parent.clientHeight;
+          clamped = Math.min(clamped, parentHeight);
+        }
+      }
+
       return clamped;
     },
-    [minHeight, maxHeight]
+    [minHeight, maxHeight, withinPortal]
   );
 
   // Helper to apply bounds during drag
@@ -310,7 +330,7 @@ export function useMantineWindow(props: WindowBaseProps) {
       } else if (withinPortal) {
         // Global viewport bounds
         boundedX = Math.max(0, Math.min(boundedX, window.innerWidth - size.width));
-        boundedY = Math.max(0, Math.min(boundedY, window.innerHeight - 50));
+        boundedY = Math.max(0, Math.min(boundedY, window.innerHeight - size.height));
       } else {
         // Parent container bounds
         const parent = windowRef.current?.offsetParent;
@@ -318,13 +338,13 @@ export function useMantineWindow(props: WindowBaseProps) {
           const parentWidth = parent.clientWidth;
           const parentHeight = parent.clientHeight;
           boundedX = Math.max(0, Math.min(boundedX, parentWidth - size.width));
-          boundedY = Math.max(0, Math.min(boundedY, parentHeight - 50));
+          boundedY = Math.max(0, Math.min(boundedY, parentHeight - size.height));
         }
       }
 
       return { x: boundedX, y: boundedY };
     },
-    [dragBounds, withinPortal, size.width]
+    [dragBounds, withinPortal, size.width, size.height]
   );
 
   // Helper to handle resize logic
@@ -337,6 +357,18 @@ export function useMantineWindow(props: WindowBaseProps) {
       let newHeight = size.height;
       let newX = resizeStart.current.posX;
       let newY = resizeStart.current.posY;
+
+      // Get container constraints
+      let containerMaxWidth = Infinity;
+      let containerMaxHeight = Infinity;
+
+      if (!withinPortal) {
+        const parent = windowRef.current?.offsetParent;
+        if (parent instanceof HTMLElement) {
+          containerMaxWidth = parent.clientWidth;
+          containerMaxHeight = parent.clientHeight;
+        }
+      }
 
       switch (resizeDirection.current) {
         case 'topLeft':
@@ -351,22 +383,46 @@ export function useMantineWindow(props: WindowBaseProps) {
           break;
         case 'topRight':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
+          // Limit width based on position and container
+          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+            newWidth = containerMaxWidth - newX;
+          }
           newHeight = clampHeight(resizeStart.current.height - deltaY);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
           break;
         case 'right':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
+          // Limit width based on position and container
+          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+            newWidth = containerMaxWidth - newX;
+          }
           break;
         case 'bottomRight':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
+          // Limit width based on position and container
+          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+            newWidth = containerMaxWidth - newX;
+          }
           newHeight = clampHeight(resizeStart.current.height + deltaY);
+          // Limit height based on position and container
+          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+            newHeight = containerMaxHeight - newY;
+          }
           break;
         case 'bottom':
           newHeight = clampHeight(resizeStart.current.height + deltaY);
+          // Limit height based on position and container
+          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+            newHeight = containerMaxHeight - newY;
+          }
           break;
         case 'bottomLeft':
           newWidth = clampWidth(resizeStart.current.width - deltaX);
           newHeight = clampHeight(resizeStart.current.height + deltaY);
+          // Limit height based on position and container
+          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+            newHeight = containerMaxHeight - newY;
+          }
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
           break;
         case 'left':
@@ -380,7 +436,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         setPosition({ x: newX, y: newY });
       }
     },
-    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition]
+    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition, withinPortal]
   );
 
   // Mouse and touch move/up/end handlers
