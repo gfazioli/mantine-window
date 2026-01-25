@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
+import { useLocalStorage, useResizeObserver, useViewportSize } from '@mantine/hooks';
 import { convertToPixels } from '../lib/convert-to-pixels';
 import type { WindowBaseProps, WindowPosition, WindowSize } from '../Window';
 
@@ -106,6 +106,28 @@ export function useMantineWindow(props: WindowBaseProps) {
   const isResizing = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
+
+  // Track viewport dimensions using Mantine's hook
+  const viewportDimensions = useViewportSize();
+
+  // Track container dimensions using Mantine's resize observer
+  const [containerRef, containerRect] = useResizeObserver();
+
+  // Attach resize observer to parent container when not in portal mode
+  useEffect(() => {
+    if (!windowRef.current?.offsetParent || withinPortal) {
+      // Reset ref when in portal mode
+      if (containerRef.current) {
+        containerRef.current = null;
+      }
+      return;
+    }
+
+    const parent = windowRef.current.offsetParent;
+    if (parent instanceof HTMLElement) {
+      containerRef.current = parent;
+    }
+  }, [withinPortal, containerRef]);
 
   useEffect(() => {
     setIsVisible(opened ?? false);
@@ -239,53 +261,88 @@ export function useMantineWindow(props: WindowBaseProps) {
     setIsVisible(false);
   }, [onClose]);
 
+  // Memoize converted constraint values to avoid repeated conversions during drag/resize
+  const constraintsPx = useMemo(() => {
+    const refWidth = withinPortal ? viewportDimensions.width : containerRect.width;
+    const refHeight = withinPortal ? viewportDimensions.height : containerRect.height;
+
+    return {
+      minWidth: convertToPixels(minWidth, refWidth) ?? 250,
+      maxWidth: convertToPixels(maxWidth, refWidth),
+      minHeight: convertToPixels(minHeight, refHeight) ?? 100,
+      maxHeight: convertToPixels(maxHeight, refHeight),
+      containerMaxWidth: withinPortal ? Infinity : containerRect.width,
+      containerMaxHeight: withinPortal ? Infinity : containerRect.height,
+    };
+  }, [
+    minWidth,
+    maxWidth,
+    minHeight,
+    maxHeight,
+    withinPortal,
+    viewportDimensions.width,
+    viewportDimensions.height,
+    containerRect.width,
+    containerRect.height,
+  ]);
+
+  // Memoize converted drag bounds
+  const dragBoundsPx = useMemo(() => {
+    if (!dragBounds) {
+      return null;
+    }
+
+    const refWidth = withinPortal ? viewportDimensions.width : containerRect.width;
+    const refHeight = withinPortal ? viewportDimensions.height : containerRect.height;
+
+    return {
+      minX: convertToPixels(dragBounds.minX, refWidth),
+      maxX: convertToPixels(dragBounds.maxX, refWidth),
+      minY: convertToPixels(dragBounds.minY, refHeight),
+      maxY: convertToPixels(dragBounds.maxY, refHeight),
+    };
+  }, [
+    dragBounds,
+    withinPortal,
+    viewportDimensions.width,
+    viewportDimensions.height,
+    containerRect.width,
+    containerRect.height,
+  ]);
+
   // Helper to clamp width and height
   const clampWidth = useCallback(
     (w: number) => {
-      const minWidthPx = convertToPixels(minWidth) ?? 250;
-      const maxWidthPx = convertToPixels(maxWidth);
-
-      let clamped = Math.max(minWidthPx, w);
-      if (maxWidthPx !== undefined) {
-        clamped = Math.min(maxWidthPx, clamped);
+      let clamped = Math.max(constraintsPx.minWidth, w);
+      if (constraintsPx.maxWidth !== undefined) {
+        clamped = Math.min(constraintsPx.maxWidth, clamped);
       }
 
       // Constrain to container size when not using portal
-      if (!withinPortal) {
-        const parent = windowRef.current?.offsetParent;
-        if (parent instanceof HTMLElement) {
-          const parentWidth = parent.clientWidth;
-          clamped = Math.min(clamped, parentWidth);
-        }
+      if (constraintsPx.containerMaxWidth !== Infinity) {
+        clamped = Math.min(clamped, constraintsPx.containerMaxWidth);
       }
 
       return clamped;
     },
-    [minWidth, maxWidth, withinPortal]
+    [constraintsPx]
   );
 
   const clampHeight = useCallback(
     (h: number) => {
-      const minHeightPx = convertToPixels(minHeight) ?? 100;
-      const maxHeightPx = convertToPixels(maxHeight);
-
-      let clamped = Math.max(minHeightPx, h);
-      if (maxHeightPx !== undefined) {
-        clamped = Math.min(maxHeightPx, clamped);
+      let clamped = Math.max(constraintsPx.minHeight, h);
+      if (constraintsPx.maxHeight !== undefined) {
+        clamped = Math.min(constraintsPx.maxHeight, clamped);
       }
 
       // Constrain to container size when not using portal
-      if (!withinPortal) {
-        const parent = windowRef.current?.offsetParent;
-        if (parent instanceof HTMLElement) {
-          const parentHeight = parent.clientHeight;
-          clamped = Math.min(clamped, parentHeight);
-        }
+      if (constraintsPx.containerMaxHeight !== Infinity) {
+        clamped = Math.min(clamped, constraintsPx.containerMaxHeight);
       }
 
       return clamped;
     },
-    [minHeight, maxHeight, withinPortal]
+    [constraintsPx]
   );
 
   // Helper to apply bounds during drag
@@ -294,57 +351,42 @@ export function useMantineWindow(props: WindowBaseProps) {
       let boundedX = newX;
       let boundedY = newY;
 
-      if (dragBounds) {
-        // Get reference dimensions for percentage calculations
-        let refWidth = window.innerWidth;
-        let refHeight = window.innerHeight;
-
-        if (!withinPortal) {
-          const parent = windowRef.current?.offsetParent;
-          if (parent instanceof HTMLElement) {
-            refWidth = parent.clientWidth;
-            refHeight = parent.clientHeight;
-          }
+      if (dragBoundsPx) {
+        // Use memoized converted bounds
+        if (dragBoundsPx.minX !== undefined) {
+          boundedX = Math.max(dragBoundsPx.minX, boundedX);
         }
-
-        // Convert bounds to pixels, using appropriate reference dimension
-        // For X coordinates, use width as reference for percentages
-        const minXPx = convertToPixels(dragBounds.minX, refWidth);
-        const maxXPx = convertToPixels(dragBounds.maxX, refWidth);
-        // For Y coordinates, use height as reference for percentages
-        const minYPx = convertToPixels(dragBounds.minY, refHeight);
-        const maxYPx = convertToPixels(dragBounds.maxY, refHeight);
-
-        if (minXPx !== undefined) {
-          boundedX = Math.max(minXPx, boundedX);
+        if (dragBoundsPx.maxX !== undefined) {
+          boundedX = Math.min(dragBoundsPx.maxX, boundedX);
         }
-        if (maxXPx !== undefined) {
-          boundedX = Math.min(maxXPx, boundedX);
+        if (dragBoundsPx.minY !== undefined) {
+          boundedY = Math.max(dragBoundsPx.minY, boundedY);
         }
-        if (minYPx !== undefined) {
-          boundedY = Math.max(minYPx, boundedY);
-        }
-        if (maxYPx !== undefined) {
-          boundedY = Math.min(maxYPx, boundedY);
+        if (dragBoundsPx.maxY !== undefined) {
+          boundedY = Math.min(dragBoundsPx.maxY, boundedY);
         }
       } else if (withinPortal) {
         // Global viewport bounds
-        boundedX = Math.max(0, Math.min(boundedX, window.innerWidth - size.width));
-        boundedY = Math.max(0, Math.min(boundedY, window.innerHeight - size.height));
+        boundedX = Math.max(0, Math.min(boundedX, viewportDimensions.width - size.width));
+        boundedY = Math.max(0, Math.min(boundedY, viewportDimensions.height - size.height));
       } else {
         // Parent container bounds
-        const parent = windowRef.current?.offsetParent;
-        if (parent instanceof HTMLElement) {
-          const parentWidth = parent.clientWidth;
-          const parentHeight = parent.clientHeight;
-          boundedX = Math.max(0, Math.min(boundedX, parentWidth - size.width));
-          boundedY = Math.max(0, Math.min(boundedY, parentHeight - size.height));
-        }
+        boundedX = Math.max(0, Math.min(boundedX, containerRect.width - size.width));
+        boundedY = Math.max(0, Math.min(boundedY, containerRect.height - size.height));
       }
 
       return { x: boundedX, y: boundedY };
     },
-    [dragBounds, withinPortal, size.width, size.height]
+    [
+      dragBoundsPx,
+      withinPortal,
+      size.width,
+      size.height,
+      viewportDimensions.width,
+      viewportDimensions.height,
+      containerRect.width,
+      containerRect.height,
+    ]
   );
 
   // Helper to handle resize logic
@@ -358,17 +400,9 @@ export function useMantineWindow(props: WindowBaseProps) {
       let newX = resizeStart.current.posX;
       let newY = resizeStart.current.posY;
 
-      // Get container constraints
-      let containerMaxWidth = Infinity;
-      let containerMaxHeight = Infinity;
-
-      if (!withinPortal) {
-        const parent = windowRef.current?.offsetParent;
-        if (parent instanceof HTMLElement) {
-          containerMaxWidth = parent.clientWidth;
-          containerMaxHeight = parent.clientHeight;
-        }
-      }
+      // Use memoized container constraints
+      const containerMaxWidth = constraintsPx.containerMaxWidth;
+      const containerMaxHeight = constraintsPx.containerMaxHeight;
 
       switch (resizeDirection.current) {
         case 'topLeft':
@@ -384,7 +418,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         case 'topRight':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
           // Limit width based on position and container
-          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+          if (containerMaxWidth !== Infinity && newX + newWidth > containerMaxWidth) {
             newWidth = containerMaxWidth - newX;
           }
           newHeight = clampHeight(resizeStart.current.height - deltaY);
@@ -393,26 +427,26 @@ export function useMantineWindow(props: WindowBaseProps) {
         case 'right':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
           // Limit width based on position and container
-          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+          if (containerMaxWidth !== Infinity && newX + newWidth > containerMaxWidth) {
             newWidth = containerMaxWidth - newX;
           }
           break;
         case 'bottomRight':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
           // Limit width based on position and container
-          if (!withinPortal && newX + newWidth > containerMaxWidth) {
+          if (containerMaxWidth !== Infinity && newX + newWidth > containerMaxWidth) {
             newWidth = containerMaxWidth - newX;
           }
           newHeight = clampHeight(resizeStart.current.height + deltaY);
           // Limit height based on position and container
-          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+          if (containerMaxHeight !== Infinity && newY + newHeight > containerMaxHeight) {
             newHeight = containerMaxHeight - newY;
           }
           break;
         case 'bottom':
           newHeight = clampHeight(resizeStart.current.height + deltaY);
           // Limit height based on position and container
-          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+          if (containerMaxHeight !== Infinity && newY + newHeight > containerMaxHeight) {
             newHeight = containerMaxHeight - newY;
           }
           break;
@@ -420,7 +454,7 @@ export function useMantineWindow(props: WindowBaseProps) {
           newWidth = clampWidth(resizeStart.current.width - deltaX);
           newHeight = clampHeight(resizeStart.current.height + deltaY);
           // Limit height based on position and container
-          if (!withinPortal && newY + newHeight > containerMaxHeight) {
+          if (containerMaxHeight !== Infinity && newY + newHeight > containerMaxHeight) {
             newHeight = containerMaxHeight - newY;
           }
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
@@ -436,16 +470,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         setPosition({ x: newX, y: newY });
       }
     },
-    [
-      size.width,
-      size.height,
-      clampWidth,
-      clampHeight,
-      setSize,
-      setPosition,
-      withinPortal,
-      windowRef,
-    ]
+    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition, constraintsPx]
   );
 
   // Mouse and touch move/up/end handlers
