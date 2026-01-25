@@ -436,7 +436,16 @@ export function useMantineWindow(props: WindowBaseProps) {
         setPosition({ x: newX, y: newY });
       }
     },
-    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition, withinPortal]
+    [
+      size.width,
+      size.height,
+      clampWidth,
+      clampHeight,
+      setSize,
+      setPosition,
+      withinPortal,
+      windowRef,
+    ]
   );
 
   // Mouse and touch move/up/end handlers
