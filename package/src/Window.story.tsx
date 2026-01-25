@@ -501,3 +501,66 @@ export function FullExample() {
     </Stack>
   );
 }
+
+export function ViewportConstraints() {
+  return (
+    <Stack>
+      <Window
+        title="Viewport-based Constraints"
+        opened
+        defaultPosition={{ x: 50, y: 50 }}
+        defaultSize={{ width: 500, height: 400 }}
+        minWidth="30vw"
+        minHeight="20vh"
+        maxWidth="80vw"
+        maxHeight="70vh"
+        persistState={false}
+      >
+        <Title order={4}>Viewport-based Min/Max Size</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Min:</strong> 30vw x 20vh
+          </p>
+          <p>
+            <strong>Max:</strong> 80vw x 70vh
+          </p>
+          <p>Try resizing your browser window to see the constraints adapt!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function MixedConstraints() {
+  return (
+    <Stack>
+      <Window
+        title="Mixed Unit Constraints"
+        opened
+        defaultPosition={{ x: 100, y: 100 }}
+        defaultSize={{ width: 400, height: 350 }}
+        minWidth={300}
+        minHeight="15vh"
+        maxWidth="60vw"
+        maxHeight={600}
+        persistState={false}
+      >
+        <Title order={4}>Mixed Units</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Min Width:</strong> 300px (fixed)
+          </p>
+          <p>
+            <strong>Min Height:</strong> 15vh (viewport-based)
+          </p>
+          <p>
+            <strong>Max Width:</strong> 60vw (viewport-based)
+          </p>
+          <p>
+            <strong>Max Height:</strong> 600px (fixed)
+          </p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
