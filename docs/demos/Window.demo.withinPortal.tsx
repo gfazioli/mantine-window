@@ -47,13 +47,14 @@ function Demo() {
           onClose={closeContainer}
           withinPortal={false}
           persistState={false}
-          defaultPosition={{ x: 20, y: 50 }}
+          defaultPosition={{ x: 0, y: 0 }}
+          defaultSize={{ width: 400, height: 300 }}
         >
           <Stack p="md">
             <Title order={4}>Container Window</Title>
             <Text size="sm">
               This window uses <strong>withinPortal=false</strong>.
-              It is positioned absolute relative to its parent container and cannot be dragged outside.
+              It is positioned absolute relative to its parent container and cannot be dragged or resized outside the container boundaries.
             </Text>
           </Stack>
         </Window>
@@ -109,13 +110,15 @@ function Demo() {
           onClose={closeContainer}
           withinPortal={false}
           persistState={false}
-          defaultPosition={{ x: 20, y: 50 }}
+          defaultPosition={{ x: 0, y: 0 }}
+          defaultSize={{ width: 400, height: 300 }}
         >
           <Stack p="md">
             <Title order={4}>Container Window</Title>
             <Text size="sm">
               This window uses <strong>withinPortal=false</strong>. It is positioned absolute
-              relative to its parent container and cannot be dragged outside.
+              relative to its parent container and cannot be dragged or resized outside the
+              container boundaries.
             </Text>
           </Stack>
         </Window>
