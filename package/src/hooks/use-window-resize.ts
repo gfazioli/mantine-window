@@ -64,11 +64,13 @@ export function useWindowResize(options: UseWindowResizeOptions) {
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
           if (containerMaxWidth !== Infinity && newX < 0) {
-            newWidth = clampWidth(newWidth + newX, constraintsPx);
+            const adjustedWidth = newWidth + newX;
+            newWidth = clampWidth(adjustedWidth, constraintsPx);
             newX = 0;
           }
           if (containerMaxHeight !== Infinity && newY < 0) {
-            newHeight = clampHeight(newHeight + newY, constraintsPx);
+            const adjustedHeight = newHeight + newY;
+            newHeight = clampHeight(adjustedHeight, constraintsPx);
             newY = 0;
           }
           break;
@@ -77,7 +79,8 @@ export function useWindowResize(options: UseWindowResizeOptions) {
           newHeight = clampHeight(resizeStart.current.height - deltaY, constraintsPx);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
           if (containerMaxHeight !== Infinity && newY < 0) {
-            newHeight = clampHeight(newHeight + newY, constraintsPx);
+            const adjustedHeight = newHeight + newY;
+            newHeight = clampHeight(adjustedHeight, constraintsPx);
             newY = 0;
           }
           break;
@@ -90,7 +93,8 @@ export function useWindowResize(options: UseWindowResizeOptions) {
           newHeight = clampHeight(resizeStart.current.height - deltaY, constraintsPx);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
           if (containerMaxHeight !== Infinity && newY < 0) {
-            newHeight = clampHeight(newHeight + newY, constraintsPx);
+            const adjustedHeight = newHeight + newY;
+            newHeight = clampHeight(adjustedHeight, constraintsPx);
             newY = 0;
           }
           break;
@@ -128,7 +132,8 @@ export function useWindowResize(options: UseWindowResizeOptions) {
           }
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
           if (containerMaxWidth !== Infinity && newX < 0) {
-            newWidth = clampWidth(newWidth + newX, constraintsPx);
+            const adjustedWidth = newWidth + newX;
+            newWidth = clampWidth(adjustedWidth, constraintsPx);
             newX = 0;
           }
           break;
@@ -137,7 +142,8 @@ export function useWindowResize(options: UseWindowResizeOptions) {
           newWidth = clampWidth(resizeStart.current.width - deltaX, constraintsPx);
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
           if (containerMaxWidth !== Infinity && newX < 0) {
-            newWidth = clampWidth(newWidth + newX, constraintsPx);
+            const adjustedWidth = newWidth + newX;
+            newWidth = clampWidth(adjustedWidth, constraintsPx);
             newX = 0;
           }
           break;
