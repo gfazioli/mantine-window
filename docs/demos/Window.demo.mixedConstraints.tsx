@@ -1,16 +1,22 @@
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Title } from '@mantine/core';
+import { Button, Stack, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Title } from '@mantine/core';
+import { Button, Stack, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Mixed Unit Constraints"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: 50, y: 50 }}
         defaultSize={{ width: 400, height: 350 }}
         minWidth={300}
@@ -18,7 +24,6 @@ function Demo() {
         maxWidth="60vw"
         maxHeight={600}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Mixed Units</Title>
         <Stack gap="sm">
@@ -36,17 +41,20 @@ function Demo() {
           </p>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 `;
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Mixed Unit Constraints"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: 50, y: 50 }}
         defaultSize={{ width: 400, height: 350 }}
         minWidth={300}
@@ -54,7 +62,6 @@ function Demo() {
         maxWidth="60vw"
         maxHeight={600}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Mixed Units</Title>
         <Stack gap="sm">
@@ -72,7 +79,7 @@ function Demo() {
           </p>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 
