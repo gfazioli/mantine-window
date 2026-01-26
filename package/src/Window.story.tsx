@@ -664,3 +664,178 @@ export function MixedDragBounds() {
     </Stack>
   );
 }
+
+export function ViewportPosition() {
+  return (
+    <Stack>
+      <Window
+        title="Viewport Position"
+        opened
+        defaultPosition={{ x: '10vw', y: '15vh' }}
+        defaultSize={{ width: 400, height: 300 }}
+        persistState={false}
+      >
+        <Title order={4}>Viewport-based Position</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>X:</strong> 10vw (10% of viewport width)
+          </p>
+          <p>
+            <strong>Y:</strong> 15vh (15% of viewport height)
+          </p>
+          <p>Position adapts to viewport size. Try resizing the window!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function ViewportSize() {
+  return (
+    <Stack>
+      <Window
+        title="Viewport Size"
+        opened
+        defaultPosition={{ x: 50, y: 50 }}
+        defaultSize={{ width: '40vw', height: '50vh' }}
+        persistState={false}
+      >
+        <Title order={4}>Viewport-based Size</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Width:</strong> 40vw (40% of viewport width)
+          </p>
+          <p>
+            <strong>Height:</strong> 50vh (50% of viewport height)
+          </p>
+          <p>Size adapts to viewport size. Try resizing the window!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function PercentagePosition() {
+  return (
+    <Stack>
+      <Window
+        title="Percentage Position"
+        opened
+        defaultPosition={{ x: '20%', y: '25%' }}
+        defaultSize={{ width: 350, height: 250 }}
+        persistState={false}
+      >
+        <Title order={4}>Percentage-based Position</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>X:</strong> 20% (of container/viewport width)
+          </p>
+          <p>
+            <strong>Y:</strong> 25% (of container/viewport height)
+          </p>
+          <p>Position is calculated as percentage of available space.</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function PercentageSize() {
+  return (
+    <Stack>
+      <Window
+        title="Percentage Size"
+        opened
+        defaultPosition={{ x: 100, y: 80 }}
+        defaultSize={{ width: '60%', height: '70%' }}
+        persistState={false}
+      >
+        <Title order={4}>Percentage-based Size</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Width:</strong> 60% (of container/viewport width)
+          </p>
+          <p>
+            <strong>Height:</strong> 70% (of container/viewport height)
+          </p>
+          <p>Size is calculated as percentage of available space.</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function ResponsiveWindow() {
+  return (
+    <Stack>
+      <Window
+        title="Fully Responsive Window"
+        opened
+        defaultPosition={{ x: '5vw', y: '10vh' }}
+        defaultSize={{ width: '50vw', height: '40vh' }}
+        minWidth="300px"
+        maxWidth="90vw"
+        minHeight="200px"
+        maxHeight="80vh"
+        dragBounds={{
+          minX: '2vw',
+          maxX: '90vw',
+          minY: '5vh',
+          maxY: '90vh',
+        }}
+        persistState={false}
+      >
+        <Title order={4}>Responsive Configuration</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>Position:</strong> 5vw, 10vh
+          </p>
+          <p>
+            <strong>Size:</strong> 50vw × 40vh
+          </p>
+          <p>
+            <strong>Min Size:</strong> 300px × 200px
+          </p>
+          <p>
+            <strong>Max Size:</strong> 90vw × 80vh
+          </p>
+          <p>
+            <strong>Drag Bounds:</strong> 2-90vw, 5-90vh
+          </p>
+          <p>Complete responsive setup using viewport units!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function MixedUnitsPositionAndSize() {
+  return (
+    <Stack>
+      <Window
+        title="Mixed Units"
+        opened
+        defaultPosition={{ x: '15vw', y: 100 }}
+        defaultSize={{ width: 450, height: '35vh' }}
+        persistState={false}
+      >
+        <Title order={4}>Mixed Unit Types</Title>
+        <Stack gap="sm">
+          <p>
+            <strong>X:</strong> 15vw (viewport-based)
+          </p>
+          <p>
+            <strong>Y:</strong> 100px (fixed)
+          </p>
+          <p>
+            <strong>Width:</strong> 450px (fixed)
+          </p>
+          <p>
+            <strong>Height:</strong> 35vh (viewport-based)
+          </p>
+          <p>Mix viewport units and pixels for flexible layouts!</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}

@@ -66,6 +66,24 @@ Set custom initial dimensions for the window using the `defaultSize` prop. This 
 
 <Demo data={demos.customSize} />
 
+## Viewport-based Position
+
+You can use viewport units (`vw` for horizontal, `vh` for vertical) to set responsive positions that adapt to the browser window size. This ensures the window maintains proportional positioning regardless of screen size.
+
+<Demo data={demos.viewportPosition} />
+
+## Viewport-based Size
+
+Use viewport units (`vw` for width, `vh` for height) to create responsive window sizes that scale proportionally with the viewport. This is ideal for creating layouts that adapt to different screen sizes.
+
+<Demo data={demos.viewportSize} />
+
+## Responsive Windows
+
+Combine viewport units for both position and size to create fully responsive windows. You can mix different unit types (pixels, viewport units, percentages) to achieve the perfect balance of flexibility and control.
+
+<Demo data={demos.responsiveWindow} />
+
 ## Min/Max Size Constraints
 
 Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. This prevents the window from becoming too small or too large.
