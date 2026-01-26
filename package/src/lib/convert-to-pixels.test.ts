@@ -127,4 +127,22 @@ describe('convertToPixels', () => {
     expect(convertToPixels('25.5vw')).toBe(489.6); // 25.5% of 1920
     expect(convertToPixels('12.5%', 800)).toBe(100);
   });
+
+  it('should handle SSR environment (window undefined)', () => {
+    // Save original window
+    const originalWindow = global.window;
+
+    // Mock SSR environment
+    delete global.window;
+
+    expect(convertToPixels('50vh')).toBeUndefined();
+    expect(convertToPixels('50vw')).toBeUndefined();
+    // Other units should still work
+    expect(convertToPixels('300px')).toBe(300);
+    expect(convertToPixels(500)).toBe(500);
+    expect(convertToPixels('50%', 800)).toBe(400);
+
+    // Restore window
+    global.window = originalWindow;
+  });
 });

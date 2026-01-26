@@ -38,6 +38,10 @@ export function convertToPixels(
     if (!isFinite(percentage)) {
       return undefined;
     }
+    // Check if window is defined (SSR compatibility)
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
     const result = (percentage / 100) * window.innerHeight;
     return isFinite(result) ? result : undefined;
   }
@@ -46,6 +50,10 @@ export function convertToPixels(
   if (stringValue.endsWith('vw')) {
     const percentage = parseFloat(stringValue);
     if (!isFinite(percentage)) {
+      return undefined;
+    }
+    // Check if window is defined (SSR compatibility)
+    if (typeof window === 'undefined') {
       return undefined;
     }
     const result = (percentage / 100) * window.innerWidth;
