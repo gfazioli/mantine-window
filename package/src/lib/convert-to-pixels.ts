@@ -61,7 +61,10 @@ export function convertToPixels(
   }
 
   // Handle percentage (e.g., "50%")
-  if (stringValue.endsWith('%') && referenceSize !== undefined) {
+  if (stringValue.endsWith('%')) {
+    if (referenceSize === undefined) {
+      return undefined;
+    }
     const percentage = parseFloat(stringValue);
     if (!isFinite(percentage)) {
       return undefined;
