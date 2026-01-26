@@ -49,7 +49,7 @@ export function useWindowDimensions(options: UseWindowDimensionsOptions) {
         height: parent.clientHeight,
       });
     }
-  }, [withinPortal, containerRef, isVisible, windowRef]);
+  }, [withinPortal, isVisible]);
 
   return {
     isMounted,
