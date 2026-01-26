@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  IconArrowsMaximize,
-  IconArrowsMinimize,
-  IconBoxAlignLeftFilled,
-  IconCaretUpDownFilled,
-  IconMinus,
-  IconPlus,
-  IconX,
-} from '@tabler/icons-react';
+import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -17,10 +9,7 @@ import {
   Flex,
   getRadius,
   getShadow,
-  Group,
-  Popover,
   ScrollArea,
-  Stack,
   StylesApiProps,
   Text,
   useProps,
@@ -297,37 +286,6 @@ export const Window = factory<WindowFactory>((_props, _) => {
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function WindowTools() {
-    return (
-      <Popover radius="md" width={200} position="bottom-start" withArrow shadow="md" withinPortal>
-        <Popover.Target>
-          <ActionIcon radius={256} size="xs" color="green" {...getStyles('windowToolsButton')}>
-            <IconCaretUpDownFilled size={14} />
-          </ActionIcon>
-        </Popover.Target>
-        <Popover.Dropdown>
-          <Stack>
-            <Text size="xs" c="dimmed">
-              Fill and position
-            </Text>
-            <Group>
-              <ActionIcon variant="light">
-                <IconArrowsMaximize size={14} />
-              </ActionIcon>
-              <ActionIcon variant="light">
-                <IconArrowsMinimize size={14} />
-              </ActionIcon>
-              <ActionIcon variant="light">
-                <IconBoxAlignLeftFilled size={14} />
-              </ActionIcon>
-            </Group>
-          </Stack>
-        </Popover.Dropdown>
-      </Popover>
-    );
-  }
 
   if (!isVisible) {
     return null;
