@@ -102,13 +102,13 @@ Percentage units for size work differently based on the `withinPortal` setting. 
 
 Combine viewport units for both position and size to create fully responsive windows. You can mix different unit types (pixels, viewport units, percentages) to achieve the perfect balance of flexibility and control.
 
-> **Understanding Unit References:**
->
-> | Unit Type | Reference (withinPortal=true) | Reference (withinPortal=false) |
-> | --------- | ----------------------------- | ------------------------------ |
-> | `vw/vh`   | Viewport (browser window)     | Viewport (browser window)      |
-> | `%`       | Viewport (browser window)     | Parent container               |
-> | `px`      | Fixed pixels                  | Fixed pixels                   |
+**Understanding Unit References:**
+
+- **`vw/vh` (viewport units)**: Always relative to the **viewport (browser window)**, regardless of `withinPortal` setting
+- **`%` (percentage)**: 
+  - With `withinPortal={true}` (default): relative to the **viewport (browser window)**
+  - With `withinPortal={false}`: relative to the **parent container**
+- **`px` (pixels)**: Always **fixed pixels**, regardless of `withinPortal` setting
 
 > **Best Practices:**
 >
