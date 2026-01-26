@@ -1,16 +1,22 @@
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Responsive Window"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: '5vw', y: '10vh' }}
         defaultSize={{ width: '50vw', height: '40vh' }}
         minWidth="300px"
@@ -18,7 +24,6 @@ function Demo() {
         maxWidth="90vw"
         maxHeight="80vh"
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Viewport-based Position & Size</Title>
         <Stack gap="sm">
@@ -36,22 +41,26 @@ function Demo() {
           </Text>
           <Text size="sm" c="dimmed">
             This window combines viewport units for position and size with pixel-based minimum
-            constraints and viewport-based maximum constraints. Perfect for creating truly
-            responsive layouts!
+            constraints and viewport-based maximum constraints. All units are relative to the
+            viewport.
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 `;
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Responsive Window"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: '5vw', y: '10vh' }}
         defaultSize={{ width: '50vw', height: '40vh' }}
         minWidth="300px"
@@ -59,7 +68,6 @@ function Demo() {
         maxWidth="90vw"
         maxHeight="80vh"
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Viewport-based Position & Size</Title>
         <Stack gap="sm">
@@ -77,12 +85,12 @@ function Demo() {
           </Text>
           <Text size="sm" c="dimmed">
             This window combines viewport units for position and size with pixel-based minimum
-            constraints and viewport-based maximum constraints. Perfect for creating truly
-            responsive layouts!
+            constraints and viewport-based maximum constraints. All units are relative to the
+            viewport.
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 
