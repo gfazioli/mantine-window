@@ -49,9 +49,10 @@ describe('convertToPixels', () => {
     expect(convertToPixels('25%', 1000)).toBe(250);
   });
 
-  it('should parse percentage without reference size as number', () => {
-    // parseFloat('50%') returns 50, which is the expected behavior
-    expect(convertToPixels('50%')).toBe(50);
+  it('should return undefined for percentage without reference size', () => {
+    // Percentages require a reference size to be meaningful
+    expect(convertToPixels('50%')).toBeUndefined();
+    expect(convertToPixels('100%')).toBeUndefined();
   });
 
   it('should handle string numbers without units', () => {
