@@ -37,13 +37,13 @@ export function useWindowState(options: UseWindowStateOptions) {
 
   // Use localStorage if persistState is true, otherwise use regular state
   const [positionStorage, setPositionStorage] = useLocalStorage({
-    key: persistState && `${key}-window-position`,
+    key: `${key}-window-position`,
     defaultValue: defaultPosition,
     getInitialValueInEffect: true,
   });
 
   const [sizeStorage, setSizeStorage] = useLocalStorage({
-    key: persistState && `${key}-window-size`,
+    key: `${key}-window-size`,
     defaultValue: defaultSize,
     getInitialValueInEffect: true,
   });

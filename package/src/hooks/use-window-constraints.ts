@@ -45,8 +45,9 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
       };
     }
 
-    const refWidth = withinPortal ? viewportWidth : containerWidth;
-    const refHeight = withinPortal ? viewportHeight : containerHeight;
+    // Fallback to viewport when container dimensions are not yet measured (0)
+    const refWidth = withinPortal ? viewportWidth : containerWidth || viewportWidth;
+    const refHeight = withinPortal ? viewportHeight : containerHeight || viewportHeight;
 
     return {
       x: convertToPixels(position.x, refWidth) ?? 20,
@@ -73,8 +74,9 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
       };
     }
 
-    const refWidth = withinPortal ? viewportWidth : containerWidth;
-    const refHeight = withinPortal ? viewportHeight : containerHeight;
+    // Fallback to viewport when container dimensions are not yet measured (0)
+    const refWidth = withinPortal ? viewportWidth : containerWidth || viewportWidth;
+    const refHeight = withinPortal ? viewportHeight : containerHeight || viewportHeight;
 
     return {
       width: convertToPixels(size.width, refWidth) ?? 400,
@@ -93,8 +95,9 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
 
   // Memoize converted constraint values to avoid repeated conversions during drag/resize
   const constraintsPx = useMemo(() => {
-    const refWidth = withinPortal ? viewportWidth : containerWidth;
-    const refHeight = withinPortal ? viewportHeight : containerHeight;
+    // Fallback to viewport when container dimensions are not yet measured (0)
+    const refWidth = withinPortal ? viewportWidth : containerWidth || viewportWidth;
+    const refHeight = withinPortal ? viewportHeight : containerHeight || viewportHeight;
 
     return {
       minWidth: convertToPixels(minWidth, refWidth) ?? 250,
@@ -122,8 +125,9 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
       return null;
     }
 
-    const refWidth = withinPortal ? viewportWidth : containerWidth;
-    const refHeight = withinPortal ? viewportHeight : containerHeight;
+    // Fallback to viewport when container dimensions are not yet measured (0)
+    const refWidth = withinPortal ? viewportWidth : containerWidth || viewportWidth;
+    const refHeight = withinPortal ? viewportHeight : containerHeight || viewportHeight;
 
     return {
       minX: convertToPixels(dragBounds.minX, refWidth),
