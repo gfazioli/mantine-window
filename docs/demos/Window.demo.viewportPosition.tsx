@@ -1,20 +1,25 @@
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Viewport Position"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: '10vw', y: '15vh' }}
         defaultSize={{ width: 400, height: 300 }}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Position with Viewport Units</Title>
         <Stack gap="sm">
@@ -22,26 +27,32 @@ function Demo() {
             <strong>Position:</strong> x: 10vw, y: 15vh
           </Text>
           <Text>
-            The window position adapts proportionally to the viewport size.
-            Resize your browser window to see it maintain relative positioning!
+            <strong>Reference:</strong> Viewport (browser window)
+          </Text>
+          <Text size="sm" c="dimmed">
+            Viewport units (vw/vh) are always relative to the browser viewport. The position adapts
+            proportionally when resizing the browser window.
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 `;
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Viewport Position"
-        opened
+        opened={opened}
+        onClose={close}
         defaultPosition={{ x: '10vw', y: '15vh' }}
         defaultSize={{ width: 400, height: 300 }}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Position with Viewport Units</Title>
         <Stack gap="sm">
@@ -49,12 +60,15 @@ function Demo() {
             <strong>Position:</strong> x: 10vw, y: 15vh
           </Text>
           <Text>
-            The window position adapts proportionally to the viewport size. Resize your browser
-            window to see it maintain relative positioning!
+            <strong>Reference:</strong> Viewport (browser window)
+          </Text>
+          <Text size="sm" c="dimmed">
+            Viewport units (vw/vh) are always relative to the browser viewport. The position adapts
+            proportionally when resizing the browser window.
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 

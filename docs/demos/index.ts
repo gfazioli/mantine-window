@@ -11,6 +11,8 @@ export { mixedDragBounds } from './Window.demo.mixedDragBounds';
 export { multiple } from './Window.demo.multiple';
 export { noCollapsable } from './Window.demo.noCollapsable';
 export { percentageDragBounds } from './Window.demo.percentageDragBounds';
+export { percentagePosition } from './Window.demo.percentagePosition';
+export { percentageSize } from './Window.demo.percentageSize';
 export { persistence } from './Window.demo.persistence';
 export { responsiveWindow } from './Window.demo.responsiveWindow';
 export { stylesApi } from './Window.demo.stylesApi';

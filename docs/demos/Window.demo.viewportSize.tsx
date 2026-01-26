@@ -1,20 +1,25 @@
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { Window } from '@gfazioli/mantine-window';
-import { Box, Stack, Text, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Viewport Size"
-        opened
-        defaultPosition={{ x: 50, y: 50 }}
+        opened={opened}
+        onClose={close}
+        defaultPosition={{ x: '5vw', y: '10vh' }}
         defaultSize={{ width: '40vw', height: '50vh' }}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Size with Viewport Units</Title>
         <Stack gap="sm">
@@ -22,26 +27,32 @@ function Demo() {
             <strong>Size:</strong> width: 40vw, height: 50vh
           </Text>
           <Text>
-            The window size scales proportionally with the viewport. Try resizing your browser
-            window to see the window adapt!
+            <strong>Position:</strong> x: 5vw, y: 10vh
+          </Text>
+          <Text>
+            The window size and position scale proportionally with the viewport. Try resizing your
+            browser window to see the window adapt!
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 `;
 
 function Demo() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Box pos="relative" style={{ width: '100%', height: 500 }}>
+    <>
+      <Button onClick={open}>Open window</Button>
       <Window
         title="Viewport Size"
-        opened
-        defaultPosition={{ x: 50, y: 50 }}
+        opened={opened}
+        onClose={close}
+        defaultPosition={{ x: '5vw', y: '10vh' }}
         defaultSize={{ width: '40vw', height: '50vh' }}
         persistState={false}
-        withinPortal={false}
       >
         <Title order={4}>Size with Viewport Units</Title>
         <Stack gap="sm">
@@ -49,12 +60,15 @@ function Demo() {
             <strong>Size:</strong> width: 40vw, height: 50vh
           </Text>
           <Text>
-            The window size scales proportionally with the viewport. Try resizing your browser
-            window to see the window adapt!
+            <strong>Position:</strong> x: 5vw, y: 10vh
+          </Text>
+          <Text>
+            The window size and position scale proportionally with the viewport. Try resizing your
+            browser window to see the window adapt!
           </Text>
         </Stack>
       </Window>
-    </Box>
+    </>
   );
 }
 
