@@ -410,10 +410,24 @@ export function useMantineWindow(props: WindowBaseProps) {
           newHeight = clampHeight(resizeStart.current.height - deltaY);
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          // Prevent negative position in container mode
+          if (containerMaxWidth !== Infinity && newX < 0) {
+            newWidth = resizeStart.current.width + resizeStart.current.posX;
+            newX = 0;
+          }
+          if (containerMaxHeight !== Infinity && newY < 0) {
+            newHeight = resizeStart.current.height + resizeStart.current.posY;
+            newY = 0;
+          }
           break;
         case 'top':
           newHeight = clampHeight(resizeStart.current.height - deltaY);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          // Prevent negative position in container mode
+          if (containerMaxHeight !== Infinity && newY < 0) {
+            newHeight = resizeStart.current.height + resizeStart.current.posY;
+            newY = 0;
+          }
           break;
         case 'topRight':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
@@ -423,6 +437,11 @@ export function useMantineWindow(props: WindowBaseProps) {
           }
           newHeight = clampHeight(resizeStart.current.height - deltaY);
           newY = resizeStart.current.posY + (resizeStart.current.height - newHeight);
+          // Prevent negative position in container mode
+          if (containerMaxHeight !== Infinity && newY < 0) {
+            newHeight = resizeStart.current.height + resizeStart.current.posY;
+            newY = 0;
+          }
           break;
         case 'right':
           newWidth = clampWidth(resizeStart.current.width + deltaX);
@@ -458,10 +477,20 @@ export function useMantineWindow(props: WindowBaseProps) {
             newHeight = containerMaxHeight - newY;
           }
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
+          // Prevent negative position in container mode
+          if (containerMaxWidth !== Infinity && newX < 0) {
+            newWidth = resizeStart.current.width + resizeStart.current.posX;
+            newX = 0;
+          }
           break;
         case 'left':
           newWidth = clampWidth(resizeStart.current.width - deltaX);
           newX = resizeStart.current.posX + (resizeStart.current.width - newWidth);
+          // Prevent negative position in container mode
+          if (containerMaxWidth !== Infinity && newX < 0) {
+            newWidth = resizeStart.current.width + resizeStart.current.posX;
+            newX = 0;
+          }
           break;
       }
 
