@@ -1,14 +1,22 @@
 /**
- * Converts a CSS value (number, px, vh, vw) to pixels
+ * Converts a CSS value (number, px, vh, vw, %) to pixels
  * @param value - The value to convert (number or string with units)
  * @param referenceSize - Optional reference size for percentage calculations
- * @returns The value in pixels
+ * @returns The value in pixels, or undefined if the value cannot be converted
+ *
+ * Supported units:
+ * - Pixels: number or 'px' string (e.g., 300 or '300px')
+ * - Viewport width: 'vw' string (e.g., '50vw' = 50% of viewport width)
+ * - Viewport height: 'vh' string (e.g., '30vh' = 30% of viewport height)
+ * - Percentages: '%' string (e.g., '80%' = 80% of referenceSize, requires referenceSize parameter)
  *
  * @example
  * convertToPixels(300) // 300
  * convertToPixels('300px') // 300
- * convertToPixels('50vh') // 400 (if viewport height is 800px)
- * convertToPixels('80vw') // 1024 (if viewport width is 1280px)
+ * convertToPixels('50vh') // 540 (if viewport height is 1080px)
+ * convertToPixels('80vw') // 1536 (if viewport width is 1920px)
+ * convertToPixels('50%', 800) // 400 (50% of 800)
+ * convertToPixels('50%') // undefined (percentage without referenceSize)
  */
 export function convertToPixels(
   value: number | string | undefined,

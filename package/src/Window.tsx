@@ -136,16 +136,16 @@ export interface WindowBaseProps {
   /** Initial size of the window. If not provided, defaults to { width: 400, height: 400 } */
   defaultSize?: WindowSize;
 
-  /** Minimum width during resize. Supports pixels (number), percentages ('50vw'), or viewport units ('80vh'). Default: 250 */
+  /** Minimum width during resize. Supports pixels (number), viewport units ('50vw', '30vh'), or percentages ('80%'). Default: 250 */
   minWidth?: number | string;
 
-  /** Minimum height during resize. Supports pixels (number), percentages ('50vh'), or viewport units ('80vw'). Default: 100 */
+  /** Minimum height during resize. Supports pixels (number), viewport units ('50vh', '30vw'), or percentages ('60%'). Default: 100 */
   minHeight?: number | string;
 
-  /** Maximum width during resize. Supports pixels (number), percentages ('90vw'), or viewport units ('80vh'). If not provided, no maximum limit */
+  /** Maximum width during resize. Supports pixels (number), viewport units ('90vw', '70vh'), or percentages ('95%'). If not provided, no maximum limit */
   maxWidth?: number | string;
 
-  /** Maximum height during resize. Supports pixels (number), percentages ('90vh'), or viewport units ('80vw'). If not provided, no maximum limit */
+  /** Maximum height during resize. Supports pixels (number), viewport units ('90vh', '70vw'), or percentages ('85%'). If not provided, no maximum limit */
   maxHeight?: number | string;
 
   /** Boundaries for dragging the window. If not provided, window can be dragged anywhere within viewport */
