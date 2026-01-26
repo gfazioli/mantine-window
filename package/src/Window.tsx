@@ -85,17 +85,17 @@ export interface WindowBounds {
 }
 
 export interface WindowSize {
-  /** Width in pixels */
-  width: number;
-  /** Height in pixels */
-  height: number;
+  /** Width. Supports pixels (number), viewport width ('50vw'), viewport height ('30vh'), or percentages ('80%'). */
+  width: number | string;
+  /** Height. Supports pixels (number), viewport width ('40vw'), viewport height ('50vh'), or percentages ('60%'). */
+  height: number | string;
 }
 
 export interface WindowPosition {
-  /** X coordinate in pixels */
-  x: number;
-  /** Y coordinate in pixels */
-  y: number;
+  /** X coordinate. Supports pixels (number), viewport width ('10vw'), viewport height ('5vh'), or percentages ('20%'). */
+  x: number | string;
+  /** Y coordinate. Supports pixels (number), viewport width ('5vw'), viewport height ('10vh'), or percentages ('15%'). */
+  y: number | string;
 }
 
 export interface WindowBaseProps {
@@ -341,6 +341,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
       onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
       bg={color}
+      data-mantine-window
       {...others}
       {...getStyles('root', {
         style: {

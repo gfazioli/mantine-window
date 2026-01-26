@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocalStorage, useResizeObserver, useViewportSize } from '@mantine/hooks';
+import {
+  useClickOutside,
+  useLocalStorage,
+  useMergedRef,
+  useMounted,
+  useResizeObserver,
+  useViewportSize,
+} from '@mantine/hooks';
 import { convertToPixels } from '../lib/convert-to-pixels';
 import type { WindowBaseProps, WindowPosition, WindowSize } from '../Window';
 
@@ -52,6 +59,9 @@ export function useMantineWindow(props: WindowBaseProps) {
   const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(200);
+
+  // Use Mantine's useMounted hook to detect client-side mount (SSR-safe)
+  const isMounted = useMounted();
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
 
@@ -107,6 +117,16 @@ export function useMantineWindow(props: WindowBaseProps) {
   const dragStart = useRef({ x: 0, y: 0 });
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
 
+  // Use Mantine's useClickOutside to handle z-index when clicking outside the window
+  const clickOutsideRef = useClickOutside<HTMLDivElement>(() => setZIndex(199));
+
+  // Merge both refs (windowRef for internal use, clickOutsideRef for click detection)
+  const mergedRef = useMergedRef(windowRef, clickOutsideRef);
+
+  const bringToFront = useCallback(() => {
+    setZIndex(200);
+  }, []);
+
   // Track viewport dimensions using Mantine's hook
   const viewportDimensions = useViewportSize();
 
@@ -122,6 +142,62 @@ export function useMantineWindow(props: WindowBaseProps) {
       setContainerDimensions(containerRect);
     }
   }, [containerRect.width, containerRect.height]);
+
+  // Convert position values to pixels
+  const positionPx = useMemo(() => {
+    // During SSR, return safe default values to avoid hydration mismatch
+    if (!isMounted) {
+      return {
+        x: typeof position.x === 'number' ? position.x : 20,
+        y: typeof position.y === 'number' ? position.y : 100,
+      };
+    }
+
+    const refWidth = withinPortal ? viewportDimensions.width : containerDimensions.width;
+    const refHeight = withinPortal ? viewportDimensions.height : containerDimensions.height;
+
+    return {
+      x: convertToPixels(position.x, refWidth) ?? 20,
+      y: convertToPixels(position.y, refHeight) ?? 100,
+    };
+  }, [
+    position.x,
+    position.y,
+    withinPortal,
+    viewportDimensions.width,
+    viewportDimensions.height,
+    containerDimensions.width,
+    containerDimensions.height,
+    isMounted,
+  ]);
+
+  // Convert size values to pixels
+  const sizePx = useMemo(() => {
+    // During SSR, return safe default values to avoid hydration mismatch
+    if (!isMounted) {
+      return {
+        width: typeof size.width === 'number' ? size.width : 400,
+        height: typeof size.height === 'number' ? size.height : 400,
+      };
+    }
+
+    const refWidth = withinPortal ? viewportDimensions.width : containerDimensions.width;
+    const refHeight = withinPortal ? viewportDimensions.height : containerDimensions.height;
+
+    return {
+      width: convertToPixels(size.width, refWidth) ?? 400,
+      height: convertToPixels(size.height, refHeight) ?? 400,
+    };
+  }, [
+    size.width,
+    size.height,
+    withinPortal,
+    viewportDimensions.width,
+    viewportDimensions.height,
+    containerDimensions.width,
+    containerDimensions.height,
+    isMounted,
+  ]);
 
   useEffect(() => {
     setIsVisible(opened ?? false);
@@ -154,23 +230,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     }
   }, [withinPortal, containerRef, isVisible]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (windowRef.current && !windowRef.current.contains(event.target as Node)) {
-        setZIndex(199);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const bringToFront = useCallback(() => {
-    setZIndex(200);
-  }, []);
-
   // Handle dragging (mouse)
   const handleMouseDownDrag = useCallback(
     (e: React.MouseEvent) => {
@@ -181,13 +240,13 @@ export function useMantineWindow(props: WindowBaseProps) {
       bringToFront();
       isDragging.current = true;
       dragStart.current = {
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
+        x: e.clientX - positionPx.x,
+        y: e.clientY - positionPx.y,
       };
       document.body.style.userSelect = 'none';
       e.preventDefault();
     },
-    [position, bringToFront]
+    [positionPx, bringToFront]
   );
 
   // Handle dragging (touch)
@@ -201,13 +260,13 @@ export function useMantineWindow(props: WindowBaseProps) {
       bringToFront();
       isDragging.current = true;
       dragStart.current = {
-        x: touch.clientX - position.x,
-        y: touch.clientY - position.y,
+        x: touch.clientX - positionPx.x,
+        y: touch.clientY - positionPx.y,
       };
       document.body.style.userSelect = 'none';
       e.preventDefault();
     },
-    [position, bringToFront]
+    [positionPx, bringToFront]
   );
 
   // Handle resizing
@@ -223,10 +282,10 @@ export function useMantineWindow(props: WindowBaseProps) {
         resizeStart.current = {
           x: e.clientX,
           y: e.clientY,
-          width: size.width,
-          height: size.height,
-          posX: position.x,
-          posY: position.y,
+          width: sizePx.width,
+          height: sizePx.height,
+          posX: positionPx.x,
+          posY: positionPx.y,
         };
         document.body.style.cursor = CURSOR_MAP[direction];
         document.body.style.userSelect = 'none';
@@ -242,10 +301,10 @@ export function useMantineWindow(props: WindowBaseProps) {
         resizeStart.current = {
           x: touch.clientX,
           y: touch.clientY,
-          width: size.width,
-          height: size.height,
-          posX: position.x,
-          posY: position.y,
+          width: sizePx.width,
+          height: sizePx.height,
+          posX: positionPx.x,
+          posY: positionPx.y,
         };
         document.body.style.userSelect = 'none';
         e.stopPropagation();
@@ -253,7 +312,7 @@ export function useMantineWindow(props: WindowBaseProps) {
 
       return { onMouseDown, onTouchStart };
     },
-    [size, position, bringToFront]
+    [sizePx, positionPx, bringToFront]
   );
 
   // Memoized resize handlers for each direction
@@ -384,12 +443,12 @@ export function useMantineWindow(props: WindowBaseProps) {
         }
       } else if (withinPortal) {
         // Global viewport bounds
-        boundedX = Math.max(0, Math.min(boundedX, viewportDimensions.width - size.width));
-        boundedY = Math.max(0, Math.min(boundedY, viewportDimensions.height - size.height));
+        boundedX = Math.max(0, Math.min(boundedX, viewportDimensions.width - sizePx.width));
+        boundedY = Math.max(0, Math.min(boundedY, viewportDimensions.height - sizePx.height));
       } else {
         // Parent container bounds
-        boundedX = Math.max(0, Math.min(boundedX, containerDimensions.width - size.width));
-        boundedY = Math.max(0, Math.min(boundedY, containerDimensions.height - size.height));
+        boundedX = Math.max(0, Math.min(boundedX, containerDimensions.width - sizePx.width));
+        boundedY = Math.max(0, Math.min(boundedY, containerDimensions.height - sizePx.height));
       }
 
       return { x: boundedX, y: boundedY };
@@ -397,8 +456,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     [
       dragBoundsPx,
       withinPortal,
-      size.width,
-      size.height,
+      sizePx.width,
+      sizePx.height,
       viewportDimensions.width,
       viewportDimensions.height,
       containerDimensions.width,
@@ -412,8 +471,8 @@ export function useMantineWindow(props: WindowBaseProps) {
       const deltaX = clientX - resizeStart.current.x;
       const deltaY = clientY - resizeStart.current.y;
 
-      let newWidth = size.width;
-      let newHeight = size.height;
+      let newWidth = sizePx.width;
+      let newHeight = sizePx.height;
       let newX = resizeStart.current.posX;
       let newY = resizeStart.current.posY;
 
@@ -516,7 +575,7 @@ export function useMantineWindow(props: WindowBaseProps) {
         setPosition({ x: newX, y: newY });
       }
     },
-    [size.width, size.height, clampWidth, clampHeight, setSize, setPosition, constraintsPx]
+    [sizePx.width, sizePx.height, clampWidth, clampHeight, setSize, setPosition, constraintsPx]
   );
 
   // Mouse and touch move/up/end handlers
@@ -597,9 +656,9 @@ export function useMantineWindow(props: WindowBaseProps) {
     isVisible,
     setIsVisible,
     zIndex,
-    position,
-    size,
-    windowRef,
+    position: positionPx,
+    size: sizePx,
+    windowRef: mergedRef,
     handleMouseDownDrag,
     handleTouchStartDrag,
     resizeHandlers,
