@@ -12,6 +12,7 @@ export interface UseWindowDragOptions {
   containerWidth: number;
   containerHeight: number;
   isCollapsed: boolean;
+  windowRef: React.RefObject<HTMLDivElement>;
   setPosition: (position: WindowPosition) => void;
   bringToFront: () => void;
 }
@@ -27,6 +28,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     containerWidth,
     containerHeight,
     isCollapsed,
+    windowRef,
     setPosition,
     bringToFront,
   } = options;
@@ -36,8 +38,15 @@ export function useWindowDrag(options: UseWindowDragOptions) {
 
   const applyBounds = useCallback(
     (newX: number, newY: number): { x: number; y: number } => {
-      // When collapsed, use the header height (40px) instead of the full window height
-      const effectiveHeight = isCollapsed ? 40 : sizePx.height;
+      // When collapsed, use the actual measured height from the DOM
+      // This ensures we account for all borders, paddings, and margins
+      let effectiveHeight = sizePx.height;
+
+      if (isCollapsed && windowRef.current) {
+        // Get the actual rendered height of the window element
+        const rect = windowRef.current.getBoundingClientRect();
+        effectiveHeight = rect.height;
+      }
 
       const constraints: DragConstraints = {
         dragBounds: dragBoundsPx,
@@ -57,6 +66,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       withinPortal,
       sizePx,
       isCollapsed,
+      windowRef,
       viewportWidth,
       viewportHeight,
       containerWidth,
