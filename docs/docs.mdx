@@ -190,6 +190,20 @@ Prevent the window from being collapsed by setting `collapsable={false}`. This r
 
 <Demo data={demos.noCollapsable} />
 
+## Full Size Resize Handles
+
+By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, avoiding the corner handles (14x14px).
+
+This provides a larger interaction area, making it easier to resize the window from any edge.
+
+**Benefits:**
+
+- **Larger hit area**: Side handles span the full edge length
+- **Better UX**: No need for precision to find the resize handle
+- **Corner handles preserved**: Diagonal resizing still available at 14x14px corners
+
+<Demo data={demos.fullSizeHandles} />
+
 ## Styles API
 
 `Window` supports [Styles API](https://mantine.dev/styles/styles-api/), you can add styles to any inner element of the component with `classNames` prop. Follow [Styles API](https://mantine.dev/styles/styles-api/) documentation to learn more.

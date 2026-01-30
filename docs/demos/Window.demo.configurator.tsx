@@ -100,5 +100,11 @@ export const configurator: MantineDemo = {
     { type: 'boolean', prop: 'withCollapseButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'withCloseButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'collapsed', initialValue: false, libraryValue: false },
+    {
+      type: 'boolean',
+      prop: 'fullSizeResizeHandles',
+      initialValue: false,
+      libraryValue: false,
+    },
   ],
 };

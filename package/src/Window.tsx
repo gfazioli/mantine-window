@@ -112,6 +112,9 @@ export interface WindowBaseProps {
   /** Resizable mode of the window */
   resizable?: ResizableMode;
 
+  /** Whether resize handles (top, bottom, left, right) should span the full width/height instead of being centered. When true, side handles avoid corner handles. Default: false */
+  fullSizeResizeHandles?: boolean;
+
   /** Draggable mode of the window */
   draggable?: DraggableMode;
 
@@ -189,6 +192,7 @@ export const defaultProps: Partial<WindowProps> = {
   withinPortal: true,
   minWidth: 250,
   minHeight: 100,
+  fullSizeResizeHandles: false,
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
@@ -244,6 +248,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     onPositionChange,
     onSizeChange,
     withBorder,
+    fullSizeResizeHandles,
     mod,
 
     classNames,
@@ -400,11 +405,13 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   <>
                     <Box
                       data-resize-handle
+                      data-full-size={fullSizeResizeHandles || undefined}
                       {...resizeHandlers.top}
                       {...getStyles('resizeHandleTop')}
                     />
                     <Box
                       data-resize-handle
+                      data-full-size={fullSizeResizeHandles || undefined}
                       {...resizeHandlers.bottom}
                       {...getStyles('resizeHandleBottom')}
                     />
@@ -416,11 +423,13 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   <>
                     <Box
                       data-resize-handle
+                      data-full-size={fullSizeResizeHandles || undefined}
                       {...resizeHandlers.right}
                       {...getStyles('resizeHandleRight')}
                     />
                     <Box
                       data-resize-handle
+                      data-full-size={fullSizeResizeHandles || undefined}
                       {...resizeHandlers.left}
                       {...getStyles('resizeHandleLeft')}
                     />

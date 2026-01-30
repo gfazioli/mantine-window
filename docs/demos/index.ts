@@ -5,6 +5,7 @@ export { controlled } from './Window.demo.controlled';
 export { customPosition } from './Window.demo.customPosition';
 export { customSize } from './Window.demo.customSize';
 export { dragBounds } from './Window.demo.dragBounds';
+export { fullSizeHandles } from './Window.demo.fullSizeHandles';
 export { minMaxSize } from './Window.demo.minMaxSize';
 export { mixedConstraints } from './Window.demo.mixedConstraints';
 export { mixedDragBounds } from './Window.demo.mixedDragBounds';
