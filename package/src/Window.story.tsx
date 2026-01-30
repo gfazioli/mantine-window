@@ -839,3 +839,69 @@ export function MixedUnitsPositionAndSize() {
     </Stack>
   );
 }
+
+export function FullSizeResizeHandles() {
+  return (
+    <Stack>
+      <Window
+        title="Full Size Resize Handles"
+        id="full-size-handles"
+        opened
+        fullSizeResizeHandles
+        defaultSize={{ width: 500, height: 350 }}
+      >
+        <Stack p="md">
+          <Title order={4}>Full Size Resize Handles</Title>
+          <p>
+            When <code>fullSizeResizeHandles</code> is enabled, the side handles (top, bottom, left,
+            right) span the entire width or height of the window.
+          </p>
+          <p>
+            This makes it much easier to resize the window from any edge, while still preserving the
+            corner handles for diagonal resizing.
+          </p>
+          <p style={{ fontSize: '12px', color: 'var(--mantine-color-dimmed)' }}>
+            Corner handles remain 14x14px for diagonal resizing.
+          </p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}
+
+export function FullSizeResizeHandlesComparison() {
+  return (
+    <Stack>
+      <Window
+        title="Default Handles (Centered)"
+        id="default-handles"
+        opened
+        fullSizeResizeHandles={false}
+        defaultPosition={{ x: 50, y: 50 }}
+        defaultSize={{ width: 400, height: 300 }}
+      >
+        <Stack p="md">
+          <p>
+            <strong>fullSizeResizeHandles:</strong> false (default)
+          </p>
+          <p>Side handles are only 40px wide/tall and centered on each edge.</p>
+        </Stack>
+      </Window>
+      <Window
+        title="Full Size Handles"
+        id="full-handles"
+        opened
+        fullSizeResizeHandles
+        defaultPosition={{ x: 500, y: 50 }}
+        defaultSize={{ width: 400, height: 300 }}
+      >
+        <Stack p="md">
+          <p>
+            <strong>fullSizeResizeHandles:</strong> true
+          </p>
+          <p>Side handles span the entire edge, avoiding corner handles.</p>
+        </Stack>
+      </Window>
+    </Stack>
+  );
+}

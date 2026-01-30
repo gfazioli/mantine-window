@@ -134,6 +134,13 @@
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+
+  &[data-full-size='true'] {
+    left: var(--window-handle-square);
+    right: var(--window-handle-square);
+    width: auto;
+    transform: none;
+  }
 }
 
 .resizeHandleTopRight {
@@ -159,6 +166,13 @@
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+
+  &[data-full-size='true'] {
+    top: var(--window-handle-square);
+    bottom: var(--window-handle-square);
+    height: auto;
+    transform: none;
+  }
 }
 
 .resizeHandleBottomRight {
@@ -184,6 +198,13 @@
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+
+  &[data-full-size='true'] {
+    left: var(--window-handle-square);
+    right: var(--window-handle-square);
+    width: auto;
+    transform: none;
+  }
 }
 
 .resizeHandleBottomLeft {
@@ -209,4 +230,11 @@
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+
+  &[data-full-size='true'] {
+    top: var(--window-handle-square);
+    bottom: var(--window-handle-square);
+    height: auto;
+    transform: none;
+  }
 }
