@@ -11,6 +11,7 @@ export interface UseWindowDragOptions {
   viewportHeight: number;
   containerWidth: number;
   containerHeight: number;
+  isCollapsed: boolean;
   setPosition: (position: WindowPosition) => void;
   bringToFront: () => void;
 }
@@ -25,6 +26,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     viewportHeight,
     containerWidth,
     containerHeight,
+    isCollapsed,
     setPosition,
     bringToFront,
   } = options;
@@ -34,11 +36,14 @@ export function useWindowDrag(options: UseWindowDragOptions) {
 
   const applyBounds = useCallback(
     (newX: number, newY: number): { x: number; y: number } => {
+      // When collapsed, use the header height (40px) instead of the full window height
+      const effectiveHeight = isCollapsed ? 40 : sizePx.height;
+
       const constraints: DragConstraints = {
         dragBounds: dragBoundsPx,
         withinPortal,
         windowWidth: sizePx.width,
-        windowHeight: sizePx.height,
+        windowHeight: effectiveHeight,
         viewportWidth,
         viewportHeight,
         containerWidth,
@@ -51,6 +56,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       dragBoundsPx,
       withinPortal,
       sizePx,
+      isCollapsed,
       viewportWidth,
       viewportHeight,
       containerWidth,

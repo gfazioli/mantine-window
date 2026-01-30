@@ -77,6 +77,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     viewportHeight: dimensions.viewportDimensions.height,
     containerWidth: dimensions.containerDimensions.width,
     containerHeight: dimensions.containerDimensions.height,
+    isCollapsed: state.isCollapsed,
     setPosition: state.setPosition,
     bringToFront: state.bringToFront,
   });
