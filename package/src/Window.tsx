@@ -371,7 +371,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
               {children}
             </ScrollArea>
 
-            {/* Resize handles */}
+            {/* Resize handles - only when not collapsed */}
             {resizable !== 'none' && (
               <>
                 {/* Corner handles */}
@@ -417,26 +417,26 @@ export const Window = factory<WindowFactory>((_props, _) => {
                     />
                   </>
                 )}
-
-                {/* Horizontal handles */}
-                {(resizable === 'horizontal' || resizable === 'both') && (
-                  <>
-                    <Box
-                      data-resize-handle
-                      data-full-size={fullSizeResizeHandles || undefined}
-                      {...resizeHandlers.right}
-                      {...getStyles('resizeHandleRight')}
-                    />
-                    <Box
-                      data-resize-handle
-                      data-full-size={fullSizeResizeHandles || undefined}
-                      {...resizeHandlers.left}
-                      {...getStyles('resizeHandleLeft')}
-                    />
-                  </>
-                )}
               </>
             )}
+          </>
+        )}
+
+        {/* Horizontal handles - always available for horizontal resize even when collapsed */}
+        {resizable !== 'none' && (resizable === 'horizontal' || resizable === 'both') && (
+          <>
+            <Box
+              data-resize-handle
+              data-full-size={fullSizeResizeHandles || undefined}
+              {...resizeHandlers.right}
+              {...getStyles('resizeHandleRight')}
+            />
+            <Box
+              data-resize-handle
+              data-full-size={fullSizeResizeHandles || undefined}
+              {...resizeHandlers.left}
+              {...getStyles('resizeHandleLeft')}
+            />
           </>
         )}
       </Box>
