@@ -17,9 +17,9 @@ function Demo() {
         persistState
         withinPortal={false}
       >
-        <Title order={4}>Position and size are saved in localStorage</Title>
-        <p>Move or resize this window, then refresh the page</p>
-        <p>The window will remember its last position and size</p>
+        <Title order={4}>Position, size, and collapsed state are saved in localStorage</Title>
+        <p>Move, resize, or collapse/expand this window, then refresh the page</p>
+        <p>The window will remember its last position, size, and collapsed state</p>
       </Window>
     </Box>
   );
@@ -38,9 +38,9 @@ function Demo() {
         persistState
         withinPortal={false}
       >
-        <Title order={4}>Position and size are saved in localStorage</Title>
-        <p>Move or resize this window, then refresh the page</p>
-        <p>The window will remember its last position and size</p>
+        <Title order={4}>Position, size, and collapsed state are saved in localStorage</Title>
+        <p>Move, resize, or collapse/expand this window, then refresh the page</p>
+        <p>The window will remember its last position, size, and collapsed state</p>
       </Window>
     </Box>
   );

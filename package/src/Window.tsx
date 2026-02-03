@@ -184,7 +184,6 @@ export const defaultProps: Partial<WindowProps> = {
   shadow: 'md',
   resizable: 'both',
   draggable: 'both',
-  collapsed: false,
   withCloseButton: true,
   withCollapseButton: true,
   collapsable: true,

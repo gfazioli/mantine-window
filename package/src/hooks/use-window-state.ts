@@ -1,6 +1,58 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
 import type { WindowPosition, WindowSize } from '../Window';
+
+interface WindowPersistedState {
+  position: WindowPosition;
+  size: WindowSize;
+  collapsed: boolean;
+}
+
+// Manual localStorage functions for unified state
+const getPersistedWindowState = (
+  key: string,
+  defaultPosition: WindowPosition,
+  defaultSize: WindowSize,
+  defaultCollapsed: boolean
+): WindowPersistedState => {
+  if (typeof window === 'undefined') {
+    return {
+      position: defaultPosition,
+      size: defaultSize,
+      collapsed: defaultCollapsed,
+    };
+  }
+
+  try {
+    const item = window.localStorage.getItem(`${key}-window-state`);
+    if (item) {
+      const parsed = JSON.parse(item) as WindowPersistedState;
+      return {
+        position: parsed.position || defaultPosition,
+        size: parsed.size || defaultSize,
+        collapsed: parsed.collapsed ?? defaultCollapsed,
+      };
+    }
+  } catch {
+    // Ignore parsing errors
+  }
+
+  return {
+    position: defaultPosition,
+    size: defaultSize,
+    collapsed: defaultCollapsed,
+  };
+};
+
+const setPersistedWindowState = (key: string, state: WindowPersistedState): void => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    window.localStorage.setItem(`${key}-window-state`, JSON.stringify(state));
+  } catch {
+    // Ignore errors (e.g., quota exceeded)
+  }
+};
 
 export interface UseWindowStateOptions {
   id?: string;
@@ -29,56 +81,116 @@ export function useWindowState(options: UseWindowStateOptions) {
     onSizeChange,
   } = options;
 
-  const [isCollapsed, setIsCollapsed] = useState(collapsed ?? false);
   const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(200);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
 
-  // Use localStorage if persistState is true, otherwise use regular state
-  const [positionStorage, setPositionStorage] = useLocalStorage({
-    key: persistState ? `${key}-window-position` : `${key}-window-position-volatile`,
-    defaultValue: defaultPosition,
-    getInitialValueInEffect: true,
-  });
+  // Initialize state with SSR-safe defaults first
+  const [position, setPositionState] = useState<WindowPosition>(defaultPosition);
+  const [size, setSizeState] = useState<WindowSize>(defaultSize);
+  const [isCollapsed, setIsCollapsedState] = useState<boolean>(collapsed ?? false);
 
-  const [sizeStorage, setSizeStorage] = useLocalStorage({
-    key: persistState ? `${key}-window-size` : `${key}-window-size-volatile`,
-    defaultValue: defaultSize,
-    getInitialValueInEffect: true,
-  });
+  // Effect for hydration - runs only on client
+  useEffect(() => {
+    if (!isHydrated) {
+      setIsHydrated(true);
 
-  const [positionState, setPositionState] = useState<WindowPosition>(defaultPosition);
-  const [sizeState, setSizeState] = useState<WindowSize>(defaultSize);
+      if (persistState) {
+        const persistedState = getPersistedWindowState(
+          key,
+          defaultPosition,
+          defaultSize,
+          collapsed ?? false
+        );
 
-  // Select the appropriate state based on persistState
-  const position = persistState ? positionStorage : positionState;
-  const size = persistState ? sizeStorage : sizeState;
+        setPositionState(persistedState.position);
+        setSizeState(persistedState.size);
+
+        // Only use persisted collapsed state if collapsed prop is not explicitly set
+        if (collapsed === undefined) {
+          setIsCollapsedState(persistedState.collapsed);
+        }
+      }
+    }
+  }, [isHydrated, persistState, key, defaultPosition, defaultSize, collapsed]);
 
   const setPosition = useCallback(
     (newPosition: WindowPosition | ((prev: WindowPosition) => WindowPosition)) => {
       const pos = typeof newPosition === 'function' ? newPosition(position) : newPosition;
-      if (persistState) {
-        setPositionStorage(pos);
-      } else {
-        setPositionState(pos);
+      setPositionState(pos);
+
+      if (persistState && isHydrated) {
+        const currentState = getPersistedWindowState(
+          key,
+          defaultPosition,
+          defaultSize,
+          collapsed ?? false
+        );
+        setPersistedWindowState(key, {
+          ...currentState,
+          position: pos,
+        });
       }
+
       onPositionChange?.(pos);
     },
-    [persistState, position, setPositionStorage, onPositionChange]
+    [
+      position,
+      persistState,
+      isHydrated,
+      key,
+      defaultPosition,
+      defaultSize,
+      collapsed,
+      onPositionChange,
+    ]
   );
 
   const setSize = useCallback(
     (newSize: WindowSize | ((prev: WindowSize) => WindowSize)) => {
       const sz = typeof newSize === 'function' ? newSize(size) : newSize;
-      if (persistState) {
-        setSizeStorage(sz);
-      } else {
-        setSizeState(sz);
+      setSizeState(sz);
+
+      if (persistState && isHydrated) {
+        const currentState = getPersistedWindowState(
+          key,
+          defaultPosition,
+          defaultSize,
+          collapsed ?? false
+        );
+        setPersistedWindowState(key, {
+          ...currentState,
+          size: sz,
+        });
       }
+
       onSizeChange?.(sz);
     },
-    [persistState, size, setSizeStorage, onSizeChange]
+    [size, persistState, isHydrated, key, defaultPosition, defaultSize, collapsed, onSizeChange]
+  );
+
+  const setIsCollapsed = useCallback(
+    (newCollapsed: boolean | ((prev: boolean) => boolean)) => {
+      const collapsedValue =
+        typeof newCollapsed === 'function' ? newCollapsed(isCollapsed) : newCollapsed;
+      setIsCollapsedState(collapsedValue);
+
+      if (persistState && isHydrated) {
+        const currentState = getPersistedWindowState(
+          key,
+          defaultPosition,
+          defaultSize,
+          collapsed ?? false
+        );
+        setPersistedWindowState(key, {
+          ...currentState,
+          collapsed: collapsedValue,
+        });
+      }
+    },
+    [isCollapsed, persistState, isHydrated, key, defaultPosition, defaultSize, collapsed]
   );
 
   const bringToFront = useCallback(() => {
@@ -97,9 +209,21 @@ export function useWindowState(options: UseWindowStateOptions) {
     setIsVisible(opened ?? false);
   }, [opened]);
 
+  // Sync collapsed state with props (props have priority)
   useEffect(() => {
-    setIsCollapsed(collapsed ?? false);
-  }, [collapsed]);
+    if (collapsed !== undefined) {
+      setIsCollapsedState(collapsed);
+
+      // Also persist if persistState is enabled and we're hydrated
+      if (persistState && isHydrated) {
+        const currentState = getPersistedWindowState(key, defaultPosition, defaultSize, false);
+        setPersistedWindowState(key, {
+          ...currentState,
+          collapsed,
+        });
+      }
+    }
+  }, [collapsed, persistState, isHydrated, key, defaultPosition, defaultSize]);
 
   return {
     isCollapsed,
