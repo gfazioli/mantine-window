@@ -16,7 +16,6 @@ function Demo(props: WindowProps) {
         }}
         maxWidth={500}
         maxHeight={500}
-        persistState={false}
         withinPortal={false}
         {...props}
         opened
@@ -38,7 +37,6 @@ function Demo() {
       <Window
         defaultPosition={{ x: 0, y: 0}}
         defaultSize={{ width: 320, height: 256 }}
-        persistState={false}
         withinPortal={false}
         maxWidth={500}
         maxHeight={500}
