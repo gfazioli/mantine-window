@@ -1,6 +1,6 @@
 # Mantine Window Component
 
-<img alt="Mantine Window" src="https://github.com/gfazioli/mantine-window/blob/master/logo.png" />
+<img alt="Mantine Window" src="https://github.com/gfazioli/mantine-window/blob/master/logo.jpeg" />
 
 <div align="center">
   
