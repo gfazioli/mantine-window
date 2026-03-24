@@ -179,6 +179,9 @@ export type WindowFactory = Factory<{
   vars: WindowCssVariables;
 }>;
 
+/** Height of the window header in pixels — must match .header { height } in Window.module.css */
+const HEADER_HEIGHT = 40;
+
 export const defaultProps: Partial<WindowProps> = {
   withBorder: true,
   shadow: 'md',
@@ -367,7 +370,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
             <ScrollArea
               {...getStyles('content', {
                 style: {
-                  height: Math.max(0, size.height - 40),
+                  height: Math.max(0, size.height - HEADER_HEIGHT),
                 },
               })}
             >

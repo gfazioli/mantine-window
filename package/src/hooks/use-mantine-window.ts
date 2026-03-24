@@ -99,41 +99,48 @@ export function useMantineWindow(props: WindowBaseProps) {
   // Merge refs
   const mergedRef = useMergedRef(windowRef, clickOutsideRef);
 
-  // Global mouse/touch event handlers
+  // Use refs for drag/resize handlers so global listeners stay stable
+  const dragRef = useRef(drag);
+  dragRef.current = drag;
+
+  const resizeRef = useRef(resize);
+  resizeRef.current = resize;
+
+  // Global mouse/touch event handlers — registered once, use refs to access latest handlers
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      drag.handleDragMove(e.clientX, e.clientY);
+      dragRef.current.handleDragMove(e.clientX, e.clientY);
 
-      if (resize.isResizing.current) {
-        resize.handleResize(e.clientX, e.clientY);
+      if (resizeRef.current.isResizing.current) {
+        resizeRef.current.handleResize(e.clientX, e.clientY);
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (drag.isDragging.current || resize.isResizing.current) {
+      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
         const touch = e.touches[0];
-        drag.handleDragMove(touch.clientX, touch.clientY);
+        dragRef.current.handleDragMove(touch.clientX, touch.clientY);
 
-        if (resize.isResizing.current) {
-          resize.handleResize(touch.clientX, touch.clientY);
+        if (resizeRef.current.isResizing.current) {
+          resizeRef.current.handleResize(touch.clientX, touch.clientY);
         }
         e.preventDefault();
       }
     };
 
     const handleMouseUp = () => {
-      if (drag.isDragging.current || resize.isResizing.current) {
-        drag.handleDragEnd();
-        resize.handleResizeEnd();
+      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
+        dragRef.current.handleDragEnd();
+        resizeRef.current.handleResizeEnd();
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
       }
     };
 
     const handleTouchEnd = () => {
-      if (drag.isDragging.current || resize.isResizing.current) {
-        drag.handleDragEnd();
-        resize.handleResizeEnd();
+      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
+        dragRef.current.handleDragEnd();
+        resizeRef.current.handleResizeEnd();
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
       }
@@ -156,7 +163,7 @@ export function useMantineWindow(props: WindowBaseProps) {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, [drag, resize]);
+  }, []);
 
   return {
     isCollapsed: state.isCollapsed,
