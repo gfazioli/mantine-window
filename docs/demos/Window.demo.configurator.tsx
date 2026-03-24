@@ -6,14 +6,10 @@ function Demo(props: WindowProps) {
   return (
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        defaultPosition={{
-          x: 0,
-          y: 0,
-        }}
-        defaultSize={{
-          width: 320,
-          height: 256,
-        }}
+        defaultX={0}
+        defaultY={0}
+        defaultWidth={320}
+        defaultHeight={256}
         maxWidth={500}
         maxHeight={500}
         withinPortal={false}
@@ -35,8 +31,8 @@ function Demo() {
     {/** In this demo, the Window is positioned relative to its parent container. Check the docs below to learn more about the "withinPortal" prop. */}
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        defaultPosition={{ x: 0, y: 0}}
-        defaultSize={{ width: 320, height: 256 }}
+        defaultX={0} defaultY={0}
+        defaultWidth={320} defaultHeight={256}
         withinPortal={false}
         maxWidth={500}
         maxHeight={500}

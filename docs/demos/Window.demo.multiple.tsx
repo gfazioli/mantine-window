@@ -12,8 +12,8 @@ function Demo() {
         title="Window 1"
         id="demo-window-1"
         opened
-        defaultPosition={{ x: 20, y: 20 }}
-        defaultSize={{ width: 300, height: 250 }}
+        defaultX={20} defaultY={20}
+        defaultWidth={300} defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >
@@ -24,8 +24,8 @@ function Demo() {
         title="Window 2"
         id="demo-window-2"
         opened
-        defaultPosition={{ x: 180, y: 80 }}
-        defaultSize={{ width: 300, height: 250 }}
+        defaultX={180} defaultY={80}
+        defaultWidth={300} defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >
@@ -44,8 +44,10 @@ function Demo() {
         title="Window 1"
         id="demo-window-1"
         opened
-        defaultPosition={{ x: 20, y: 20 }}
-        defaultSize={{ width: 300, height: 250 }}
+        defaultX={20}
+        defaultY={20}
+        defaultWidth={300}
+        defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >
@@ -56,8 +58,10 @@ function Demo() {
         title="Window 2"
         id="demo-window-2"
         opened
-        defaultPosition={{ x: 180, y: 80 }}
-        defaultSize={{ width: 300, height: 250 }}
+        defaultX={180}
+        defaultY={80}
+        defaultWidth={300}
+        defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >

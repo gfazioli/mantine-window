@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Percentage Drag Bounds"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 350, height: 280 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={350} defaultHeight={280}
         dragBounds={{
           minX: '5%',
           maxX: '75%',
@@ -44,8 +44,10 @@ function Demo() {
       <Window
         title="Percentage Drag Bounds"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 350, height: 280 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={350}
+        defaultHeight={280}
         dragBounds={{
           minX: '5%',
           maxX: '75%',

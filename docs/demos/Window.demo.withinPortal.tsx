@@ -25,7 +25,7 @@ function Demo() {
         onClose={closePortal}
         withinPortal={true}
         persistState={false}
-        defaultPosition={{ x: 100, y: 100 }}
+        defaultX={100} defaultY={100}
       >
         <Stack p="md">
           <Title order={4}>Portal Window</Title>
@@ -39,16 +39,16 @@ function Demo() {
       {/* Container for relative window */}
       <Stack pos="relative" style={{ width: '100%', height: 400, border: '2px dashed gray' }} p="md">
         <Text c="dimmed" size="sm">Container with position: relative</Text>
-        
+
         {/* Window with withinPortal={false} - absolute positioning */}
-        <Window 
-          title="Relative Window (Container)" 
-          opened={containerOpened} 
+        <Window
+          title="Relative Window (Container)"
+          opened={containerOpened}
           onClose={closeContainer}
           withinPortal={false}
           persistState={false}
-          defaultPosition={{ x: 0, y: 0 }}
-          defaultSize={{ width: 400, height: 300 }}
+          defaultX={0} defaultY={0}
+          defaultWidth={400} defaultHeight={300}
         >
           <Stack p="md">
             <Title order={4}>Container Window</Title>
@@ -82,7 +82,8 @@ function Demo() {
         onClose={closePortal}
         withinPortal
         persistState={false}
-        defaultPosition={{ x: 100, y: 100 }}
+        defaultX={100}
+        defaultY={100}
       >
         <Stack p="md">
           <Title order={4}>Portal Window</Title>
@@ -110,8 +111,10 @@ function Demo() {
           onClose={closeContainer}
           withinPortal={false}
           persistState={false}
-          defaultPosition={{ x: 0, y: 0 }}
-          defaultSize={{ width: 400, height: 300 }}
+          defaultX={0}
+          defaultY={0}
+          defaultWidth={400}
+          defaultHeight={300}
         >
           <Stack p="md">
             <Title order={4}>Container Window</Title>

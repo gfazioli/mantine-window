@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Bounded Dragging"
         opened
-        defaultPosition={{ x: 100, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={100} defaultY={50}
+        defaultWidth={400} defaultHeight={300}
         dragBounds={{
           minX: 50,
           maxX: 500,
@@ -37,8 +37,10 @@ function Demo() {
       <Window
         title="Bounded Dragging"
         opened
-        defaultPosition={{ x: 100, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={100}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={300}
         dragBounds={{
           minX: 50,
           maxX: 500,

@@ -17,8 +17,8 @@ function Demo() {
         title="Viewport-based Drag Bounds"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '10vw', y: '10vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX="10vw" defaultY="10vh"
+        defaultWidth={400} defaultHeight={300}
         dragBounds={{
           minX: '10vw',
           maxX: '70vw',
@@ -53,8 +53,10 @@ function Demo() {
         title="Viewport-based Drag Bounds"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '10vw', y: '10vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX="10vw"
+        defaultY="10vh"
+        defaultWidth={400}
+        defaultHeight={300}
         dragBounds={{
           minX: '10vw',
           maxX: '70vw',

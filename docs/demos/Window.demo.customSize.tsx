@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Custom Size"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 500, height: 400 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={500} defaultHeight={400}
         persistState={false}
         withinPortal={false}
       >
@@ -29,8 +29,10 @@ function Demo() {
       <Window
         title="Custom Size"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 500, height: 400 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={500}
+        defaultHeight={400}
         persistState={false}
         withinPortal={false}
       >

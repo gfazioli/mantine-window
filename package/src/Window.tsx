@@ -20,6 +20,7 @@ import {
   type MantineShadow,
 } from '@mantine/core';
 import { useMantineWindow } from './hooks/use-mantine-window';
+import type { ResponsiveValue } from './hooks/use-responsive-value';
 import classes from './Window.module.css';
 
 export type WindowStylesNames =
@@ -73,19 +74,20 @@ export interface WindowBounds {
   maxY?: number | string;
 }
 
+/** Internal type for position state and callbacks */
+export interface WindowPosition {
+  x: number | string;
+  y: number | string;
+}
+
+/** Internal type for size state and callbacks */
 export interface WindowSize {
-  /** Width. Supports pixels (number), viewport width ('50vw'), viewport height ('30vh'), or percentages ('80%'). */
   width: number | string;
-  /** Height. Supports pixels (number), viewport width ('40vw'), viewport height ('50vh'), or percentages ('60%'). */
   height: number | string;
 }
 
-export interface WindowPosition {
-  /** X coordinate. Supports pixels (number), viewport width ('10vw'), viewport height ('5vh'), or percentages ('20%'). */
-  x: number | string;
-  /** Y coordinate. Supports pixels (number), viewport width ('5vw'), viewport height ('10vh'), or percentages ('15%'). */
-  y: number | string;
-}
+/** Dimension value type: pixels (number), viewport units ('50vw', '30vh'), or percentages ('80%') */
+type DimensionValue = ResponsiveValue<number | string>;
 
 export interface WindowBaseProps {
   /** Whether the window is opened for controlled usage */
@@ -100,14 +102,14 @@ export interface WindowBaseProps {
   /** Title of the window. Used as a fallback id if no id is provided */
   title?: string;
 
-  /** Radius of the window */
-  radius?: MantineRadius | number;
+  /** Radius of the window. Supports responsive values. */
+  radius?: ResponsiveValue<MantineRadius | (string & {}) | number>;
 
   /** Whether the window has a border */
   withBorder?: boolean;
 
-  /** Shadow of the window */
-  shadow?: MantineShadow;
+  /** Shadow of the window. Supports responsive values. */
+  shadow?: ResponsiveValue<MantineShadow>;
 
   /** Resizable mode of the window */
   resizable?: ResizableMode;
@@ -133,26 +135,56 @@ export interface WindowBaseProps {
   /** Called when the window is closed */
   onClose?: () => void;
 
-  /** Initial position of the window. If not provided, defaults to { x: 20, y: 100 } */
-  defaultPosition?: WindowPosition;
+  // ─── Position (controlled) ──────────────────────────────────────────
 
-  /** Initial size of the window. If not provided, defaults to { width: 400, height: 400 } */
-  defaultSize?: WindowSize;
+  /** Controlled X position. When set, the component does not manage X internally. Supports responsive values. */
+  x?: DimensionValue;
 
-  /** Minimum width during resize. Supports pixels (number), viewport units ('50vw', '30vh'), or percentages ('80%'). Default: 250 */
-  minWidth?: number | string;
+  /** Controlled Y position. When set, the component does not manage Y internally. Supports responsive values. */
+  y?: DimensionValue;
 
-  /** Minimum height during resize. Supports pixels (number), viewport units ('50vh', '30vw'), or percentages ('60%'). Default: 100 */
-  minHeight?: number | string;
+  // ─── Position (uncontrolled) ────────────────────────────────────────
 
-  /** Maximum width during resize. Supports pixels (number), viewport units ('90vw', '70vh'), or percentages ('95%'). If not provided, no maximum limit */
-  maxWidth?: number | string;
+  /** Initial X position (uncontrolled). Default: 20. Supports responsive values. */
+  defaultX?: DimensionValue;
 
-  /** Maximum height during resize. Supports pixels (number), viewport units ('90vh', '70vw'), or percentages ('85%'). If not provided, no maximum limit */
-  maxHeight?: number | string;
+  /** Initial Y position (uncontrolled). Default: 100. Supports responsive values. */
+  defaultY?: DimensionValue;
 
-  /** Boundaries for dragging the window. If not provided, window can be dragged anywhere within viewport */
-  dragBounds?: WindowBounds;
+  // ─── Size (controlled) ──────────────────────────────────────────────
+
+  /** Controlled width. When set, the component does not manage width internally. Supports responsive values. */
+  width?: DimensionValue;
+
+  /** Controlled height. When set, the component does not manage height internally. Supports responsive values. */
+  height?: DimensionValue;
+
+  // ─── Size (uncontrolled) ────────────────────────────────────────────
+
+  /** Initial width (uncontrolled). Default: 400. Supports responsive values. */
+  defaultWidth?: DimensionValue;
+
+  /** Initial height (uncontrolled). Default: 400. Supports responsive values. */
+  defaultHeight?: DimensionValue;
+
+  // ─── Constraints ────────────────────────────────────────────────────
+
+  /** Minimum width during resize. Supports responsive values. Default: 250 */
+  minWidth?: DimensionValue;
+
+  /** Minimum height during resize. Supports responsive values. Default: 100 */
+  minHeight?: DimensionValue;
+
+  /** Maximum width during resize. Supports responsive values. If not provided, no maximum limit */
+  maxWidth?: DimensionValue;
+
+  /** Maximum height during resize. Supports responsive values. If not provided, no maximum limit */
+  maxHeight?: DimensionValue;
+
+  /** Boundaries for dragging the window. Supports responsive values. If not provided, window can be dragged anywhere within viewport */
+  dragBounds?: ResponsiveValue<WindowBounds>;
+
+  // ─── Behavior ───────────────────────────────────────────────────────
 
   /** Whether to persist position and size in localStorage. You have to set the `id` or `title` prop for persistence to work. Default: false */
   persistState?: boolean;
@@ -160,11 +192,11 @@ export interface WindowBaseProps {
   /** If true, window is positioned relative to the viewport. If false, positioned relative to parent container. Default: true */
   withinPortal?: boolean;
 
-  /** Called when the window is moved */
-  onPositionChange?: (position: WindowPosition) => void;
+  /** Called when the window is moved. Receives pixel values. */
+  onPositionChange?: (position: { x: number; y: number }) => void;
 
-  /** Called when the window is resized */
-  onSizeChange?: (size: WindowSize) => void;
+  /** Called when the window is resized. Receives pixel values. */
+  onSizeChange?: (size: { width: number; height: number }) => void;
 
   /** Window content */
   children?: React.ReactNode;
@@ -238,6 +270,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     withCloseButton,
     onClose,
     radius,
+    shadow,
     withinPortal,
     persistState,
     minWidth,
@@ -245,8 +278,14 @@ export const Window = factory<WindowFactory>((_props, _) => {
     maxWidth,
     maxHeight,
     dragBounds,
-    defaultPosition,
-    defaultSize,
+    x,
+    y,
+    defaultX,
+    defaultY,
+    width,
+    height,
+    defaultWidth,
+    defaultHeight,
     onPositionChange,
     onSizeChange,
     withBorder,

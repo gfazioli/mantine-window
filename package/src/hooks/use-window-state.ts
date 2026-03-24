@@ -63,11 +63,22 @@ export interface UseWindowStateOptions {
   opened?: boolean;
   collapsed?: boolean;
   persistState?: boolean;
-  defaultPosition?: WindowPosition;
-  defaultSize?: WindowSize;
+
+  // Controlled values (undefined = uncontrolled for that axis)
+  x?: number | string;
+  y?: number | string;
+  width?: number | string;
+  height?: number | string;
+
+  // Uncontrolled defaults
+  defaultX?: number | string;
+  defaultY?: number | string;
+  defaultWidth?: number | string;
+  defaultHeight?: number | string;
+
   onClose?: () => void;
-  onPositionChange?: (position: WindowPosition) => void;
-  onSizeChange?: (size: WindowSize) => void;
+  onPositionChange?: (position: { x: number; y: number }) => void;
+  onSizeChange?: (size: { width: number; height: number }) => void;
 }
 
 export function useWindowState(options: UseWindowStateOptions) {
@@ -77,12 +88,25 @@ export function useWindowState(options: UseWindowStateOptions) {
     opened,
     collapsed,
     persistState = false,
-    defaultPosition = { x: 20, y: 100 },
-    defaultSize = { width: 400, height: 400 },
+    // Controlled
+    x: controlledX,
+    y: controlledY,
+    width: controlledWidth,
+    height: controlledHeight,
+    // Uncontrolled defaults
+    defaultX = 20,
+    defaultY = 100,
+    defaultWidth = 400,
+    defaultHeight = 400,
     onClose,
     onPositionChange,
     onSizeChange,
   } = options;
+
+  const isXControlled = controlledX !== undefined;
+  const isYControlled = controlledY !== undefined;
+  const isWidthControlled = controlledWidth !== undefined;
+  const isHeightControlled = controlledHeight !== undefined;
 
   const [isVisible, setIsVisible] = useState(opened ?? false);
   const [zIndex, setZIndex] = useState(200);
@@ -90,12 +114,27 @@ export function useWindowState(options: UseWindowStateOptions) {
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
 
-  // Initialize state with SSR-safe defaults first
-  const [position, setPositionState] = useState<WindowPosition>(defaultPosition);
-  const [size, setSizeState] = useState<WindowSize>(defaultSize);
+  // Compose default objects for localStorage compatibility
+  const defaultPosition: WindowPosition = { x: defaultX, y: defaultY };
+  const defaultSize: WindowSize = { width: defaultWidth, height: defaultHeight };
+
+  // Internal state — used only when uncontrolled
+  const [internalPosition, setInternalPositionState] = useState<WindowPosition>(defaultPosition);
+  const [internalSize, setInternalSizeState] = useState<WindowSize>(defaultSize);
   const [isCollapsed, setIsCollapsedState] = useState<boolean>(collapsed ?? false);
 
-  // Refs to avoid stale closures in callbacks — keeps callbacks stable across renders
+  // Compute current position/size: controlled values override internal state
+  const position: WindowPosition = {
+    x: isXControlled ? controlledX : internalPosition.x,
+    y: isYControlled ? controlledY : internalPosition.y,
+  };
+
+  const size: WindowSize = {
+    width: isWidthControlled ? controlledWidth : internalSize.width,
+    height: isHeightControlled ? controlledHeight : internalSize.height,
+  };
+
+  // Refs to avoid stale closures in callbacks
   const persistRef = useRef({
     persistState,
     isHydrated,
@@ -103,8 +142,23 @@ export function useWindowState(options: UseWindowStateOptions) {
     defaultPosition,
     defaultSize,
     collapsed,
+    isXControlled,
+    isYControlled,
+    isWidthControlled,
+    isHeightControlled,
   });
-  persistRef.current = { persistState, isHydrated, key, defaultPosition, defaultSize, collapsed };
+  persistRef.current = {
+    persistState,
+    isHydrated,
+    key,
+    defaultPosition,
+    defaultSize,
+    collapsed,
+    isXControlled,
+    isYControlled,
+    isWidthControlled,
+    isHeightControlled,
+  };
 
   const onPositionChangeRef = useRef(onPositionChange);
   onPositionChangeRef.current = onPositionChange;
@@ -112,7 +166,6 @@ export function useWindowState(options: UseWindowStateOptions) {
   const onSizeChangeRef = useRef(onSizeChange);
   onSizeChangeRef.current = onSizeChange;
 
-  // Refs to track latest state values — avoids stale closures without adding deps
   const positionRef = useRef(position);
   positionRef.current = position;
 
@@ -122,7 +175,8 @@ export function useWindowState(options: UseWindowStateOptions) {
   const isCollapsedRef = useRef(isCollapsed);
   isCollapsedRef.current = isCollapsed;
 
-  // Effect for hydration - runs only on client
+  // ─── Hydration (localStorage) ───────────────────────────────────────
+
   useEffect(() => {
     if (!isHydrated) {
       setIsHydrated(true);
@@ -135,18 +189,23 @@ export function useWindowState(options: UseWindowStateOptions) {
           collapsed ?? false
         );
 
-        setPositionState(persistedState.position);
-        setSizeState(persistedState.size);
+        // Only hydrate uncontrolled values
+        if (!isXControlled || !isYControlled) {
+          setInternalPositionState(persistedState.position);
+        }
+        if (!isWidthControlled || !isHeightControlled) {
+          setInternalSizeState(persistedState.size);
+        }
 
-        // Only use persisted collapsed state if collapsed prop is not explicitly set
         if (collapsed === undefined) {
           setIsCollapsedState(persistedState.collapsed);
         }
       }
     }
-  }, [isHydrated, persistState, key, defaultPosition, defaultSize, collapsed]);
+  }, [isHydrated]);
 
-  // Debounced persistence — batches rapid updates (drag/resize) into a single localStorage write
+  // ─── Debounced persistence ──────────────────────────────────────────
+
   const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingPersistRef = useRef<Partial<WindowPersistedState>>({});
 
@@ -182,7 +241,6 @@ export function useWindowState(options: UseWindowStateOptions) {
     [flushPersist]
   );
 
-  // Flush pending persistence on unmount
   useEffect(() => {
     return () => {
       if (persistTimerRef.current) {
@@ -192,13 +250,25 @@ export function useWindowState(options: UseWindowStateOptions) {
     };
   }, [flushPersist]);
 
+  // ─── Setters ────────────────────────────────────────────────────────
+
   const setPosition = useCallback(
     (newPosition: WindowPosition | ((prev: WindowPosition) => WindowPosition)) => {
       const pos =
         typeof newPosition === 'function' ? newPosition(positionRef.current) : newPosition;
-      setPositionState(pos);
+
+      const { isXControlled: xCtrl, isYControlled: yCtrl } = persistRef.current;
+
+      // Only update internal state for uncontrolled axes
+      if (!xCtrl || !yCtrl) {
+        setInternalPositionState((prev) => ({
+          x: xCtrl ? prev.x : pos.x,
+          y: yCtrl ? prev.y : pos.y,
+        }));
+      }
+
       persistSideEffect({ position: pos });
-      onPositionChangeRef.current?.(pos);
+      onPositionChangeRef.current?.(pos as { x: number; y: number });
     },
     [persistSideEffect]
   );
@@ -206,9 +276,19 @@ export function useWindowState(options: UseWindowStateOptions) {
   const setSize = useCallback(
     (newSize: WindowSize | ((prev: WindowSize) => WindowSize)) => {
       const sz = typeof newSize === 'function' ? newSize(sizeRef.current) : newSize;
-      setSizeState(sz);
+
+      const { isWidthControlled: wCtrl, isHeightControlled: hCtrl } = persistRef.current;
+
+      // Only update internal state for uncontrolled dimensions
+      if (!wCtrl || !hCtrl) {
+        setInternalSizeState((prev) => ({
+          width: wCtrl ? prev.width : sz.width,
+          height: hCtrl ? prev.height : sz.height,
+        }));
+      }
+
       persistSideEffect({ size: sz });
-      onSizeChangeRef.current?.(sz);
+      onSizeChangeRef.current?.(sz as { width: number; height: number });
     },
     [persistSideEffect]
   );
@@ -235,17 +315,16 @@ export function useWindowState(options: UseWindowStateOptions) {
     setIsVisible(false);
   }, [onClose]);
 
-  // Sync with props
+  // ─── Sync with props ────────────────────────────────────────────────
+
   useEffect(() => {
     setIsVisible(opened ?? false);
   }, [opened]);
 
-  // Sync collapsed state with props (props have priority)
   useEffect(() => {
     if (collapsed !== undefined) {
       setIsCollapsedState(collapsed);
 
-      // Also persist if persistState is enabled and we're hydrated
       if (persistState && isHydrated) {
         const currentState = getPersistedWindowState(key, defaultPosition, defaultSize, false);
         setPersistedWindowState(key, {
@@ -254,7 +333,7 @@ export function useWindowState(options: UseWindowStateOptions) {
         });
       }
     }
-  }, [collapsed, persistState, isHydrated, key, defaultPosition, defaultSize]);
+  }, [collapsed]);
 
   return {
     isCollapsed,

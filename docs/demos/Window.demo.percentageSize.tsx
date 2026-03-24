@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Percentage Size"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: '60%', height: '50%' }}
+        defaultX={50} defaultY={50}
+        defaultWidth="60%" defaultHeight="50%"
         persistState={false}
         withinPortal={false}
       >
@@ -41,8 +41,10 @@ function Demo() {
       <Window
         title="Percentage Size"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: '60%', height: '50%' }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth="60%"
+        defaultHeight="50%"
         persistState={false}
         withinPortal={false}
       >

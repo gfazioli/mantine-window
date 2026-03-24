@@ -17,8 +17,8 @@ function Demo() {
         title="Mixed Unit Drag Bounds"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: '10vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50} defaultY="10vh"
+        defaultWidth={400} defaultHeight={300}
         dragBounds={{
           minX: 50,
           maxX: '80vw',
@@ -58,8 +58,10 @@ function Demo() {
         title="Mixed Unit Drag Bounds"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: '10vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50}
+        defaultY="10vh"
+        defaultWidth={400}
+        defaultHeight={300}
         dragBounds={{
           minX: 50,
           maxX: '80vw',

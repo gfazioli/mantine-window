@@ -19,7 +19,7 @@ import '@gfazioli/mantine-window/styles.layer.css';
 
 ## Usage
 
-The `Window` component allows you to create draggable and resizable windows within your application. It provides a familiar desktop-like experience for users. You can customize the appearance and behavior of the windows using various props. Also, you can choose whether the window should be rendered within a portal or relative to its parent container using the `withinPortal` prop.
+The `Window` component allows you to create draggable and resizable windows within your application. It provides a familiar desktop-like experience for users. You can customize the appearance and behavior of the windows using various props.
 
 > **Note:**
 >
@@ -34,6 +34,18 @@ The `Window` component allows you to create draggable and resizable windows with
 You can control the open and close state of the `Window` component using the `opened` and `onClose` props. This allows you to manage the visibility of the window programmatically.
 
 <Demo data={demos.controlled} />
+
+## Custom Position
+
+Set the initial position of the window using the `defaultX` and `defaultY` props. These define where the window appears when first rendered.
+
+<Demo data={demos.customPosition} />
+
+## Custom Size
+
+Set custom initial dimensions for the window using the `defaultWidth` and `defaultHeight` props.
+
+<Demo data={demos.customSize} />
 
 ## Within Portal vs Container
 
@@ -54,135 +66,103 @@ The `withinPortal` prop controls how the window is positioned. When `withinPorta
 
 <Demo data={demos.withinPortal} />
 
-## Custom Position
+## Unit Types
 
-You can set the initial position of the window using the `defaultPosition` prop. This is useful when you want the window to appear at a specific location on the screen.
+Position and size props (`defaultX`, `defaultY`, `defaultWidth`, `defaultHeight`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight`) support three unit types:
 
-<Demo data={demos.customPosition} />
-
-## Custom Size
-
-Set custom initial dimensions for the window using the `defaultSize` prop. This allows you to control the width and height of the window when it first appears.
-
-<Demo data={demos.customSize} />
-
-## Viewport-based Position
-
-You can use viewport units (`vw` for horizontal, `vh` for vertical) to set responsive positions that adapt to the browser window size. Viewport units are always calculated relative to the browser viewport, regardless of the `withinPortal` setting.
-
-> **Note:**
->
-> When using viewport units (vw/vh), use `withinPortal={true}` (default) for consistent behavior.
-
-<Demo data={demos.viewportPosition} />
-
-## Percentage Position
-
-Percentage units calculate position relative to the reference container. With `withinPortal={false}`, percentages are relative to the parent container. The parent container must have `position: relative` style.
-
-<Demo data={demos.percentagePosition} />
-
-## Viewport-based Size
-
-Use viewport units (`vw` for width, `vh` for height) to create responsive window sizes that scale proportionally with the viewport. Viewport units are always calculated relative to the browser viewport.
-
-> **Note:**
->
-> When using viewport units (vw/vh), use `withinPortal={true}` (default) for consistent behavior.
-
-<Demo data={demos.viewportSize} />
-
-## Percentage Size
-
-Percentage units for size work differently based on the `withinPortal` setting. With `withinPortal={false}`, percentages are calculated relative to the parent container dimensions.
-
-<Demo data={demos.percentageSize} />
-
-## Responsive Windows
-
-Combine viewport units for both position and size to create fully responsive windows. You can mix different unit types (pixels, viewport units, percentages) to achieve the perfect balance of flexibility and control.
+- **Pixels** (number): Fixed pixel values, e.g. `defaultX={100}`
+- **Viewport units** (string): `vw` for viewport width, `vh` for viewport height, e.g. `defaultX="10vw"`
+- **Percentages** (string): Relative to the reference container, e.g. `defaultX="20%"`
 
 **Understanding Unit References:**
 
-- **`vw/vh` (viewport units)**: Always relative to the **viewport (browser window)**, regardless of `withinPortal` setting
-- **`%` (percentage)**:
-  - With `withinPortal={true}` (default): relative to the **viewport (browser window)**
-  - With `withinPortal={false}`: relative to the **parent container**
-- **`px` (pixels)**: Always **fixed pixels**, regardless of `withinPortal` setting
+- **`vw/vh`**: Always relative to the **browser viewport**, regardless of `withinPortal` setting
+- **`%`**: With `withinPortal={true}` (default) relative to the **viewport**; with `withinPortal={false}` relative to the **parent container**
+- **Pixels**: Always **fixed**, regardless of `withinPortal` setting
 
 > **Best Practices:**
 >
-> - Use `vw/vh` with `withinPortal={true}` (default) for viewport-relative sizing
+> - Use `vw/vh` with `withinPortal={true}` for viewport-relative sizing
 > - Use `%` with `withinPortal={false}` for container-relative sizing
 > - Parent container must have `position: relative` when using `withinPortal={false}`
+
+### Viewport-based Position
+
+<Demo data={demos.viewportPosition} />
+
+### Percentage Position
+
+<Demo data={demos.percentagePosition} />
+
+### Viewport-based Size
+
+<Demo data={demos.viewportSize} />
+
+### Percentage Size
+
+<Demo data={demos.percentageSize} />
+
+### Mixed Units
+
+You can mix different unit types (pixels, viewport units, percentages) for both position and size to achieve the perfect balance of flexibility and control.
 
 <Demo data={demos.responsiveWindow} />
 
 ## Min/Max Size Constraints
 
-Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. This prevents the window from becoming too small or too large.
+Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. These support the same unit types as position and size props.
 
 <Demo data={demos.minMaxSize} />
 
-## Viewport-based Constraints
-
-You can use viewport units (`vw` for width, `vh` for height) to create responsive constraints that adapt to the browser window size. This is particularly useful for creating windows that scale proportionally with the viewport.
+### Viewport-based Constraints
 
 <Demo data={demos.viewportConstraints} />
 
-## Mixed Unit Constraints
-
-Mix different unit types for more flexible sizing. You can combine fixed pixel values with viewport units to create hybrid constraints that work best for your use case.
+### Mixed Unit Constraints
 
 <Demo data={demos.mixedConstraints} />
 
 ## Drag Boundaries
 
-Restrict the draggable area of the window using the `dragBounds` prop. This ensures the window stays within specific boundaries and cannot be dragged outside the defined area.
+Restrict the draggable area of the window using the `dragBounds` prop. This ensures the window stays within specific boundaries. The `dragBounds` object accepts `minX`, `maxX`, `minY`, and `maxY` values, each supporting pixels, viewport units, and percentages.
 
 <Demo data={demos.dragBounds} />
 
-## Viewport-based Drag Boundaries
-
-Use viewport units (`vw` for width, `vh` for height) to create responsive drag boundaries that adapt to the browser window size. This is useful for ensuring windows stay within proportional boundaries regardless of screen size.
+### Viewport-based Drag Boundaries
 
 <Demo data={demos.viewportDragBounds} />
 
-## Percentage Drag Boundaries
-
-Define drag boundaries using percentage values relative to the viewport or container size. Percentages provide a flexible way to constrain window movement proportionally.
+### Percentage Drag Boundaries
 
 <Demo data={demos.percentageDragBounds} />
 
-## Mixed Unit Drag Boundaries
-
-Combine different unit types (pixels, viewport units, percentages) for drag boundaries to create sophisticated constraints that meet your specific requirements.
+### Mixed Unit Drag Boundaries
 
 <Demo data={demos.mixedDragBounds} />
 
 ## Persistence
 
-Enable state persistence to save the window's position and size in localStorage by setting `persistState={true}` (default is `false`). When enabled, the window will remember its position and size across page refreshes. Set `persistState={false}` to disable this behavior and always start at the default position and size.
+Enable state persistence to save the window's position and size in localStorage by setting `persistState={true}` (default is `false`). When enabled, the window will remember its position and size across page refreshes.
 
 <Demo data={demos.persistence} />
 
 ## Callbacks
 
-Use `onPositionChange` and `onSizeChange` callbacks to respond to window movements and resize operations. These callbacks receive the current position or size as arguments.
+Use `onPositionChange` and `onSizeChange` callbacks to respond to window movements and resize operations. These callbacks receive the current position or size as pixel values.
 
 <Demo data={demos.callbacks} />
-
-## Centered Window
-
-Create a centered, fixed window that cannot be moved or resized by combining `defaultPosition`, `defaultSize`, `resizable="none"`, and `draggable="none"` props.
-
-<Demo data={demos.centered} />
 
 ## Multiple Windows
 
 You can render multiple windows in the same container. Each window maintains its own z-index and can be brought to the front by clicking on it. Use unique `id` props to ensure proper state persistence.
 
 <Demo data={demos.multiple} />
+
+## Centered Window
+
+Create a centered, fixed window that cannot be moved or resized by combining position/size props with `resizable="none"` and `draggable="none"`.
+
+<Demo data={demos.centered} />
 
 ## Disable Collapsing
 
@@ -196,18 +176,10 @@ By default, resize handles (top, bottom, left, right) are centered and have a li
 
 This provides a larger interaction area, making it easier to resize the window from any edge.
 
-**Benefits:**
-
-- **Larger hit area**: Side handles span the full edge length
-- **Better UX**: No need for precision to find the resize handle
-- **Corner handles preserved**: Diagonal resizing still available at 14x14px corners
-
 <Demo data={demos.fullSizeHandles} />
 
 ## Styles API
 
 `Window` supports [Styles API](https://mantine.dev/styles/styles-api/), you can add styles to any inner element of the component with `classNames` prop. Follow [Styles API](https://mantine.dev/styles/styles-api/) documentation to learn more.
-
-You can customize the appearance of the `Window` component using the Styles API. This allows you to modify styles for various parts of the component, such as keys, values, brackets, and more.
 
 <Demo data={demos.stylesApi} />

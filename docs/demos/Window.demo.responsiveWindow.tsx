@@ -17,8 +17,8 @@ function Demo() {
         title="Responsive Window"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '5vw', y: '10vh' }}
-        defaultSize={{ width: '50vw', height: '40vh' }}
+        defaultX="5vw" defaultY="10vh"
+        defaultWidth="50vw" defaultHeight="40vh"
         minWidth="300px"
         minHeight="200px"
         maxWidth="90vw"
@@ -61,8 +61,10 @@ function Demo() {
         title="Responsive Window"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '5vw', y: '10vh' }}
-        defaultSize={{ width: '50vw', height: '40vh' }}
+        defaultX="5vw"
+        defaultY="10vh"
+        defaultWidth="50vw"
+        defaultHeight="40vh"
         minWidth="300px"
         minHeight="200px"
         maxWidth="90vw"

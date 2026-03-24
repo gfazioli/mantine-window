@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Full Size Resize Handles"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 450, height: 350 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={450} defaultHeight={350}
         fullSizeResizeHandles
         persistState={false}
         withinPortal={false}
@@ -38,8 +38,10 @@ function Demo() {
       <Window
         title="Full Size Resize Handles"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 450, height: 350 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={450}
+        defaultHeight={350}
         fullSizeResizeHandles
         persistState={false}
         withinPortal={false}
