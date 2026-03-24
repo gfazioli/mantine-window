@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Box, factory, Factory, useProps, type BoxProps } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import {
@@ -18,6 +18,12 @@ export interface WindowGroupProps extends BoxProps {
 
   /** Whether to show the tools button on windows in this group. Default: true */
   showToolsButton?: boolean;
+
+  /** Initial layout to apply after windows have registered. Applied once on mount. */
+  defaultLayout?: WindowLayout;
+
+  /** Ref to access group API imperatively (applyLayout, closeAll, etc.) */
+  groupRef?: React.Ref<WindowGroupContextValue>;
 
   /** Called when a layout is applied */
   onLayoutChange?: (layout: WindowLayout) => void;
@@ -42,6 +48,8 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
     id: groupId = 'window-group',
     withinPortal = false,
     showToolsButton = true,
+    defaultLayout,
+    groupRef,
     onLayoutChange,
     children,
     style,
@@ -190,12 +198,42 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
   }, []);
 
   const collapseAll = useCallback(() => {
-    callbacksRef.current.forEach((cb) => cb.setIsCollapsed(true));
+    callbacksRef.current.forEach((cb, windowId) => {
+      const state = registryRef.current.get(windowId);
+      if (state?.collapsable) {
+        cb.setIsCollapsed(true);
+      }
+    });
   }, []);
 
   const expandAll = useCallback(() => {
-    callbacksRef.current.forEach((cb) => cb.setIsCollapsed(false));
+    callbacksRef.current.forEach((cb, windowId) => {
+      const state = registryRef.current.get(windowId);
+      if (state?.collapsable) {
+        cb.setIsCollapsed(false);
+      }
+    });
   }, []);
+
+  // ─── Apply default layout after windows register ───────────────────
+
+  const defaultLayoutAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (!defaultLayout || defaultLayoutAppliedRef.current) {
+      return;
+    }
+
+    // Wait for windows to register and container to be measured
+    const raf = requestAnimationFrame(() => {
+      if (registryRef.current.size > 0 && containerWidth > 0 && containerHeight > 0) {
+        applyLayout(defaultLayout);
+        defaultLayoutAppliedRef.current = true;
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [defaultLayout, applyLayout, containerWidth, containerHeight]);
 
   // ─── Context value ──────────────────────────────────────────────────
 
@@ -216,6 +254,9 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
     getWindowIds,
     showToolsButton,
   };
+
+  // Expose group API via groupRef for external control
+  useImperativeHandle(groupRef, () => contextValue, [contextValue]);
 
   const mergedStyle = {
     position: 'relative' as const,

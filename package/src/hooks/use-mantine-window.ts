@@ -13,6 +13,7 @@ export function useMantineWindow(props: WindowBaseProps) {
   const {
     title,
     collapsed,
+    collapsable,
     opened,
     onClose,
     id,
@@ -109,6 +110,7 @@ export function useMantineWindow(props: WindowBaseProps) {
           height: 0,
           isVisible: state.isVisible,
           isCollapsed: state.isCollapsed,
+          collapsable: collapsable !== false,
         },
         {
           setPosition: state.setPosition,

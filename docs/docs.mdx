@@ -144,17 +144,31 @@ Each `Window` inside a `Window.Group` must have a unique `id` prop. The group au
 
 <Demo data={demos.group} />
 
-### Layout Presets
+### Tools Button
 
-Click the green button in any window header to access layout options. Available layouts:
+The green tools button in the window header provides layout options. It is controlled by the `withToolsButton` prop (default: `true`) and is available on every window, even outside a `Window.Group`.
 
-- **Snap left / Snap right**: Fill half the container
-- **Fill**: Maximize the window to fill the entire container
-- **Tile all**: Automatically arrange all visible windows in a grid
+**Without a Group**, the menu shows only single-window actions:
 
-The `onLayoutChange` callback notifies you when a layout is applied.
+- **Move & Resize**: Snap left, snap right, snap top, snap bottom — positions the current window to fill half of the container or viewport
+- **Fill**: Maximizes the current window to fill the entire available area
+
+**Inside a Group**, the menu also shows group-wide actions:
+
+- **Arrange Columns / Rows**: Distributes all visible windows in equal columns or rows
+- **Tile**: Arranges all visible windows in an automatic grid
+- **Collapse all / Expand all**: Collapses or expands all windows that have `collapsable={true}`. Windows with `collapsable={false}` are skipped.
+- **Close all**: Closes all windows in the group
+
+The `onLayoutChange` callback on `Window.Group` notifies you when a group layout is applied.
 
 <Demo data={demos.groupLayout} />
+
+### Layout Presets
+
+Use `defaultLayout` to apply an initial layout when the group mounts. To control the layout externally, use the `groupRef` prop to access the group API and call `applyLayout` programmatically.
+
+<Demo data={demos.layoutPresets} />
 
 ## Centered Window
 

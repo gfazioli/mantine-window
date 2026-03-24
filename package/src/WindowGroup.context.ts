@@ -18,6 +18,7 @@ export interface WindowGroupWindowState {
   height: number;
   isVisible: boolean;
   isCollapsed: boolean;
+  collapsable: boolean;
 }
 
 /** Callbacks that each Window registers with the Group so the Group can control it */
