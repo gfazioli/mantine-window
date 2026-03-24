@@ -303,6 +303,8 @@ export const Window = factory<WindowFactory>((_props, _) => {
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
       onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
       bg={color}
+      role="dialog"
+      aria-label={title}
       data-mantine-window
       {...others}
       {...getStyles('root', {
@@ -333,6 +335,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   radius={256}
                   color="red"
                   onClick={handleClose}
+                  aria-label="Close window"
                   {...getStyles('closeButton')}
                 >
                   <IconX size={14} />
@@ -343,6 +346,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   radius={256}
                   color="yellow"
                   onClick={() => setIsCollapsed(!isCollapsed)}
+                  aria-label={isCollapsed ? 'Expand window' : 'Collapse window'}
                   {...getStyles('collapseButton')}
                 >
                   {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
@@ -363,7 +367,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
             <ScrollArea
               {...getStyles('content', {
                 style: {
-                  height: size.height - 40,
+                  height: Math.max(0, size.height - 40),
                 },
               })}
             >
