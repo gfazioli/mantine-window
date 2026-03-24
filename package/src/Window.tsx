@@ -424,7 +424,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
                 </ActionIcon>
               )}
-              {withToolsButton && (
+              {withToolsButton && (groupCtx?.showToolsButton ?? true) && (
                 <Menu shadow="md" width={220} position="bottom-start" withArrow>
                   <Menu.Target>
                     <ActionIcon

@@ -600,6 +600,60 @@ describe('Window.Group', () => {
     expect(container.querySelector('.mantine-Window-content')).toBeNull();
   });
 
+  // ─── showToolsButton override from Group ─────────────────────────────
+
+  it('Group showToolsButton={false} hides tools button on all windows', () => {
+    renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }} showToolsButton={false}>
+        <Window id="w1" title="Hidden Tools" opened />
+      </Window.Group>
+    );
+    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+  });
+
+  it('Group showToolsButton={true} (default) shows tools button', () => {
+    renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Visible Tools" opened />
+      </Window.Group>
+    );
+    expect(screen.getByLabelText('Window layout options')).toBeTruthy();
+  });
+
+  it('Window withToolsButton={false} overrides even when Group shows tools', () => {
+    renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }} showToolsButton>
+        <Window id="w1" title="No Tools" opened withToolsButton={false} />
+      </Window.Group>
+    );
+    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+  });
+
+  // ─── defaultLayout ──────────────────────────────────────────────────
+
+  it('renders Window.Group with defaultLayout prop without errors', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }} defaultLayout="tile">
+        <Window id="dl-1" title="W1" opened />
+        <Window id="dl-2" title="W2" opened />
+      </Window.Group>
+    );
+    const windows = container.querySelectorAll('[data-mantine-window]');
+    expect(windows.length).toBe(2);
+  });
+
+  // ─── onLayoutChange callback ────────────────────────────────────────
+
+  it('accepts onLayoutChange callback prop', () => {
+    const onLayoutChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }} onLayoutChange={onLayoutChange}>
+        <Window id="lc-1" title="W1" opened />
+      </Window.Group>
+    );
+    expect(container).toBeTruthy();
+  });
+
   // ─── Backward compatibility ───────────────────────────────────────────
 
   it('Window still works without a group (backward compatible)', () => {
@@ -607,7 +661,6 @@ describe('Window.Group', () => {
       <Window opened title="Solo Window" defaultX={50} defaultY={50} />
     );
     expect(getWindowElement(container)).toBeTruthy();
-    // Tools button is now always visible by default (withToolsButton: true)
     expect(screen.getByLabelText('Window layout options')).toBeTruthy();
   });
 });

@@ -25,9 +25,9 @@ function Demo() {
         </Stack>
       </Window>
 
-      {/* Viewport units */}
+      {/* Percentages */}
       <Window
-        title="Viewport Units"
+        title="Percentages"
         opened
         defaultX="40%"
         defaultY={10}
@@ -88,7 +88,7 @@ function Demo() {
       </Window>
 
       <Window
-        title="Viewport Units"
+        title="Percentages"
         opened
         defaultX="40%"
         defaultY={10}
