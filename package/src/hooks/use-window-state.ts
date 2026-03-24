@@ -146,7 +146,11 @@ export function useWindowState(options: UseWindowStateOptions) {
     }
   }, [isHydrated, persistState, key, defaultPosition, defaultSize, collapsed]);
 
-  const persistSideEffect = useCallback((update: Partial<WindowPersistedState>) => {
+  // Debounced persistence — batches rapid updates (drag/resize) into a single localStorage write
+  const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPersistRef = useRef<Partial<WindowPersistedState>>({});
+
+  const flushPersist = useCallback(() => {
     const {
       persistState: ps,
       isHydrated: ih,
@@ -158,9 +162,35 @@ export function useWindowState(options: UseWindowStateOptions) {
 
     if (ps && ih) {
       const currentState = getPersistedWindowState(k, dp, ds, c ?? false);
-      setPersistedWindowState(k, { ...currentState, ...update });
+      setPersistedWindowState(k, { ...currentState, ...pendingPersistRef.current });
     }
+    pendingPersistRef.current = {};
   }, []);
+
+  const persistSideEffect = useCallback(
+    (update: Partial<WindowPersistedState>) => {
+      if (!persistRef.current.persistState) {
+        return;
+      }
+      pendingPersistRef.current = { ...pendingPersistRef.current, ...update };
+
+      if (persistTimerRef.current) {
+        clearTimeout(persistTimerRef.current);
+      }
+      persistTimerRef.current = setTimeout(flushPersist, 150);
+    },
+    [flushPersist]
+  );
+
+  // Flush pending persistence on unmount
+  useEffect(() => {
+    return () => {
+      if (persistTimerRef.current) {
+        clearTimeout(persistTimerRef.current);
+        flushPersist();
+      }
+    };
+  }, [flushPersist]);
 
   const setPosition = useCallback(
     (newPosition: WindowPosition | ((prev: WindowPosition) => WindowPosition)) => {
@@ -232,7 +262,6 @@ export function useWindowState(options: UseWindowStateOptions) {
     isVisible,
     setIsVisible,
     zIndex,
-    setZIndex,
     position,
     size,
     setPosition,
