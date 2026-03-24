@@ -132,6 +132,30 @@ You can render multiple windows in the same container. Each window maintains its
 
 <Demo data={demos.multiple} />
 
+## Window.Group
+
+Wrap multiple windows in a `Window.Group` to enable coordinated window management. The group provides:
+
+- **Coordinated z-index**: Windows within a group share a stacking context
+- **Layout presets**: Snap, tile, and fill layouts via the green tools button in each window header
+- **Global actions**: Collapse all, expand all, close all
+
+Each `Window` inside a `Window.Group` must have a unique `id` prop. The group automatically sets `withinPortal={false}` and `position: relative` on its container.
+
+<Demo data={demos.group} />
+
+### Layout Presets
+
+Click the green button in any window header to access layout options. Available layouts:
+
+- **Snap left / Snap right**: Fill half the container
+- **Fill**: Maximize the window to fill the entire container
+- **Tile all**: Automatically arrange all visible windows in a grid
+
+The `onLayoutChange` callback notifies you when a layout is applied.
+
+<Demo data={demos.groupLayout} />
+
 ## Centered Window
 
 Create a centered, fixed window that cannot be moved or resized by combining position/size props with `resizable="none"` and `draggable="none"`.

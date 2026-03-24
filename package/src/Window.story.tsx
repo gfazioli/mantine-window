@@ -939,3 +939,95 @@ export function FullSizeResizeHandlesComparison() {
     </Stack>
   );
 }
+
+export function WindowGroupBasic() {
+  return (
+    <Window.Group style={{ width: '100%', height: 600, border: '2px dashed gray' }}>
+      <Window
+        id="g-editor"
+        title="Editor"
+        opened
+        defaultX={10}
+        defaultY={10}
+        defaultWidth={300}
+        defaultHeight={250}
+      >
+        <Title order={4}>Editor</Title>
+        <p>Click the green button for layout options</p>
+      </Window>
+      <Window
+        id="g-preview"
+        title="Preview"
+        opened
+        defaultX={320}
+        defaultY={10}
+        defaultWidth={300}
+        defaultHeight={250}
+      >
+        <Title order={4}>Preview</Title>
+      </Window>
+      <Window
+        id="g-console"
+        title="Console"
+        opened
+        defaultX={10}
+        defaultY={270}
+        defaultWidth={610}
+        defaultHeight={200}
+      >
+        <Title order={4}>Console</Title>
+      </Window>
+    </Window.Group>
+  );
+}
+
+export function WindowGroupTile() {
+  return (
+    <Window.Group style={{ width: '100%', height: 600, border: '2px dashed gray' }}>
+      <Window
+        id="tile-1"
+        title="Window 1"
+        opened
+        defaultX={10}
+        defaultY={10}
+        defaultWidth={200}
+        defaultHeight={150}
+      >
+        <Title order={4}>Window 1</Title>
+      </Window>
+      <Window
+        id="tile-2"
+        title="Window 2"
+        opened
+        defaultX={220}
+        defaultY={10}
+        defaultWidth={200}
+        defaultHeight={150}
+      >
+        <Title order={4}>Window 2</Title>
+      </Window>
+      <Window
+        id="tile-3"
+        title="Window 3"
+        opened
+        defaultX={10}
+        defaultY={170}
+        defaultWidth={200}
+        defaultHeight={150}
+      >
+        <Title order={4}>Window 3</Title>
+      </Window>
+      <Window
+        id="tile-4"
+        title="Window 4"
+        opened
+        defaultX={220}
+        defaultY={170}
+        defaultWidth={200}
+        defaultHeight={150}
+      >
+        <Title order={4}>Window 4</Title>
+      </Window>
+    </Window.Group>
+  );
+}

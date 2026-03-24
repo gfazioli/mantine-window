@@ -1,5 +1,14 @@
 import React from 'react';
-import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
+import {
+  IconArrowsMaximize,
+  IconLayoutColumns,
+  IconLayoutGrid,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarRightCollapse,
+  IconMinus,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -9,6 +18,7 @@ import {
   Flex,
   getRadius,
   getShadow,
+  Menu,
   ScrollArea,
   StylesApiProps,
   Text,
@@ -21,6 +31,7 @@ import {
 } from '@mantine/core';
 import { useMantineWindow } from './hooks/use-mantine-window';
 import { useResponsiveValue, type ResponsiveValue } from './hooks/use-responsive-value';
+import { WindowGroup } from './WindowGroup';
 import classes from './Window.module.css';
 
 export type WindowStylesNames =
@@ -209,6 +220,9 @@ export type WindowFactory = Factory<{
   ref: HTMLDivElement;
   stylesNames: WindowStylesNames;
   vars: WindowCssVariables;
+  staticComponents: {
+    Group: typeof WindowGroup;
+  };
 }>;
 
 /** Height of the window header in pixels — must match .header { height } in Window.module.css */
@@ -331,10 +345,12 @@ export const Window = factory<WindowFactory>((_props, _) => {
     setIsCollapsed,
     isVisible,
     zIndex,
+    withinPortal: resolvedWithinPortal,
     handleMouseDownDrag,
     handleTouchStartDrag,
     resizeHandlers,
     handleClose,
+    groupCtx,
   } = useMantineWindow(props);
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
@@ -358,7 +374,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       {...others}
       {...getStyles('root', {
         style: {
-          position: withinPortal ? 'fixed' : 'absolute',
+          position: resolvedWithinPortal ? 'fixed' : 'absolute',
           left: position.x,
           top: position.y,
           width: size.width,
@@ -400,6 +416,55 @@ export const Window = factory<WindowFactory>((_props, _) => {
                 >
                   {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
                 </ActionIcon>
+              )}
+              {groupCtx?.showToolsButton && (
+                <Menu shadow="md" width={200} position="bottom-start" withArrow>
+                  <Menu.Target>
+                    <ActionIcon
+                      radius={256}
+                      color="green"
+                      aria-label="Window layout options"
+                      {...getStyles('windowToolsButton')}
+                    >
+                      <IconLayoutGrid size={14} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>Move and resize</Menu.Label>
+                    <Menu.Item
+                      leftSection={<IconLayoutSidebarLeftCollapse size={16} />}
+                      onClick={() => groupCtx.applyLayout('snap-left')}
+                    >
+                      Snap left
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={<IconLayoutSidebarRightCollapse size={16} />}
+                      onClick={() => groupCtx.applyLayout('snap-right')}
+                    >
+                      Snap right
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={<IconArrowsMaximize size={16} />}
+                      onClick={() => groupCtx.applyLayout('fill')}
+                    >
+                      Fill
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Label>Arrange</Menu.Label>
+                    <Menu.Item
+                      leftSection={<IconLayoutColumns size={16} />}
+                      onClick={() => groupCtx.applyLayout('tile')}
+                    >
+                      Tile all
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item onClick={() => groupCtx.collapseAll()}>Collapse all</Menu.Item>
+                    <Menu.Item onClick={() => groupCtx.expandAll()}>Expand all</Menu.Item>
+                    <Menu.Item color="red" onClick={() => groupCtx.closeAll()}>
+                      Close all
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               )}
             </Flex>
             <Flex align="center" gap="xs" miw={0}>
@@ -498,3 +563,4 @@ export const Window = factory<WindowFactory>((_props, _) => {
 
 Window.classes = classes;
 Window.displayName = 'Window';
+Window.Group = WindowGroup;
