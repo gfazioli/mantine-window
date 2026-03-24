@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WindowPosition, WindowSize } from '../Window';
 
-// Global z-index counter shared across all Window instances
-let globalZIndex = 200;
+// Separate z-index counters for portal (high, above page chrome) and container (low, local stacking)
+let portalZIndex = 200;
+let containerZIndex = 1;
 
 interface WindowPersistedState {
   position: WindowPosition;
@@ -63,6 +64,7 @@ export interface UseWindowStateOptions {
   opened?: boolean;
   collapsed?: boolean;
   persistState?: boolean;
+  withinPortal?: boolean;
 
   // Controlled values (undefined = uncontrolled for that axis)
   x?: number | string;
@@ -88,6 +90,7 @@ export function useWindowState(options: UseWindowStateOptions) {
     opened,
     collapsed,
     persistState = false,
+    withinPortal = true,
     // Controlled
     x: controlledX,
     y: controlledY,
@@ -109,7 +112,7 @@ export function useWindowState(options: UseWindowStateOptions) {
   const isHeightControlled = controlledHeight !== undefined;
 
   const [isVisible, setIsVisible] = useState(opened ?? false);
-  const [zIndex, setZIndex] = useState(200);
+  const [zIndex, setZIndex] = useState(withinPortal ? 200 : 1);
   const [isHydrated, setIsHydrated] = useState(false);
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
@@ -303,9 +306,17 @@ export function useWindowState(options: UseWindowStateOptions) {
     [persistSideEffect]
   );
 
+  const withinPortalRef = useRef(withinPortal);
+  withinPortalRef.current = withinPortal;
+
   const bringToFront = useCallback(() => {
-    globalZIndex += 1;
-    setZIndex(globalZIndex);
+    if (withinPortalRef.current) {
+      portalZIndex += 1;
+      setZIndex(portalZIndex);
+    } else {
+      containerZIndex += 1;
+      setZIndex(containerZIndex);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
