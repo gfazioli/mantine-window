@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useMergedRef } from '@mantine/hooks';
 import type { WindowBaseProps, WindowBounds } from '../Window';
+import { useWindowGroupContext } from '../WindowGroup.context';
 import { useResponsiveValue } from './use-responsive-value';
 import { useWindowConstraints } from './use-window-constraints';
 import { useWindowDimensions } from './use-window-dimensions';
@@ -16,7 +17,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     onClose,
     id,
     persistState,
-    withinPortal,
+    withinPortal: withinPortalProp,
     // Controlled position/size
     x: xProp,
     y: yProp,
@@ -36,6 +37,15 @@ export function useMantineWindow(props: WindowBaseProps) {
     onPositionChange,
     onSizeChange,
   } = props;
+
+  // ─── Group context (optional) ─────────────────────────────────────
+
+  const groupCtx = useWindowGroupContext();
+  const isInGroup = groupCtx != null;
+  const windowId = id || title || 'window';
+
+  // When inside a group, use the group's withinPortal setting
+  const withinPortal = isInGroup ? groupCtx.withinPortal : withinPortalProp;
 
   // ─── Resolve responsive values ──────────────────────────────────────
 
@@ -85,6 +95,64 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const windowRef = useRef<HTMLDivElement>(null);
 
+  // ─── Group integration: register callbacks so Group can control us ──
+
+  useEffect(() => {
+    if (isInGroup) {
+      groupCtx.registerWindow(
+        windowId,
+        {
+          id: windowId,
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          isVisible: state.isVisible,
+          isCollapsed: state.isCollapsed,
+        },
+        {
+          setPosition: state.setPosition,
+          setSize: state.setSize,
+          setIsCollapsed: (v) => state.setIsCollapsed(v),
+          setIsVisible: (v) => state.setIsVisible(v),
+        }
+      );
+      return () => groupCtx.unregisterWindow(windowId);
+    }
+    return undefined;
+  }, [isInGroup, windowId]);
+
+  // ─── Group: override bringToFront and zIndex when in group ──────────
+
+  const groupBringToFront = useCallback(() => {
+    if (isInGroup) {
+      groupCtx.bringToFront(windowId);
+    } else {
+      state.bringToFront();
+    }
+  }, [isInGroup, groupCtx, windowId, state.bringToFront]);
+
+  const zIndex = isInGroup ? groupCtx.getZIndex(windowId) : state.zIndex;
+
+  // ─── Group: sync visibility/collapsed state to group registry ───────
+
+  const prevStateRef = useRef({ isVisible: state.isVisible, isCollapsed: state.isCollapsed });
+
+  useEffect(() => {
+    if (isInGroup) {
+      const changed =
+        prevStateRef.current.isVisible !== state.isVisible ||
+        prevStateRef.current.isCollapsed !== state.isCollapsed;
+      if (changed) {
+        groupCtx.updateWindowState(windowId, {
+          isVisible: state.isVisible,
+          isCollapsed: state.isCollapsed,
+        });
+        prevStateRef.current = { isVisible: state.isVisible, isCollapsed: state.isCollapsed };
+      }
+    }
+  }, [isInGroup, groupCtx, windowId, state.isVisible, state.isCollapsed]);
+
   // ─── Dimensions tracking (viewport and container) ───────────────────
 
   const dimensions = useWindowDimensions({
@@ -111,6 +179,27 @@ export function useMantineWindow(props: WindowBaseProps) {
     containerHeight: dimensions.containerDimensions.height,
   });
 
+  // ─── Sync pixel values back to group registry ───────────────────────
+
+  useEffect(() => {
+    if (isInGroup) {
+      groupCtx.updateWindowState(windowId, {
+        x: constraints.positionPx.x,
+        y: constraints.positionPx.y,
+        width: constraints.sizePx.width,
+        height: constraints.sizePx.height,
+      });
+    }
+  }, [
+    isInGroup,
+    groupCtx,
+    windowId,
+    constraints.positionPx.x,
+    constraints.positionPx.y,
+    constraints.sizePx.width,
+    constraints.sizePx.height,
+  ]);
+
   // ─── Drag functionality ─────────────────────────────────────────────
 
   const drag = useWindowDrag({
@@ -125,7 +214,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     isCollapsed: state.isCollapsed,
     windowRef,
     setPosition: state.setPosition,
-    bringToFront: state.bringToFront,
+    bringToFront: groupBringToFront,
   });
 
   // ─── Resize functionality ───────────────────────────────────────────
@@ -136,7 +225,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     constraintsPx: constraints.constraintsPx,
     setPosition: state.setPosition,
     setSize: state.setSize,
-    bringToFront: state.bringToFront,
+    bringToFront: groupBringToFront,
   });
 
   const mergedRef = useMergedRef(windowRef);
@@ -214,7 +303,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     setIsCollapsed: state.setIsCollapsed,
     isVisible: state.isVisible,
     setIsVisible: state.setIsVisible,
-    zIndex: state.zIndex,
+    zIndex,
+    withinPortal,
     position: constraints.positionPx,
     size: constraints.sizePx,
     windowRef: mergedRef,
@@ -222,6 +312,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     handleTouchStartDrag: drag.handleTouchStartDrag,
     resizeHandlers: resize.resizeHandlers,
     handleClose: state.handleClose,
-    bringToFront: state.bringToFront,
+    bringToFront: groupBringToFront,
+    groupCtx: isInGroup ? groupCtx : undefined,
   } as const;
 }

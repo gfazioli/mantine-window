@@ -486,3 +486,122 @@ describe('Window', () => {
     expect(getWindowElement(container)).toBeTruthy();
   });
 });
+
+describe('Window.Group', () => {
+  // ─── Basic rendering ──────────────────────────────────────────────────
+
+  it('renders Window.Group without crashing', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Window 1" opened />
+      </Window.Group>
+    );
+    expect(container).toBeTruthy();
+  });
+
+  it('renders multiple windows inside a group', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Window 1" opened />
+        <Window id="w2" title="Window 2" opened />
+        <Window id="w3" title="Window 3" opened />
+      </Window.Group>
+    );
+    const windows = container.querySelectorAll('[data-mantine-window]');
+    expect(windows.length).toBe(3);
+  });
+
+  it('renders empty Window.Group without errors', () => {
+    const { container } = renderWithMantine(<Window.Group style={{ width: 800, height: 600 }} />);
+    expect(container).toBeTruthy();
+  });
+
+  // ─── Tools button visibility ──────────────────────────────────────────
+
+  it('shows tools button when window is inside a group', () => {
+    renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Grouped" opened />
+      </Window.Group>
+    );
+    expect(screen.getByLabelText('Window layout options')).toBeTruthy();
+  });
+
+  it('does not show tools button when window is outside a group', () => {
+    renderWithMantine(<Window opened title="Solo" />);
+    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+  });
+
+  it('does not show tools button when showToolsButton is false', () => {
+    renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }} showToolsButton={false}>
+        <Window id="w1" title="No Tools" opened />
+      </Window.Group>
+    );
+    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+  });
+
+  // ─── Z-index coordination ─────────────────────────────────────────────
+
+  it('windows in group use low z-index (not portal)', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Window 1" opened />
+      </Window.Group>
+    );
+    const win = getWindowElement(container);
+    const zIndex = parseInt(win?.style.zIndex || '0', 10);
+    expect(zIndex).toBeLessThan(200);
+  });
+
+  // ─── Group container ──────────────────────────────────────────────────
+
+  it('windows inside group default to withinPortal=false when set on Window', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Window 1" opened withinPortal={false} />
+      </Window.Group>
+    );
+    const win = getWindowElement(container);
+    expect(win?.style.position).toBe('absolute');
+  });
+
+  // ─── Close button inside group ────────────────────────────────────────
+
+  it('close button works inside a group', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Closable" opened withCloseButton />
+      </Window.Group>
+    );
+    expect(getWindowElement(container)).toBeTruthy();
+
+    fireEvent.click(screen.getByLabelText('Close window'));
+    expect(getWindowElement(container)).toBeNull();
+  });
+
+  // ─── Collapse inside group ────────────────────────────────────────────
+
+  it('collapse button works inside a group', () => {
+    const { container } = renderWithMantine(
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="Collapsable" opened collapsable withCollapseButton />
+      </Window.Group>
+    );
+
+    expect(container.querySelector('.mantine-Window-content')).toBeTruthy();
+
+    fireEvent.click(screen.getByLabelText('Collapse window'));
+    expect(container.querySelector('.mantine-Window-content')).toBeNull();
+  });
+
+  // ─── Backward compatibility ───────────────────────────────────────────
+
+  it('Window still works without a group (backward compatible)', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Solo Window" defaultX={50} defaultY={50} />
+    );
+    expect(getWindowElement(container)).toBeTruthy();
+    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+  });
+});

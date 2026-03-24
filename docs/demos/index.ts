@@ -5,6 +5,8 @@ export { controlled } from './Window.demo.controlled';
 export { controlledPosition } from './Window.demo.controlledPosition';
 export { dragBounds } from './Window.demo.dragBounds';
 export { fullSizeHandles } from './Window.demo.fullSizeHandles';
+export { group } from './Window.demo.group';
+export { groupLayout } from './Window.demo.groupLayout';
 export { minMaxSize } from './Window.demo.minMaxSize';
 export { mixedConstraints } from './Window.demo.mixedConstraints';
 export { mixedDragBounds } from './Window.demo.mixedDragBounds';
