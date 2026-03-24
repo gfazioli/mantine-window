@@ -9,14 +9,17 @@ function Demo() {
   return (
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        title="Custom Size"
+        title="Custom Position & Size"
         opened
-        defaultX={50} defaultY={50}
-        defaultWidth={500} defaultHeight={400}
+        defaultX={150}
+        defaultY={80}
+        defaultWidth={350}
+        defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >
-        <Title order={4}>This window is 500x400 pixels</Title>
+        <Title order={4}>Position: x=150, y=80</Title>
+        <p>Size: 350 x 250</p>
       </Window>
     </Box>
   );
@@ -27,22 +30,23 @@ function Demo() {
   return (
     <Box pos="relative" style={{ width: '100%', height: 500 }}>
       <Window
-        title="Custom Size"
+        title="Custom Position & Size"
         opened
-        defaultX={50}
-        defaultY={50}
-        defaultWidth={500}
-        defaultHeight={400}
+        defaultX={150}
+        defaultY={80}
+        defaultWidth={350}
+        defaultHeight={250}
         persistState={false}
         withinPortal={false}
       >
-        <Title order={4}>This window is 500x400 pixels</Title>
+        <Title order={4}>Position: x=150, y=80</Title>
+        <p>Size: 350 x 250</p>
       </Window>
     </Box>
   );
 }
 
-export const customSize: MantineDemo = {
+export const positionAndSize: MantineDemo = {
   type: 'code',
   component: Demo,
   code,

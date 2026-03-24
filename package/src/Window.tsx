@@ -20,7 +20,7 @@ import {
   type MantineShadow,
 } from '@mantine/core';
 import { useMantineWindow } from './hooks/use-mantine-window';
-import type { ResponsiveValue } from './hooks/use-responsive-value';
+import { useResponsiveValue, type ResponsiveValue } from './hooks/use-responsive-value';
 import classes from './Window.module.css';
 
 export type WindowStylesNames =
@@ -302,9 +302,16 @@ export const Window = factory<WindowFactory>((_props, _) => {
     ...others
   } = props;
 
+  // Resolve responsive radius/shadow before passing to varsResolver
+  const resolvedRadius = useResponsiveValue(radius, undefined);
+  const resolvedShadow = useResponsiveValue(shadow, 'md' as MantineShadow);
+
+  // Create props with resolved values for varsResolver
+  const resolvedProps = { ...props, radius: resolvedRadius, shadow: resolvedShadow };
+
   const getStyles = useStyles<WindowFactory>({
     name: 'Window',
-    props,
+    props: resolvedProps,
     classes,
     className,
     style,
