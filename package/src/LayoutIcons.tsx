@@ -4,274 +4,258 @@ interface LayoutIconProps {
   size?: number;
 }
 
-const S = 24; // viewBox size
-const R = 3; // border radius
-const P = 2; // padding from edge
-const W = S - P * 2; // inner width/height
+// 16:9 aspect ratio viewBox — generous padding for rounded border
+const VW = 36;
+const VH = 28;
+const R = 4; // outer border radius
+const IR = 2; // inner rect radius
+const BX = 3; // border x
+const BY = 3; // border y
+const BW = VW - BX * 2; // border width
+const BH = VH - BY * 2; // border height
+const PAD = 3; // padding between border and highlighted area
+const GAP = 2; // gap between split areas
 
 /** Snap left — left half highlighted */
-export function SnapLeftIcon({ size = 20 }: LayoutIconProps) {
+export function SnapLeftIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const iw = (BW - PAD * 2 - GAP) / 2;
+  const ih = BH - PAD * 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
-      <rect
-        x={P + 1}
-        y={P + 1}
-        width={W / 2 - 1}
-        height={W - 2}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
+      <rect x={ix} y={iy} width={iw} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
     </svg>
   );
 }
 
 /** Snap right — right half highlighted */
-export function SnapRightIcon({ size = 20 }: LayoutIconProps) {
+export function SnapRightIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const iw = (BW - PAD * 2 - GAP) / 2;
+  const ih = BH - PAD * 2;
+  const ix = BX + PAD + iw + GAP;
+  const iy = BY + PAD;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
-      <rect
-        x={P + W / 2}
-        y={P + 1}
-        width={W / 2 - 1}
-        height={W - 2}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
+      <rect x={ix} y={iy} width={iw} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
     </svg>
   );
 }
 
 /** Snap top — top half highlighted */
-export function SnapTopIcon({ size = 20 }: LayoutIconProps) {
+export function SnapTopIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const iw = BW - PAD * 2;
+  const ih = (BH - PAD * 2 - GAP) / 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
-      <rect
-        x={P + 1}
-        y={P + 1}
-        width={W - 2}
-        height={W / 2 - 1}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
+      <rect x={ix} y={iy} width={iw} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
     </svg>
   );
 }
 
 /** Snap bottom — bottom half highlighted */
-export function SnapBottomIcon({ size = 20 }: LayoutIconProps) {
+export function SnapBottomIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const iw = BW - PAD * 2;
+  const ih = (BH - PAD * 2 - GAP) / 2;
+  const ix = BX + PAD;
+  const iy = BY + PAD + ih + GAP;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
-      <rect
-        x={P + 1}
-        y={P + W / 2}
-        width={W - 2}
-        height={W / 2 - 1}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
+      <rect x={ix} y={iy} width={iw} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
     </svg>
   );
 }
 
 /** Fill — entire area highlighted */
-export function FillIcon({ size = 20 }: LayoutIconProps) {
+export function FillIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const iw = BW - PAD * 2;
+  const ih = BH - PAD * 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
-      <rect
-        x={P + 1}
-        y={P + 1}
-        width={W - 2}
-        height={W - 2}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
+      <rect x={ix} y={iy} width={iw} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
     </svg>
   );
 }
 
 /** Arrange columns — two vertical columns */
-export function ArrangeColumnsIcon({ size = 20 }: LayoutIconProps) {
-  const gap = 1.5;
-  const colW = (W - gap) / 2;
+export function ArrangeColumnsIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const colW = (BW - PAD * 2 - GAP) / 2;
+  const ih = BH - PAD * 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
+      <rect x={ix} y={iy} width={colW} height={ih} rx={IR} fill="currentColor" opacity={0.45} />
       <rect
-        x={P + 1}
-        y={P + 1}
-        width={colW - 1}
-        height={W - 2}
-        rx={R - 1}
+        x={ix + colW + GAP}
+        y={iy}
+        width={colW}
+        height={ih}
+        rx={IR}
         fill="currentColor"
-        opacity={0.4}
-      />
-      <rect
-        x={P + colW + gap}
-        y={P + 1}
-        width={colW - 1}
-        height={W - 2}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
+        opacity={0.45}
       />
     </svg>
   );
 }
 
 /** Arrange rows — two horizontal rows */
-export function ArrangeRowsIcon({ size = 20 }: LayoutIconProps) {
-  const gap = 1.5;
-  const rowH = (W - gap) / 2;
+export function ArrangeRowsIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const iw = BW - PAD * 2;
+  const rowH = (BH - PAD * 2 - GAP) / 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
       />
+      <rect x={ix} y={iy} width={iw} height={rowH} rx={IR} fill="currentColor" opacity={0.45} />
       <rect
-        x={P + 1}
-        y={P + 1}
-        width={W - 2}
-        height={rowH - 1}
-        rx={R - 1}
+        x={ix}
+        y={iy + rowH + GAP}
+        width={iw}
+        height={rowH}
+        rx={IR}
         fill="currentColor"
-        opacity={0.4}
-      />
-      <rect
-        x={P + 1}
-        y={P + rowH + gap}
-        width={W - 2}
-        height={rowH - 1}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
+        opacity={0.45}
       />
     </svg>
   );
 }
 
 /** Tile — 2x2 grid */
-export function TileIcon({ size = 20 }: LayoutIconProps) {
-  const gap = 1.5;
-  const cellW = (W - gap) / 2;
-  const cellH = (W - gap) / 2;
+export function TileIcon({ size = 28 }: LayoutIconProps) {
+  const w = size;
+  const h = size * (VH / VW);
+  const ix = BX + PAD;
+  const iy = BY + PAD;
+  const cellW = (BW - PAD * 2 - GAP) / 2;
+  const cellH = (BH - PAD * 2 - GAP) / 2;
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${VW} ${VH}`} width={w} height={h}>
       <rect
-        x={P}
-        y={P}
-        width={W}
-        height={W}
+        x={BX}
+        y={BY}
+        width={BW}
+        height={BH}
         rx={R}
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.4}
+      />
+      <rect x={ix} y={iy} width={cellW} height={cellH} rx={IR} fill="currentColor" opacity={0.45} />
+      <rect
+        x={ix + cellW + GAP}
+        y={iy}
+        width={cellW}
+        height={cellH}
+        rx={IR}
+        fill="currentColor"
+        opacity={0.45}
       />
       <rect
-        x={P + 1}
-        y={P + 1}
-        width={cellW - 1}
-        height={cellH - 1}
-        rx={R - 1}
+        x={ix}
+        y={iy + cellH + GAP}
+        width={cellW}
+        height={cellH}
+        rx={IR}
         fill="currentColor"
-        opacity={0.4}
+        opacity={0.45}
       />
       <rect
-        x={P + cellW + gap}
-        y={P + 1}
-        width={cellW - 1}
-        height={cellH - 1}
-        rx={R - 1}
+        x={ix + cellW + GAP}
+        y={iy + cellH + GAP}
+        width={cellW}
+        height={cellH}
+        rx={IR}
         fill="currentColor"
-        opacity={0.4}
-      />
-      <rect
-        x={P + 1}
-        y={P + cellH + gap}
-        width={cellW - 1}
-        height={cellH - 1}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
-      />
-      <rect
-        x={P + cellW + gap}
-        y={P + cellH + gap}
-        width={cellW - 1}
-        height={cellH - 1}
-        rx={R - 1}
-        fill="currentColor"
-        opacity={0.4}
+        opacity={0.45}
       />
     </svg>
   );
