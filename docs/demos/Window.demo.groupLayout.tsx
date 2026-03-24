@@ -18,6 +18,7 @@ function Demo() {
       </Group>
       <Window.Group
         style={{ width: '100%', height: 500 }}
+        defaultLayout="tile"
         onLayoutChange={setLastLayout}
       >
         <Window id="w1" title="Window 1" opened defaultX={10} defaultY={10} defaultWidth={250} defaultHeight={200}>
@@ -48,7 +49,11 @@ function Demo() {
         <Text size="sm">Last layout applied:</Text>
         <Badge>{lastLayout ?? 'none'}</Badge>
       </Group>
-      <Window.Group style={{ width: '100%', height: 500 }} onLayoutChange={setLastLayout}>
+      <Window.Group
+        style={{ width: '100%', height: 500 }}
+        defaultLayout="tile"
+        onLayoutChange={setLastLayout}
+      >
         <Window
           id="w1"
           title="Window 1"
