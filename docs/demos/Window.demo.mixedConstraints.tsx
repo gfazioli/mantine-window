@@ -17,8 +17,8 @@ function Demo() {
         title="Mixed Unit Constraints"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 350 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={400} defaultHeight={350}
         minWidth={300}
         minHeight="15vh"
         maxWidth="60vw"
@@ -55,8 +55,10 @@ function Demo() {
         title="Mixed Unit Constraints"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 350 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={350}
         minWidth={300}
         minHeight="15vh"
         maxWidth="60vw"

@@ -17,8 +17,8 @@ function Demo() {
         title="Viewport Position"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '10vw', y: '15vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX="10vw" defaultY="15vh"
+        defaultWidth={400} defaultHeight={300}
         persistState={false}
       >
         <Title order={4}>Position with Viewport Units</Title>
@@ -50,8 +50,10 @@ function Demo() {
         title="Viewport Position"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '10vw', y: '15vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX="10vw"
+        defaultY="15vh"
+        defaultWidth={400}
+        defaultHeight={300}
         persistState={false}
       >
         <Title order={4}>Position with Viewport Units</Title>

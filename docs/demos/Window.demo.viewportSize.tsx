@@ -17,8 +17,8 @@ function Demo() {
         title="Viewport Size"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '5vw', y: '10vh' }}
-        defaultSize={{ width: '40vw', height: '50vh' }}
+        defaultX="5vw" defaultY="10vh"
+        defaultWidth="40vw" defaultHeight="50vh"
         persistState={false}
       >
         <Title order={4}>Size with Viewport Units</Title>
@@ -50,8 +50,10 @@ function Demo() {
         title="Viewport Size"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: '5vw', y: '10vh' }}
-        defaultSize={{ width: '40vw', height: '50vh' }}
+        defaultX="5vw"
+        defaultY="10vh"
+        defaultWidth="40vw"
+        defaultHeight="50vh"
         persistState={false}
       >
         <Title order={4}>Size with Viewport Units</Title>

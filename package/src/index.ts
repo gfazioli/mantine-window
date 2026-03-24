@@ -11,3 +11,6 @@ export type {
   WindowSize,
   WindowStylesNames,
 } from './Window';
+
+export { useResponsiveValue } from './hooks/use-responsive-value';
+export type { ResponsiveValue } from './hooks/use-responsive-value';

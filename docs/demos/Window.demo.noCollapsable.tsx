@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="No Collapsable"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={400} defaultHeight={300}
         collapsable={false}
         persistState={false}
         withinPortal={false}
@@ -31,8 +31,10 @@ function Demo() {
       <Window
         title="No Collapsable"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={300}
         collapsable={false}
         persistState={false}
         withinPortal={false}

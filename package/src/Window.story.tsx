@@ -208,7 +208,7 @@ export function Multiple() {
 export function CustomPosition() {
   return (
     <Stack>
-      <Window title="Custom Position" opened defaultPosition={{ x: 300, y: 200 }}>
+      <Window title="Custom Position" opened defaultX={300} defaultY={200}>
         <Title order={4}>This window starts at x:300, y:200</Title>
       </Window>
     </Stack>
@@ -218,7 +218,7 @@ export function CustomPosition() {
 export function CustomSize() {
   return (
     <Stack>
-      <Window title="Custom Size" opened defaultSize={{ width: 600, height: 500 }}>
+      <Window title="Custom Size" opened defaultWidth={600} defaultHeight={500}>
         <Title order={4}>This window is 600x500 pixels</Title>
       </Window>
     </Stack>
@@ -304,11 +304,10 @@ export function Centered() {
       <Window
         title="Centered Window"
         opened
-        defaultPosition={{
-          x: typeof window !== 'undefined' ? (window.innerWidth - 500) / 2 : 400,
-          y: typeof window !== 'undefined' ? (window.innerHeight - 400) / 2 : 200,
-        }}
-        defaultSize={{ width: 500, height: 400 }}
+        defaultX={typeof window !== 'undefined' ? (window.innerWidth - 500) / 2 : 400}
+        defaultY={typeof window !== 'undefined' ? (window.innerHeight - 400) / 2 : 200}
+        defaultWidth={500}
+        defaultHeight={400}
         resizable="none"
         draggable="none"
       >
@@ -348,8 +347,10 @@ export function WithinContainer() {
           id="container-window"
           opened
           withinPortal={false}
-          defaultPosition={{ x: 50, y: 80 }}
-          defaultSize={{ width: 400, height: 300 }}
+          defaultX={50}
+          defaultY={80}
+          defaultWidth={400}
+          defaultHeight={300}
           persistState={false}
         >
           <Stack gap="sm">
@@ -397,8 +398,10 @@ export function MultipleContainers() {
           id="multi-container-1"
           opened
           withinPortal={false}
-          defaultPosition={{ x: 20, y: 50 }}
-          defaultSize={{ width: 350, height: 250 }}
+          defaultX={20}
+          defaultY={50}
+          defaultWidth={350}
+          defaultHeight={250}
           persistState={false}
         >
           <Title order={4}>Container 1 Window</Title>
@@ -433,8 +436,10 @@ export function MultipleContainers() {
           id="multi-container-2"
           opened
           withinPortal={false}
-          defaultPosition={{ x: 20, y: 50 }}
-          defaultSize={{ width: 350, height: 250 }}
+          defaultX={20}
+          defaultY={50}
+          defaultWidth={350}
+          defaultHeight={250}
           persistState={false}
         >
           <Title order={4}>Container 2 Window</Title>
@@ -452,8 +457,10 @@ export function FullExample() {
         title="Full Configuration"
         id="full-config-window"
         opened
-        defaultPosition={{ x: 100, y: 100 }}
-        defaultSize={{ width: 700, height: 550 }}
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={700}
+        defaultHeight={550}
         minWidth={400}
         minHeight={300}
         maxWidth={1200}
@@ -508,8 +515,10 @@ export function ViewportConstraints() {
       <Window
         title="Viewport-based Constraints"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 500, height: 400 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={500}
+        defaultHeight={400}
         minWidth="30vw"
         minHeight="20vh"
         maxWidth="80vw"
@@ -537,8 +546,10 @@ export function MixedConstraints() {
       <Window
         title="Mixed Unit Constraints"
         opened
-        defaultPosition={{ x: 100, y: 100 }}
-        defaultSize={{ width: 400, height: 350 }}
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        defaultHeight={350}
         minWidth={300}
         minHeight="15vh"
         maxWidth="60vw"
@@ -571,8 +582,10 @@ export function ViewportDragBounds() {
       <Window
         title="Viewport-based Drag Bounds"
         opened
-        defaultPosition={{ x: 100, y: 100 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        defaultHeight={300}
         dragBounds={{
           minX: '10vw',
           maxX: '70vw',
@@ -603,8 +616,10 @@ export function PercentageDragBounds() {
       <Window
         title="Percentage Drag Bounds"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 350, height: 280 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={350}
+        defaultHeight={280}
         dragBounds={{
           minX: '5%',
           maxX: '75%',
@@ -634,8 +649,10 @@ export function MixedDragBounds() {
       <Window
         title="Mixed Unit Drag Bounds"
         opened
-        defaultPosition={{ x: 100, y: 100 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        defaultHeight={300}
         dragBounds={{
           minX: 50,
           maxX: '80vw',
@@ -671,8 +688,10 @@ export function ViewportPosition() {
       <Window
         title="Viewport Position"
         opened
-        defaultPosition={{ x: '10vw', y: '15vh' }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX="10vw"
+        defaultY="15vh"
+        defaultWidth={400}
+        defaultHeight={300}
         persistState={false}
       >
         <Title order={4}>Viewport-based Position</Title>
@@ -696,8 +715,10 @@ export function ViewportSize() {
       <Window
         title="Viewport Size"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: '40vw', height: '50vh' }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth="40vw"
+        defaultHeight="50vh"
         persistState={false}
       >
         <Title order={4}>Viewport-based Size</Title>
@@ -721,8 +742,10 @@ export function PercentagePosition() {
       <Window
         title="Percentage Position"
         opened
-        defaultPosition={{ x: '20%', y: '25%' }}
-        defaultSize={{ width: 350, height: 250 }}
+        defaultX="20%"
+        defaultY="25%"
+        defaultWidth={350}
+        defaultHeight={250}
         persistState={false}
       >
         <Title order={4}>Percentage-based Position</Title>
@@ -746,8 +769,10 @@ export function PercentageSize() {
       <Window
         title="Percentage Size"
         opened
-        defaultPosition={{ x: 100, y: 80 }}
-        defaultSize={{ width: '60%', height: '70%' }}
+        defaultX={100}
+        defaultY={80}
+        defaultWidth="60%"
+        defaultHeight="70%"
         persistState={false}
       >
         <Title order={4}>Percentage-based Size</Title>
@@ -771,8 +796,10 @@ export function ResponsiveWindow() {
       <Window
         title="Fully Responsive Window"
         opened
-        defaultPosition={{ x: '5vw', y: '10vh' }}
-        defaultSize={{ width: '50vw', height: '40vh' }}
+        defaultX="5vw"
+        defaultY="10vh"
+        defaultWidth="50vw"
+        defaultHeight="40vh"
         minWidth="300px"
         maxWidth="90vw"
         minHeight="200px"
@@ -815,8 +842,10 @@ export function MixedUnitsPositionAndSize() {
       <Window
         title="Mixed Units"
         opened
-        defaultPosition={{ x: '15vw', y: 100 }}
-        defaultSize={{ width: 450, height: '35vh' }}
+        defaultX="15vw"
+        defaultY={100}
+        defaultWidth={450}
+        defaultHeight="35vh"
         persistState={false}
       >
         <Title order={4}>Mixed Unit Types</Title>
@@ -848,7 +877,8 @@ export function FullSizeResizeHandles() {
         id="full-size-handles"
         opened
         fullSizeResizeHandles
-        defaultSize={{ width: 500, height: 350 }}
+        defaultWidth={500}
+        defaultHeight={350}
       >
         <Stack p="md">
           <Title order={4}>Full Size Resize Handles</Title>
@@ -877,8 +907,10 @@ export function FullSizeResizeHandlesComparison() {
         id="default-handles"
         opened
         fullSizeResizeHandles={false}
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={300}
       >
         <Stack p="md">
           <p>
@@ -892,8 +924,10 @@ export function FullSizeResizeHandlesComparison() {
         id="full-handles"
         opened
         fullSizeResizeHandles
-        defaultPosition={{ x: 500, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={500}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={300}
       >
         <Stack p="md">
           <p>

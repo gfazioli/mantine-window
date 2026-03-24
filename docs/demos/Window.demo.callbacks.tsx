@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="With Callbacks"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={400} defaultHeight={300}
         persistState={false}
         withinPortal={false}
         onPositionChange={(pos) => {
@@ -38,8 +38,10 @@ function Demo() {
       <Window
         title="With Callbacks"
         opened
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 400, height: 300 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={400}
+        defaultHeight={300}
         persistState={false}
         withinPortal={false}
         onPositionChange={(pos) => {

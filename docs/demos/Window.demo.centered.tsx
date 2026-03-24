@@ -11,8 +11,8 @@ function Demo() {
       <Window
         title="Centered Window"
         opened
-        defaultPosition={{ x: 190, y: 100 }}
-        defaultSize={{ width: 420, height: 300 }}
+        defaultX={190} defaultY={100}
+        defaultWidth={420} defaultHeight={300}
         resizable="none"
         draggable="none"
         persistState={false}
@@ -32,8 +32,10 @@ function Demo() {
       <Window
         title="Centered Window"
         opened
-        defaultPosition={{ x: 190, y: 100 }}
-        defaultSize={{ width: 420, height: 300 }}
+        defaultX={190}
+        defaultY={100}
+        defaultWidth={420}
+        defaultHeight={300}
         resizable="none"
         draggable="none"
         persistState={false}

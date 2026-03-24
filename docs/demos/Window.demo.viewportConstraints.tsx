@@ -17,8 +17,8 @@ function Demo() {
         title="Viewport-based Constraints"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 500, height: 350 }}
+        defaultX={50} defaultY={50}
+        defaultWidth={500} defaultHeight={350}
         minWidth="30vw"
         minHeight="20vh"
         maxWidth="80vw"
@@ -50,8 +50,10 @@ function Demo() {
         title="Viewport-based Constraints"
         opened={opened}
         onClose={close}
-        defaultPosition={{ x: 50, y: 50 }}
-        defaultSize={{ width: 500, height: 350 }}
+        defaultX={50}
+        defaultY={50}
+        defaultWidth={500}
+        defaultHeight={350}
         minWidth="30vw"
         minHeight="20vh"
         maxWidth="80vw"

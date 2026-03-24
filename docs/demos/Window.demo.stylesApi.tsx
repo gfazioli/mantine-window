@@ -22,14 +22,10 @@ function Demo(props: any) {
       <Window
         title="Styles API"
         opened
-        defaultPosition={{
-          x: 0,
-          y: 0,
-        }}
-        defaultSize={{
-          width: 320,
-          height: 256,
-        }}
+        defaultX={0}
+        defaultY={0}
+        defaultWidth={320}
+        defaultHeight={256}
         maxWidth={500}
         maxHeight={500}
         persistState={false}

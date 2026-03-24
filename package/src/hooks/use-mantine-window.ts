@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useMergedRef } from '@mantine/hooks';
-import type { WindowBaseProps } from '../Window';
+import type { WindowBaseProps, WindowBounds } from '../Window';
+import { useResponsiveValue } from './use-responsive-value';
 import { useWindowConstraints } from './use-window-constraints';
 import { useWindowDimensions } from './use-window-dimensions';
 import { useWindowDrag } from './use-window-drag';
@@ -16,26 +17,66 @@ export function useMantineWindow(props: WindowBaseProps) {
     id,
     persistState,
     withinPortal,
-    defaultPosition,
-    defaultSize,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-    dragBounds,
+    // Controlled position/size
+    x: xProp,
+    y: yProp,
+    width: widthProp,
+    height: heightProp,
+    // Uncontrolled defaults
+    defaultX: defaultXProp,
+    defaultY: defaultYProp,
+    defaultWidth: defaultWidthProp,
+    defaultHeight: defaultHeightProp,
+    // Constraints
+    minWidth: minWidthProp,
+    minHeight: minHeightProp,
+    maxWidth: maxWidthProp,
+    maxHeight: maxHeightProp,
+    dragBounds: dragBoundsProp,
     onPositionChange,
     onSizeChange,
   } = props;
 
-  // State management
+  // ─── Resolve responsive values ──────────────────────────────────────
+
+  const resolvedX = useResponsiveValue(xProp, undefined);
+  const resolvedY = useResponsiveValue(yProp, undefined);
+  const resolvedWidth = useResponsiveValue(widthProp, undefined);
+  const resolvedHeight = useResponsiveValue(heightProp, undefined);
+
+  const resolvedDefaultX = useResponsiveValue(defaultXProp, 20 as number | string);
+  const resolvedDefaultY = useResponsiveValue(defaultYProp, 100 as number | string);
+  const resolvedDefaultWidth = useResponsiveValue(defaultWidthProp, 400 as number | string);
+  const resolvedDefaultHeight = useResponsiveValue(defaultHeightProp, 400 as number | string);
+
+  const resolvedMinWidth = useResponsiveValue(minWidthProp, 250 as number | string);
+  const resolvedMinHeight = useResponsiveValue(minHeightProp, 100 as number | string);
+  const resolvedMaxWidth = useResponsiveValue(maxWidthProp, undefined);
+  const resolvedMaxHeight = useResponsiveValue(maxHeightProp, undefined);
+
+  const resolvedDragBounds = useResponsiveValue(
+    dragBoundsProp,
+    undefined as WindowBounds | undefined
+  );
+
+  // ─── State management ───────────────────────────────────────────────
+
   const state = useWindowState({
     id,
     title,
     opened,
     collapsed,
     persistState,
-    defaultPosition,
-    defaultSize,
+    // Controlled values (undefined = uncontrolled)
+    x: resolvedX,
+    y: resolvedY,
+    width: resolvedWidth,
+    height: resolvedHeight,
+    // Uncontrolled defaults
+    defaultX: resolvedDefaultX,
+    defaultY: resolvedDefaultY,
+    defaultWidth: resolvedDefaultWidth,
+    defaultHeight: resolvedDefaultHeight,
     onClose,
     onPositionChange,
     onSizeChange,
@@ -43,22 +84,24 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const windowRef = useRef<HTMLDivElement>(null);
 
-  // Dimensions tracking (viewport and container)
+  // ─── Dimensions tracking (viewport and container) ───────────────────
+
   const dimensions = useWindowDimensions({
     withinPortal,
     isVisible: state.isVisible,
     windowRef,
   });
 
-  // Constraints and conversions
+  // ─── Constraints and conversions ────────────────────────────────────
+
   const constraints = useWindowConstraints({
     position: state.position,
     size: state.size,
-    minWidth,
-    maxWidth,
-    minHeight,
-    maxHeight,
-    dragBounds,
+    minWidth: resolvedMinWidth,
+    maxWidth: resolvedMaxWidth,
+    minHeight: resolvedMinHeight,
+    maxHeight: resolvedMaxHeight,
+    dragBounds: resolvedDragBounds,
     withinPortal,
     isMounted: dimensions.isMounted,
     viewportWidth: dimensions.viewportDimensions.width,
@@ -67,7 +110,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     containerHeight: dimensions.containerDimensions.height,
   });
 
-  // Drag functionality
+  // ─── Drag functionality ─────────────────────────────────────────────
+
   const drag = useWindowDrag({
     positionPx: constraints.positionPx,
     sizePx: constraints.sizePx,
@@ -83,7 +127,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     bringToFront: state.bringToFront,
   });
 
-  // Resize functionality
+  // ─── Resize functionality ───────────────────────────────────────────
+
   const resize = useWindowResize({
     positionPx: constraints.positionPx,
     sizePx: constraints.sizePx,
@@ -95,14 +140,16 @@ export function useMantineWindow(props: WindowBaseProps) {
 
   const mergedRef = useMergedRef(windowRef);
 
-  // Use refs for drag/resize handlers so global listeners stay stable
+  // ─── Use refs for drag/resize handlers so global listeners stay stable
+
   const dragRef = useRef(drag);
   dragRef.current = drag;
 
   const resizeRef = useRef(resize);
   resizeRef.current = resize;
 
-  // Global mouse/touch event handlers — registered once, use refs to access latest handlers
+  // ─── Global mouse/touch event handlers — registered once ────────────
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       dragRef.current.handleDragMove(e.clientX, e.clientY);
