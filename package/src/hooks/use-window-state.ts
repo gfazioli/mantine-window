@@ -112,6 +112,16 @@ export function useWindowState(options: UseWindowStateOptions) {
   const onSizeChangeRef = useRef(onSizeChange);
   onSizeChangeRef.current = onSizeChange;
 
+  // Refs to track latest state values — avoids stale closures without adding deps
+  const positionRef = useRef(position);
+  positionRef.current = position;
+
+  const sizeRef = useRef(size);
+  sizeRef.current = size;
+
+  const isCollapsedRef = useRef(isCollapsed);
+  isCollapsedRef.current = isCollapsed;
+
   // Effect for hydration - runs only on client
   useEffect(() => {
     if (!isHydrated) {
@@ -136,73 +146,52 @@ export function useWindowState(options: UseWindowStateOptions) {
     }
   }, [isHydrated, persistState, key, defaultPosition, defaultSize, collapsed]);
 
+  const persistSideEffect = useCallback((update: Partial<WindowPersistedState>) => {
+    const {
+      persistState: ps,
+      isHydrated: ih,
+      key: k,
+      defaultPosition: dp,
+      defaultSize: ds,
+      collapsed: c,
+    } = persistRef.current;
+
+    if (ps && ih) {
+      const currentState = getPersistedWindowState(k, dp, ds, c ?? false);
+      setPersistedWindowState(k, { ...currentState, ...update });
+    }
+  }, []);
+
   const setPosition = useCallback(
     (newPosition: WindowPosition | ((prev: WindowPosition) => WindowPosition)) => {
-      setPositionState((prev) => {
-        const pos = typeof newPosition === 'function' ? newPosition(prev) : newPosition;
-        const {
-          persistState: ps,
-          isHydrated: ih,
-          key: k,
-          defaultPosition: dp,
-          defaultSize: ds,
-          collapsed: c,
-        } = persistRef.current;
-
-        if (ps && ih) {
-          const currentState = getPersistedWindowState(k, dp, ds, c ?? false);
-          setPersistedWindowState(k, { ...currentState, position: pos });
-        }
-
-        onPositionChangeRef.current?.(pos);
-        return pos;
-      });
+      const pos =
+        typeof newPosition === 'function' ? newPosition(positionRef.current) : newPosition;
+      setPositionState(pos);
+      persistSideEffect({ position: pos });
+      onPositionChangeRef.current?.(pos);
     },
-    []
+    [persistSideEffect]
   );
 
-  const setSize = useCallback((newSize: WindowSize | ((prev: WindowSize) => WindowSize)) => {
-    setSizeState((prev) => {
-      const sz = typeof newSize === 'function' ? newSize(prev) : newSize;
-      const {
-        persistState: ps,
-        isHydrated: ih,
-        key: k,
-        defaultPosition: dp,
-        defaultSize: ds,
-        collapsed: c,
-      } = persistRef.current;
-
-      if (ps && ih) {
-        const currentState = getPersistedWindowState(k, dp, ds, c ?? false);
-        setPersistedWindowState(k, { ...currentState, size: sz });
-      }
-
+  const setSize = useCallback(
+    (newSize: WindowSize | ((prev: WindowSize) => WindowSize)) => {
+      const sz = typeof newSize === 'function' ? newSize(sizeRef.current) : newSize;
+      setSizeState(sz);
+      persistSideEffect({ size: sz });
       onSizeChangeRef.current?.(sz);
-      return sz;
-    });
-  }, []);
+    },
+    [persistSideEffect]
+  );
 
-  const setIsCollapsed = useCallback((newCollapsed: boolean | ((prev: boolean) => boolean)) => {
-    setIsCollapsedState((prev) => {
-      const collapsedValue = typeof newCollapsed === 'function' ? newCollapsed(prev) : newCollapsed;
-      const {
-        persistState: ps,
-        isHydrated: ih,
-        key: k,
-        defaultPosition: dp,
-        defaultSize: ds,
-        collapsed: c,
-      } = persistRef.current;
-
-      if (ps && ih) {
-        const currentState = getPersistedWindowState(k, dp, ds, c ?? false);
-        setPersistedWindowState(k, { ...currentState, collapsed: collapsedValue });
-      }
-
-      return collapsedValue;
-    });
-  }, []);
+  const setIsCollapsed = useCallback(
+    (newCollapsed: boolean | ((prev: boolean) => boolean)) => {
+      const collapsedValue =
+        typeof newCollapsed === 'function' ? newCollapsed(isCollapsedRef.current) : newCollapsed;
+      setIsCollapsedState(collapsedValue);
+      persistSideEffect({ collapsed: collapsedValue });
+    },
+    [persistSideEffect]
+  );
 
   const bringToFront = useCallback(() => {
     globalZIndex += 1;
