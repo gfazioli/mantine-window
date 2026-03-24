@@ -148,7 +148,9 @@ export function useMantineWindow(props: WindowBaseProps) {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      } as EventListenerOptions);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
       document.body.style.userSelect = '';

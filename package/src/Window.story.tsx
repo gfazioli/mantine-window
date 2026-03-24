@@ -269,8 +269,8 @@ export function Persistence() {
   return (
     <Stack>
       <Window title="Persistence Example" opened persistState>
-        <Title order={4}>Position and size are not saved</Title>
-        <p>Refresh the page and this window will return to default position</p>
+        <Title order={4}>Position and size are saved</Title>
+        <p>Refresh the page and this window will remember its position and size</p>
       </Window>
     </Stack>
   );

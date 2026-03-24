@@ -101,16 +101,6 @@
   padding: var(--mantine-spacing-sm);
 }
 
-.pre {
-  color: var(--mantine-color-green-4);
-  font-size: 11px;
-  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
-  margin: 0;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
 .resizeHandleTopLeft {
   position: absolute;
   cursor: nwse-resize;
