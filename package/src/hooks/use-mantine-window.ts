@@ -67,6 +67,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     opened,
     collapsed,
     persistState,
+    withinPortal,
     // Controlled values (undefined = uncontrolled)
     x: resolvedX,
     y: resolvedY,
