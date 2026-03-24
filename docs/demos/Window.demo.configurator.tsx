@@ -93,6 +93,7 @@ export const configurator: MantineDemo = {
     { type: 'boolean', prop: 'withBorder', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'withCollapseButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'withCloseButton', initialValue: true, libraryValue: true },
+    { type: 'boolean', prop: 'withToolsButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'collapsed', initialValue: false, libraryValue: false },
     {
       type: 'boolean',
