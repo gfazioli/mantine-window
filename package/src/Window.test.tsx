@@ -527,15 +527,20 @@ describe('Window.Group', () => {
     expect(screen.getByLabelText('Window layout options')).toBeTruthy();
   });
 
-  it('does not show tools button when window is outside a group', () => {
+  it('shows tools button on standalone window (withToolsButton default true)', () => {
     renderWithMantine(<Window opened title="Solo" />);
+    expect(screen.getByLabelText('Window layout options')).toBeTruthy();
+  });
+
+  it('hides tools button on standalone window when withToolsButton is false', () => {
+    renderWithMantine(<Window opened title="Solo" withToolsButton={false} />);
     expect(screen.queryByLabelText('Window layout options')).toBeNull();
   });
 
-  it('does not show tools button when showToolsButton is false', () => {
+  it('hides tools button when withToolsButton is false on the Window', () => {
     renderWithMantine(
-      <Window.Group style={{ width: 800, height: 600 }} showToolsButton={false}>
-        <Window id="w1" title="No Tools" opened />
+      <Window.Group style={{ width: 800, height: 600 }}>
+        <Window id="w1" title="No Tools" opened withToolsButton={false} />
       </Window.Group>
     );
     expect(screen.queryByLabelText('Window layout options')).toBeNull();
@@ -602,6 +607,7 @@ describe('Window.Group', () => {
       <Window opened title="Solo Window" defaultX={50} defaultY={50} />
     );
     expect(getWindowElement(container)).toBeTruthy();
-    expect(screen.queryByLabelText('Window layout options')).toBeNull();
+    // Tools button is now always visible by default (withToolsButton: true)
+    expect(screen.getByLabelText('Window layout options')).toBeTruthy();
   });
 });

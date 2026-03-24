@@ -1,17 +1,14 @@
 import { createOptionalContext } from '@mantine/core';
 import type { WindowPosition, WindowSize } from './Window';
 
-export type WindowLayout =
-  | 'snap-left'
-  | 'snap-right'
-  | 'snap-top'
-  | 'snap-bottom'
-  | 'snap-top-left'
-  | 'snap-top-right'
-  | 'snap-bottom-left'
-  | 'snap-bottom-right'
-  | 'fill'
-  | 'tile';
+/** Layouts that operate on a single window (no Group required) */
+export type SingleWindowLayout = 'snap-left' | 'snap-right' | 'snap-top' | 'snap-bottom' | 'fill';
+
+/** Layouts that operate on all windows in a Group */
+export type GroupLayout = 'arrange-columns' | 'arrange-rows' | 'tile';
+
+/** All layout types */
+export type WindowLayout = SingleWindowLayout | GroupLayout;
 
 export interface WindowGroupWindowState {
   id: string;

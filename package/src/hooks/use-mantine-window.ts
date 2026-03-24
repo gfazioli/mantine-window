@@ -179,6 +179,52 @@ export function useMantineWindow(props: WindowBaseProps) {
     containerHeight: dimensions.containerDimensions.height,
   });
 
+  // ─── Single-window layout (works with or without Group) ──────────────
+
+  const applySingleLayout = useCallback(
+    (layout: 'snap-left' | 'snap-right' | 'snap-top' | 'snap-bottom' | 'fill') => {
+      // Use group container dims if in group, else viewport/container dims
+      const refW = isInGroup
+        ? groupCtx.containerWidth
+        : withinPortal
+          ? dimensions.viewportDimensions.width
+          : dimensions.containerDimensions.width;
+      const refH = isInGroup
+        ? groupCtx.containerHeight
+        : withinPortal
+          ? dimensions.viewportDimensions.height
+          : dimensions.containerDimensions.height;
+
+      if (refW === 0 || refH === 0) {
+        return;
+      }
+
+      switch (layout) {
+        case 'snap-left':
+          state.setPosition({ x: 0, y: 0 });
+          state.setSize({ width: refW / 2, height: refH });
+          break;
+        case 'snap-right':
+          state.setPosition({ x: refW / 2, y: 0 });
+          state.setSize({ width: refW / 2, height: refH });
+          break;
+        case 'snap-top':
+          state.setPosition({ x: 0, y: 0 });
+          state.setSize({ width: refW, height: refH / 2 });
+          break;
+        case 'snap-bottom':
+          state.setPosition({ x: 0, y: refH / 2 });
+          state.setSize({ width: refW, height: refH / 2 });
+          break;
+        case 'fill':
+          state.setPosition({ x: 0, y: 0 });
+          state.setSize({ width: refW, height: refH });
+          break;
+      }
+    },
+    [isInGroup, groupCtx, withinPortal, dimensions, state.setPosition, state.setSize]
+  );
+
   // ─── Sync pixel values back to group registry ───────────────────────
 
   useEffect(() => {
@@ -313,6 +359,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     resizeHandlers: resize.resizeHandlers,
     handleClose: state.handleClose,
     bringToFront: groupBringToFront,
+    applySingleLayout,
     groupCtx: isInGroup ? groupCtx : undefined,
   } as const;
 }
