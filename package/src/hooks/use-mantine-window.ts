@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useClickOutside, useMergedRef } from '@mantine/hooks';
+import { useMergedRef } from '@mantine/hooks';
 import type { WindowBaseProps } from '../Window';
 import { useWindowConstraints } from './use-window-constraints';
 import { useWindowDimensions } from './use-window-dimensions';
@@ -93,11 +93,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     bringToFront: state.bringToFront,
   });
 
-  // Click outside detection for z-index management
-  const clickOutsideRef = useClickOutside<HTMLDivElement>(() => state.setZIndex(199));
-
-  // Merge refs
-  const mergedRef = useMergedRef(windowRef, clickOutsideRef);
+  const mergedRef = useMergedRef(windowRef);
 
   // Use refs for drag/resize handlers so global listeners stay stable
   const dragRef = useRef(drag);
