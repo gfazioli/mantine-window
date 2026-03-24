@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  IconArrowsMaximize,
-  IconLayoutColumns,
-  IconLayoutGrid,
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarRightCollapse,
-  IconMinus,
-  IconPlus,
-  IconX,
-} from '@tabler/icons-react';
+import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -31,6 +22,16 @@ import {
 } from '@mantine/core';
 import { useMantineWindow } from './hooks/use-mantine-window';
 import { useResponsiveValue, type ResponsiveValue } from './hooks/use-responsive-value';
+import {
+  ArrangeColumnsIcon,
+  ArrangeRowsIcon,
+  FillIcon,
+  SnapBottomIcon,
+  SnapLeftIcon,
+  SnapRightIcon,
+  SnapTopIcon,
+  TileIcon,
+} from './LayoutIcons';
 import { WindowGroup } from './WindowGroup';
 import classes from './Window.module.css';
 
@@ -143,6 +144,9 @@ export interface WindowBaseProps {
   /** Whether the window has a close button */
   withCloseButton?: boolean;
 
+  /** Whether to show the tools button (layout options) in the header. Default: true */
+  withToolsButton?: boolean;
+
   /** Called when the window is closed */
   onClose?: () => void;
 
@@ -236,6 +240,7 @@ export const defaultProps: Partial<WindowProps> = {
   withCloseButton: true,
   withCollapseButton: true,
   collapsable: true,
+  withToolsButton: true,
   persistState: false,
   withinPortal: true,
   minWidth: 250,
@@ -282,6 +287,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     withCollapseButton,
     collapsable,
     withCloseButton,
+    withToolsButton,
     onClose,
     radius,
     shadow,
@@ -351,6 +357,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
     resizeHandlers,
     handleClose,
     groupCtx,
+    applySingleLayout,
   } = useMantineWindow(props);
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
@@ -417,8 +424,8 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
                 </ActionIcon>
               )}
-              {groupCtx?.showToolsButton && (
-                <Menu shadow="md" width={200} position="bottom-start" withArrow>
+              {withToolsButton && (
+                <Menu shadow="md" width={220} position="bottom-start" withArrow>
                   <Menu.Target>
                     <ActionIcon
                       radius={256}
@@ -426,43 +433,95 @@ export const Window = factory<WindowFactory>((_props, _) => {
                       aria-label="Window layout options"
                       {...getStyles('windowToolsButton')}
                     >
-                      <IconLayoutGrid size={14} />
+                      <FillIcon size={14} />
                     </ActionIcon>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <Menu.Label>Move and resize</Menu.Label>
-                    <Menu.Item
-                      leftSection={<IconLayoutSidebarLeftCollapse size={16} />}
-                      onClick={() => groupCtx.applyLayout('snap-left')}
-                    >
-                      Snap left
-                    </Menu.Item>
-                    <Menu.Item
-                      leftSection={<IconLayoutSidebarRightCollapse size={16} />}
-                      onClick={() => groupCtx.applyLayout('snap-right')}
-                    >
-                      Snap right
-                    </Menu.Item>
-                    <Menu.Item
-                      leftSection={<IconArrowsMaximize size={16} />}
-                      onClick={() => groupCtx.applyLayout('fill')}
-                    >
-                      Fill
-                    </Menu.Item>
+                    <Menu.Label>Move & Resize</Menu.Label>
+                    <Flex gap={4} px="xs" pb="xs">
+                      <ActionIcon
+                        variant="subtle"
+                        size="lg"
+                        aria-label="Snap left"
+                        onClick={() => applySingleLayout('snap-left')}
+                      >
+                        <SnapLeftIcon />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="subtle"
+                        size="lg"
+                        aria-label="Snap right"
+                        onClick={() => applySingleLayout('snap-right')}
+                      >
+                        <SnapRightIcon />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="subtle"
+                        size="lg"
+                        aria-label="Snap top"
+                        onClick={() => applySingleLayout('snap-top')}
+                      >
+                        <SnapTopIcon />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="subtle"
+                        size="lg"
+                        aria-label="Snap bottom"
+                        onClick={() => applySingleLayout('snap-bottom')}
+                      >
+                        <SnapBottomIcon />
+                      </ActionIcon>
+                    </Flex>
                     <Menu.Divider />
-                    <Menu.Label>Arrange</Menu.Label>
-                    <Menu.Item
-                      leftSection={<IconLayoutColumns size={16} />}
-                      onClick={() => groupCtx.applyLayout('tile')}
-                    >
-                      Tile all
-                    </Menu.Item>
-                    <Menu.Divider />
-                    <Menu.Item onClick={() => groupCtx.collapseAll()}>Collapse all</Menu.Item>
-                    <Menu.Item onClick={() => groupCtx.expandAll()}>Expand all</Menu.Item>
-                    <Menu.Item color="red" onClick={() => groupCtx.closeAll()}>
-                      Close all
-                    </Menu.Item>
+                    <Menu.Label>Fill & Arrange</Menu.Label>
+                    <Flex gap={4} px="xs" pb="xs">
+                      <ActionIcon
+                        variant="subtle"
+                        size="lg"
+                        aria-label="Fill"
+                        onClick={() => applySingleLayout('fill')}
+                      >
+                        <FillIcon />
+                      </ActionIcon>
+                      {groupCtx && (
+                        <>
+                          <ActionIcon
+                            variant="subtle"
+                            size="lg"
+                            aria-label="Arrange columns"
+                            onClick={() => groupCtx.applyLayout('arrange-columns')}
+                          >
+                            <ArrangeColumnsIcon />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            size="lg"
+                            aria-label="Arrange rows"
+                            onClick={() => groupCtx.applyLayout('arrange-rows')}
+                          >
+                            <ArrangeRowsIcon />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            size="lg"
+                            aria-label="Tile"
+                            onClick={() => groupCtx.applyLayout('tile')}
+                          >
+                            <TileIcon />
+                          </ActionIcon>
+                        </>
+                      )}
+                    </Flex>
+                    {groupCtx && (
+                      <>
+                        <Menu.Divider />
+                        <Menu.Item onClick={() => groupCtx.collapseAll()}>Collapse all</Menu.Item>
+                        <Menu.Item onClick={() => groupCtx.expandAll()}>Expand all</Menu.Item>
+                        <Menu.Item color="red" onClick={() => groupCtx.closeAll()}>
+                          Close all
+                        </Menu.Item>
+                      </>
+                    )}
                   </Menu.Dropdown>
                 </Menu>
               )}

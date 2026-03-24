@@ -143,62 +143,41 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
         updateWindowState(windowId, { x, y, width, height });
       };
 
-      const layouts: Record<WindowLayout, () => void> = {
-        'snap-left': () => {
-          visibleWindows.forEach(([id]) => positionWindow(id, 0, 0, w / 2 - gap / 2, h));
-        },
-        'snap-right': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, w / 2 + gap / 2, 0, w / 2 - gap / 2, h)
-          );
-        },
-        'snap-top': () => {
-          visibleWindows.forEach(([id]) => positionWindow(id, 0, 0, w, h / 2 - gap / 2));
-        },
-        'snap-bottom': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, 0, h / 2 + gap / 2, w, h / 2 - gap / 2)
-          );
-        },
-        'snap-top-left': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, 0, 0, w / 2 - gap / 2, h / 2 - gap / 2)
-          );
-        },
-        'snap-top-right': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, w / 2 + gap / 2, 0, w / 2 - gap / 2, h / 2 - gap / 2)
-          );
-        },
-        'snap-bottom-left': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, 0, h / 2 + gap / 2, w / 2 - gap / 2, h / 2 - gap / 2)
-          );
-        },
-        'snap-bottom-right': () => {
-          visibleWindows.forEach(([id]) =>
-            positionWindow(id, w / 2 + gap / 2, h / 2 + gap / 2, w / 2 - gap / 2, h / 2 - gap / 2)
-          );
-        },
-        fill: () => {
-          visibleWindows.forEach(([id]) => positionWindow(id, 0, 0, w, h));
-        },
-        tile: () => {
+      // Group layouts only — single-window layouts are handled by the Window itself
+      switch (layout) {
+        case 'arrange-columns': {
+          const count = visibleWindows.length;
+          const colW = (w - gap * (count - 1)) / count;
+          visibleWindows.forEach(([id], i) => {
+            positionWindow(id, i * (colW + gap), 0, colW, h);
+          });
+          break;
+        }
+        case 'arrange-rows': {
+          const count = visibleWindows.length;
+          const rowH = (h - gap * (count - 1)) / count;
+          visibleWindows.forEach(([id], i) => {
+            positionWindow(id, 0, i * (rowH + gap), w, rowH);
+          });
+          break;
+        }
+        case 'tile': {
           const count = visibleWindows.length;
           const cols = Math.ceil(Math.sqrt(count));
           const rows = Math.ceil(count / cols);
           const cellW = (w - gap * (cols - 1)) / cols;
           const cellH = (h - gap * (rows - 1)) / rows;
-
           visibleWindows.forEach(([id], i) => {
             const col = i % cols;
             const row = Math.floor(i / cols);
             positionWindow(id, col * (cellW + gap), row * (cellH + gap), cellW, cellH);
           });
-        },
-      };
-
-      layouts[layout]();
+          break;
+        }
+        default:
+          // Single-window layouts (snap-left, etc.) are not handled by the Group
+          return;
+      }
       onLayoutChangeRef.current?.(layout);
     },
     [containerWidth, containerHeight, updateWindowState]
