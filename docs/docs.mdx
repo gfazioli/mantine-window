@@ -35,17 +35,19 @@ You can control the open and close state of the `Window` component using the `op
 
 <Demo data={demos.controlled} />
 
-## Custom Position
+## Position and Size
 
-Set the initial position of the window using the `defaultX` and `defaultY` props. These define where the window appears when first rendered.
+Set the initial position and size of the window using `defaultX`, `defaultY`, `defaultWidth`, and `defaultHeight` props. These values are used when the window is first rendered and can be modified by the user via drag and resize.
 
-<Demo data={demos.customPosition} />
+<Demo data={demos.positionAndSize} />
 
-## Custom Size
+## Controlled Position and Size
 
-Set custom initial dimensions for the window using the `defaultWidth` and `defaultHeight` props.
+For full external control, use the `x`, `y`, `width`, and `height` props. When these are set, the component does not manage that value internally — your state drives it. Combine with `onPositionChange` and `onSizeChange` to sync state after user interactions.
 
-<Demo data={demos.customSize} />
+You can also mix controlled and uncontrolled: for example, control only `x` and `y` while letting `width` and `height` remain uncontrolled via `defaultWidth` and `defaultHeight`.
+
+<Demo data={demos.controlledPosition} />
 
 ## Within Portal vs Container
 
@@ -68,7 +70,7 @@ The `withinPortal` prop controls how the window is positioned. When `withinPorta
 
 ## Unit Types
 
-Position and size props (`defaultX`, `defaultY`, `defaultWidth`, `defaultHeight`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight`) support three unit types:
+Position and size props support three unit types:
 
 - **Pixels** (number): Fixed pixel values, e.g. `defaultX={100}`
 - **Viewport units** (string): `vw` for viewport width, `vh` for viewport height, e.g. `defaultX="10vw"`
@@ -80,45 +82,25 @@ Position and size props (`defaultX`, `defaultY`, `defaultWidth`, `defaultHeight`
 - **`%`**: With `withinPortal={true}` (default) relative to the **viewport**; with `withinPortal={false}` relative to the **parent container**
 - **Pixels**: Always **fixed**, regardless of `withinPortal` setting
 
-> **Best Practices:**
->
-> - Use `vw/vh` with `withinPortal={true}` for viewport-relative sizing
-> - Use `%` with `withinPortal={false}` for container-relative sizing
-> - Parent container must have `position: relative` when using `withinPortal={false}`
+You can mix different unit types freely on the same component.
 
-### Viewport-based Position
+<Demo data={demos.unitTypes} />
 
-<Demo data={demos.viewportPosition} />
+## Responsive
 
-### Percentage Position
+All dimension and position props support responsive values using Mantine breakpoints. Pass an object with breakpoint keys (`base`, `xs`, `sm`, `md`, `lg`, `xl`) to change values at different screen sizes.
 
-<Demo data={demos.percentagePosition} />
+This also applies to `minWidth`, `maxWidth`, `minHeight`, `maxHeight`, `radius`, and `shadow`.
 
-### Viewport-based Size
-
-<Demo data={demos.viewportSize} />
-
-### Percentage Size
-
-<Demo data={demos.percentageSize} />
-
-### Mixed Units
-
-You can mix different unit types (pixels, viewport units, percentages) for both position and size to achieve the perfect balance of flexibility and control.
-
-<Demo data={demos.responsiveWindow} />
+<Demo data={demos.responsive} />
 
 ## Min/Max Size Constraints
 
-Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. These support the same unit types as position and size props.
+Control the minimum and maximum dimensions during resize operations using `minWidth`, `minHeight`, `maxWidth`, and `maxHeight` props. These support all unit types (pixels, viewport units, percentages) and responsive breakpoint objects.
 
 <Demo data={demos.minMaxSize} />
 
-### Viewport-based Constraints
-
-<Demo data={demos.viewportConstraints} />
-
-### Mixed Unit Constraints
+You can mix different unit types for constraints — for example, a fixed pixel minimum with a viewport-based maximum:
 
 <Demo data={demos.mixedConstraints} />
 
@@ -128,15 +110,7 @@ Restrict the draggable area of the window using the `dragBounds` prop. This ensu
 
 <Demo data={demos.dragBounds} />
 
-### Viewport-based Drag Boundaries
-
-<Demo data={demos.viewportDragBounds} />
-
-### Percentage Drag Boundaries
-
-<Demo data={demos.percentageDragBounds} />
-
-### Mixed Unit Drag Boundaries
+Combine different unit types (pixels, viewport units, percentages) for drag boundaries to create flexible constraints:
 
 <Demo data={demos.mixedDragBounds} />
 
@@ -172,9 +146,7 @@ Prevent the window from being collapsed by setting `collapsable={false}`. This r
 
 ## Full Size Resize Handles
 
-By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, avoiding the corner handles (14x14px).
-
-This provides a larger interaction area, making it easier to resize the window from any edge.
+By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, providing a larger interaction area.
 
 <Demo data={demos.fullSizeHandles} />
 
