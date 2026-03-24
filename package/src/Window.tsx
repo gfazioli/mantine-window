@@ -438,7 +438,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
                   </Menu.Target>
                   <Menu.Dropdown>
                     <Menu.Label>Move & Resize</Menu.Label>
-                    <Flex gap={4} px="xs" pb="xs">
+                    <Flex justify="space-between" pb="xs" px="sm">
                       <ActionIcon
                         variant="subtle"
                         size="lg"
@@ -474,7 +474,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
                     </Flex>
                     <Menu.Divider />
                     <Menu.Label>Fill & Arrange</Menu.Label>
-                    <Flex gap={4} px="xs" pb="xs">
+                    <Flex justify="space-between" pb="xs" px="sm">
                       <ActionIcon
                         variant="subtle"
                         size="lg"
