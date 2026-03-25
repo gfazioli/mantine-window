@@ -19,11 +19,24 @@
 
 This component is created on top of the [Mantine](https://mantine.dev/) library.
 
-[Mantine Window](https://gfazioli.github.io/mantine-window/) is a versatile UI container that brings a familiar desktop‑like window experience to React applications built with Mantine. 
+[Mantine Window](https://gfazioli.github.io/mantine-window/) is a versatile UI container that brings a familiar desktop‑like window experience to React applications built with Mantine.
 
-You can render windows in a portal for fixed, scroll‑independent overlays, or constrain them to a specific parent by setting withinPortal to false and using a relative container. The component supports both uncontrolled defaults (position and size) and controlled visibility via opened/onClose, plus optional drag boundaries to keep windows within prescribed X/Y ranges. 
+## Features
 
-For state continuity, it can persist position and size to localStorage, and it exposes onPositionChange and onSizeChange callbacks for reacting to user interactions. The window’s behavior and chrome are configurable—draggable and resizable modes, collapse/close buttons, non‑collapsible headers, and centered, immovable presets—while appearance is tailored through Mantine’s Styles API with fine‑grained classNames for internal elements. Together, these features make it a robust foundation for modals, tools, and embedded UI panels in complex interfaces.
+- Draggable and resizable floating windows with 8-direction resize handles
+- Portal or container-relative positioning (`withinPortal`)
+- Controlled and uncontrolled position/size with mixed unit support (px, vw/vh, %)
+- Responsive values via Mantine breakpoints for all dimension props
+- Persistent state via localStorage (position, size, collapse state)
+- Configurable drag boundaries to constrain movement
+- Min/max size constraints with multi-unit support
+- Collapsible content with double-click header toggle
+- Z-index management with bring-to-front on interaction
+- `Window.Group` compound component for coordinated multi-window management
+- Layout presets: snap, tile, columns, rows, fill
+- Full Mantine Styles API support with fine-grained classNames
+- SSR-safe with hydration-compatible viewport unit resolution
+- `onPositionChange` and `onSizeChange` callbacks
 
 > [!note]
 >

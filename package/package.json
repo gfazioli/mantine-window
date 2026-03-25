@@ -7,12 +7,18 @@
   "license": "MIT",
   "author": "Giovambattista Fazioli <giovambattista.fazioli@gmail.com>",
   "keywords": [
-    "extension",
-    "window",
     "mantine",
+    "mantine-ui",
+    "mantine-v8",
     "react",
     "react-component",
-    "typescript"
+    "typescript",
+    "extension",
+    "component",
+    "window",
+    "draggable",
+    "resizable",
+    "floating-window"
   ],
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
