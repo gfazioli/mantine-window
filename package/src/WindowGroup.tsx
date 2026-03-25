@@ -32,9 +32,12 @@ export interface WindowGroupProps extends BoxProps {
   children?: React.ReactNode;
 }
 
+export type WindowGroupStylesNames = 'root';
+
 export type WindowGroupFactory = Factory<{
   props: WindowGroupProps;
   ref: HTMLDivElement;
+  stylesNames: WindowGroupStylesNames;
 }>;
 
 const defaultGroupProps: Partial<WindowGroupProps> = {

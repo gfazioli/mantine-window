@@ -12,8 +12,9 @@ export default function HomePage() {
       <PageHeader data={PACKAGE_DATA} />
       <DocsTabs
         docgen={docgen}
-        componentsProps={['Window']}
-        componentsStyles={['Window']}
+        componentsProps={['Window', 'WindowGroup']}
+        componentsStyles={['Window', 'WindowGroup']}
+        componentPrefix="Window"
         stylesApiData={STYLES_API_DATA}
       >
         <Docs />
