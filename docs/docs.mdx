@@ -114,6 +114,24 @@ Combine different unit types (pixels, viewport units, percentages) for drag boun
 
 <Demo data={demos.mixedDragBounds} />
 
+## Centered Window
+
+Create a centered, fixed window that cannot be moved or resized by combining position/size props with `resizable="none"` and `draggable="none"`.
+
+<Demo data={demos.centered} />
+
+## Disable Collapsing
+
+Prevent the window from being collapsed by setting `collapsable={false}`. This removes the collapse functionality, including the double-click handler on the header.
+
+<Demo data={demos.noCollapsable} />
+
+## Full Size Resize Handles
+
+By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, providing a larger interaction area.
+
+<Demo data={demos.fullSizeHandles} />
+
 ## Persistence
 
 Enable state persistence to save the window's position and size in localStorage by setting `persistState={true}` (default is `false`). When enabled, the window will remember its position and size across page refreshes.
@@ -169,24 +187,6 @@ The `onLayoutChange` callback on `Window.Group` notifies you when a group layout
 Use `defaultLayout` to apply an initial layout when the group mounts. To control the layout externally, use the `groupRef` prop to access the group API and call `applyLayout` programmatically.
 
 <Demo data={demos.layoutPresets} />
-
-## Centered Window
-
-Create a centered, fixed window that cannot be moved or resized by combining position/size props with `resizable="none"` and `draggable="none"`.
-
-<Demo data={demos.centered} />
-
-## Disable Collapsing
-
-Prevent the window from being collapsed by setting `collapsable={false}`. This removes the collapse functionality, including the double-click handler on the header.
-
-<Demo data={demos.noCollapsable} />
-
-## Full Size Resize Handles
-
-By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, providing a larger interaction area.
-
-<Demo data={demos.fullSizeHandles} />
 
 ## Styles API
 
