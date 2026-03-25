@@ -59,7 +59,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
   // Window registry: state snapshots + callbacks
   const registryRef = useRef<Map<string, WindowGroupWindowState>>(new Map());
   const callbacksRef = useRef<Map<string, WindowCallbacks>>(new Map());
-  const [, forceUpdate] = useState(0);
+  const [registryVersion, forceUpdate] = useState(0);
 
   // Z-index tracking per group
   const zIndexMapRef = useRef<Map<string, number>>(new Map());
@@ -134,6 +134,11 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
 
       const w = containerWidth;
       const h = containerHeight;
+
+      if (w <= 0 || h <= 0) {
+        return;
+      }
+
       const gap = 4;
 
       const positionWindow = (
@@ -155,7 +160,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
       switch (layout) {
         case 'arrange-columns': {
           const count = visibleWindows.length;
-          const colW = (w - gap * (count - 1)) / count;
+          const colW = Math.max(0, (w - gap * (count - 1)) / count);
           visibleWindows.forEach(([id], i) => {
             positionWindow(id, i * (colW + gap), 0, colW, h);
           });
@@ -163,7 +168,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
         }
         case 'arrange-rows': {
           const count = visibleWindows.length;
-          const rowH = (h - gap * (count - 1)) / count;
+          const rowH = Math.max(0, (h - gap * (count - 1)) / count);
           visibleWindows.forEach(([id], i) => {
             positionWindow(id, 0, i * (rowH + gap), w, rowH);
           });
@@ -173,8 +178,8 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
           const count = visibleWindows.length;
           const cols = Math.ceil(Math.sqrt(count));
           const rows = Math.ceil(count / cols);
-          const cellW = (w - gap * (cols - 1)) / cols;
-          const cellH = (h - gap * (rows - 1)) / rows;
+          const cellW = Math.max(0, (w - gap * (cols - 1)) / cols);
+          const cellH = Math.max(0, (h - gap * (rows - 1)) / rows);
           visibleWindows.forEach(([id], i) => {
             const col = i % cols;
             const row = Math.floor(i / cols);
@@ -233,7 +238,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
     });
 
     return () => cancelAnimationFrame(raf);
-  }, [defaultLayout, applyLayout, containerWidth, containerHeight]);
+  }, [defaultLayout, applyLayout, containerWidth, containerHeight, registryVersion]);
 
   // ─── Context value ──────────────────────────────────────────────────
 

@@ -376,7 +376,7 @@ export const Window = factory<WindowFactory>((_props, _) => {
       onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
       bg={color}
       role="dialog"
-      aria-label={title}
+      aria-label={title || props.id || 'Window'}
       data-mantine-window
       {...others}
       {...getStyles('root', {
