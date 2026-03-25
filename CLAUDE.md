@@ -1,50 +1,75 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## What This Is
-
-`@gfazioli/mantine-window` — a Mantine extension component that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, and flexible control over position, size, and interaction modes. Targets Mantine 8.x and React 19.
+## Project
+`@gfazioli/mantine-window` — a Mantine extension that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, z-index management, and flexible control over position, size, and interaction modes. Includes a `WindowGroup` compound component for managing multiple windows with shared layouts.
 
 ## Commands
-
 | Command | Purpose |
 |---------|---------|
-| `yarn build` | Build the npm package via Rollup → `package/dist/` |
-| `yarn dev` | Start docs dev server on port 9281 |
-| `yarn test` | Full suite: syncpack → prettier → typecheck → lint → jest |
-| `yarn jest` | Run only Jest tests |
-| `yarn jest --testPathPattern=Window.test` | Run a single test file |
+| `yarn build` | Build the npm package via Rollup |
+| `yarn dev` | Start the Next.js docs dev server (port 9281) |
+| `yarn test` | Full test suite (syncpack + prettier + typecheck + lint + jest) |
+| `yarn jest` | Run only Jest unit tests |
 | `yarn docgen` | Generate component API docs (docgen.json) |
-| `yarn docs:build` | Build Next.js docs site (runs docgen first) |
-| `yarn docs:deploy` | Build docs + deploy to GitHub Pages |
-| `yarn eslint` | Run ESLint |
-| `yarn stylelint` | Run Stylelint on CSS |
-| `yarn prettier:check` | Check formatting |
-| `yarn prettier:write` | Fix formatting |
-| `yarn clean && yarn build` | Clean rebuild |
-| `yarn release:patch` | Bump patch version + deploy docs |
-| `diny yolo` | AI-assisted auto-commit (stages, generates message, commits) |
+| `yarn docs:build` | Build the Next.js docs site for production |
+| `yarn docs:deploy` | Build and deploy docs to GitHub Pages |
+| `yarn lint` | Run ESLint |
+| `yarn prettier:write` | Format all files with Prettier |
+| `yarn storybook` | Start Storybook dev server |
+| `yarn clean` | Remove build artifacts |
+| `yarn release:patch` | Bump patch version and deploy docs |
+| `diny yolo` | AI-assisted commit (stage all, generate message, commit + push) |
+
+> **Important**: After changing the public API (props, types, exports), always run `yarn clean && yarn build` before `yarn test`, because `yarn docgen` needs the fresh build output.
 
 ## Architecture
 
-This repo uses **yarn workspaces** with two workspaces: `package/` (the npm package) and `docs/` (Next.js documentation site).
+### Workspace Layout
+Yarn workspaces monorepo with two workspaces: `package/` (npm package) and `docs/` (Next.js 15 documentation site).
 
 ### Package Source (`package/src/`)
 
-Single component architecture — one main `Window` component:
+```
+package/src/
+├── Window.tsx                  # Main component (Mantine factory pattern)
+├── Window.module.css           # CSS Modules (hashed via hash-css-selector)
+├── WindowGroup.tsx             # Compound component for managing multiple windows
+├── WindowGroup.context.ts      # Context for WindowGroup (WindowLayout type)
+├── LayoutIcons.tsx             # Layout icons used by WindowGroup
+├── index.ts                    # Public API barrel file
+├── Window.test.tsx             # Component tests
+├── Window.story.tsx            # Storybook stories
+├── hooks/
+│   ├── use-mantine-window.ts       # Orchestrator — composes all hooks into unified API
+│   ├── use-window-drag.ts          # Mouse/touch drag handling
+│   ├── use-window-resize.ts        # Resize handle interaction (all 8 directions)
+│   ├── use-window-state.ts         # Visibility, collapse, localStorage persistence
+│   ├── use-window-dimensions.ts    # Position and size state management
+│   ├── use-window-constraints.ts   # Min/max width/height enforcement
+│   └── use-responsive-value.ts     # Responsive value utility (exported publicly)
+└── lib/
+    ├── convert-to-pixels.ts        # Converts vw/vh/% to px (SSR-safe)
+    ├── convert-to-pixels.test.ts
+    ├── window-constraints.ts       # Constraint resolution (clamp within bounds)
+    └── window-constraints.test.ts
+```
 
-- **`Window.tsx`** — Main component using Mantine's `factory()` pattern with `useProps`, `useStyles`, `createVarsResolver`. Exports `Window` plus all types (`WindowProps`, `WindowFactory`, `WindowStylesNames`, etc.).
-- **`Window.module.css`** — CSS Modules with hashed selectors (via `hash-css-selector` in Rollup).
-- **`index.ts`** — Public API barrel file. All public types and the component are re-exported here.
+Public exports: `Window`, `WindowGroup`, `useResponsiveValue`, plus all associated types (`WindowProps`, `WindowFactory`, `WindowStylesNames`, `WindowGroupProps`, `WindowGroupFactory`, `WindowGroupContextValue`, `WindowLayout`, `ResponsiveValue`, etc.).
 
-### Hooks (`package/src/hooks/`)
+### Build Pipeline
+Rollup bundles to dual ESM (`dist/esm/`) and CJS (`dist/cjs/`) with `'use client'` banner. CSS modules are hashed with `hash-css-selector` (prefix `me`). TypeScript declarations via `rollup-plugin-dts`. CSS is split into `styles.css` and `styles.layer.css` (layered version).
 
-The window logic is split across composable hooks:
+### Docs (`docs/`)
+Next.js 15 site with interactive demos in `docs/demos/`. Each demo is a `Window.demo.*.tsx` file. Pages live in `docs/pages/`. Shared shell/footer components come from the `mantine-base-component` template.
+
+## Component Details
+
+### 6-Hook Architecture
+The window logic is split into composable hooks, all orchestrated by `use-mantine-window`:
 
 | Hook | Responsibility |
 |------|---------------|
-| `use-mantine-window` | Orchestrator hook — composes all other hooks, returns the unified API used by `Window.tsx` |
+| `use-mantine-window` | Orchestrator — composes all other hooks, returns the unified API used by `Window.tsx` |
 | `use-window-drag` | Mouse/touch drag handling |
 | `use-window-resize` | Resize handle interaction for all 8 directions |
 | `use-window-state` | Visibility, collapse state, localStorage persistence |
@@ -52,31 +77,40 @@ The window logic is split across composable hooks:
 | `use-window-constraints` | Min/max width/height enforcement |
 
 ### Utility Library (`package/src/lib/`)
-
-- **`convert-to-pixels.ts`** — Converts viewport units (`vw`, `vh`), percentages (`%`), and raw numbers to pixel values. Critical for SSR hydration safety (returns defaults during SSR, converts after mount).
+- **`convert-to-pixels.ts`** — Converts viewport units (`vw`, `vh`), percentages (`%`), and raw numbers to pixel values. Critical for SSR hydration safety: returns defaults during SSR and converts client-side after mount.
 - **`window-constraints.ts`** — Constraint resolution logic (clamp values within min/max bounds).
 
-Both have dedicated `.test.ts` files.
+### Multi-Unit Support
+Position/size values support multiple unit types: pixels (number), viewport units (`vw`/`vh`), and percentages (`%`). All conversions go through `convert-to-pixels.ts`.
 
-### Docs (`docs/`)
+### SSR Hydration Safety
+Viewport and percentage values are resolved to default pixel values during SSR and converted client-side after mount, preventing hydration mismatches.
 
-Next.js 15 site with interactive demos in `docs/demos/`. Each demo is a `Window.demo.*.tsx` file. Pages live in `docs/pages/`. Shared shell/footer components come from the `mantine-base-component` template.
+### Positioning Context
+`withinPortal` controls positioning context: `fixed` (viewport) vs `absolute` (parent container).
 
-### Build Pipeline
+### Z-Index Management
+`bringToFront` enables multiple overlapping windows to dynamically reorder their stacking context on interaction.
 
-Rollup bundles `package/src/index.ts` → dual ESM (`.mjs`) + CJS (`.cjs`) output with source maps. CSS Modules are extracted to `dist/styles.css`. Non-index chunks get a `'use client'` banner. Type declarations are generated separately via `scripts/generate-dts`.
+### Mantine Styles API
+The component uses Mantine's full Styles API (`getStyles`, `classNames`, `styles`, `unstyled`, `vars`, `varsResolver`) via `factory()` pattern with `useProps`, `useStyles`, and `createVarsResolver`.
+
+### WindowGroup Compound Component
+`WindowGroup` provides shared context (`WindowGroupContextValue`) for managing multiple `Window` instances with predefined layouts (`WindowLayout`). Uses React context via `WindowGroup.context.ts`.
 
 ## Testing
+Jest with `jsdom` environment, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Component tests use `@mantine-tests/core` render helper.
 
-- **Jest** with `jsdom` environment and `esbuild-jest` transform
-- CSS imports are mocked via `identity-obj-proxy`
-- Component tests use `@mantine-tests/core` render helper
-- Test files: `package/src/Window.test.tsx`, `package/src/lib/*.test.ts`
+Test files:
+- `package/src/Window.test.tsx` — Component tests
+- `package/src/lib/convert-to-pixels.test.ts` — Unit conversion tests
+- `package/src/lib/window-constraints.test.ts` — Constraint logic tests
 
-## Key Patterns
+Run a single test file: `yarn jest --testPathPattern=Window.test`
 
-- The component uses Mantine's **Styles API** (`getStyles`, `classNames`, `styles`, `unstyled`, `vars`, `varsResolver`) — follow this pattern for any style-related changes.
-- Position/size values support **multiple unit types**: pixels (number), viewport units (`vw`/`vh`), and percentages (`%`). All conversions go through `convert-to-pixels.ts`.
-- SSR hydration safety: viewport/percentage values are resolved to default pixel values during SSR and converted client-side after mount.
-- `withinPortal` controls positioning context: `fixed` (viewport) vs `absolute` (parent container).
-- z-index management via `bringToFront` enables multiple overlapping windows.
+## Ecosystem
+This repo is part of the Mantine Extensions ecosystem, derived from the `mantine-base-component` template. See the workspace CLAUDE.md at `/Users/giovambattistafazioli/Lavoro/GitHub/Mantine Extensions/CLAUDE.md` for:
+- Development checklist (code -> test -> build -> docs -> release)
+- Cross-cutting patterns (compound components, responsive CSS, GitHub sync)
+- Update packages workflow
+- Release process
