@@ -140,7 +140,7 @@ Wrap multiple windows in a `Window.Group` to enable coordinated window managemen
 - **Layout presets**: Snap, tile, and fill layouts via the green tools button in each window header
 - **Global actions**: Collapse all, expand all, close all
 
-Each `Window` inside a `Window.Group` must have a unique `id` prop. The group automatically sets `withinPortal={false}` and `position: relative` on its container.
+Each `Window` inside a `Window.Group` must have a unique `id` prop. The group defaults to `withinPortal={false}` (overridable via the `withinPortal` prop) and applies `position: relative` on its container.
 
 <Demo data={demos.group} />
 

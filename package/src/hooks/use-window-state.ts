@@ -231,7 +231,7 @@ export function useWindowState(options: UseWindowStateOptions) {
 
   const persistSideEffect = useCallback(
     (update: Partial<WindowPersistedState>) => {
-      if (!persistRef.current.persistState) {
+      if (!persistRef.current.persistState || !persistRef.current.isHydrated) {
         return;
       }
       pendingPersistRef.current = { ...pendingPersistRef.current, ...update };
