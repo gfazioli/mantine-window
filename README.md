@@ -67,11 +67,9 @@ import { Title } from '@mantine/core';
 
 function Demo() {
   return (
-    <Stack>
-      <Window title="Hello World" opened>
-        <Title order={4}>This is a window</Title>
-      </Window>
-    </Stack>
+    <Window title="Hello World" opened defaultX={50} defaultY={50} defaultWidth={400} defaultHeight={300}>
+      <Title order={4}>This is a window</Title>
+    </Window>
   );
 }
 ```
