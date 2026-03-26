@@ -80,6 +80,13 @@ The window logic is split into composable hooks, all orchestrated by `use-mantin
 - **`convert-to-pixels.ts`** — Converts viewport units (`vw`, `vh`), percentages (`%`), and raw numbers to pixel values. Critical for SSR hydration safety: returns defaults during SSR and converts client-side after mount.
 - **`window-constraints.ts`** — Constraint resolution logic (clamp values within min/max bounds).
 
+### Flat Position/Size API (v2)
+Position and size use flat props instead of objects:
+- **Uncontrolled**: `defaultX`, `defaultY`, `defaultWidth`, `defaultHeight`
+- **Controlled**: `x`, `y`, `width`, `height` (component does not manage that value internally)
+- All accept `ResponsiveValue<number | string>` — Mantine breakpoint objects or scalar values
+- `radius` and `shadow` also accept responsive values
+
 ### Multi-Unit Support
 Position/size values support multiple unit types: pixels (number), viewport units (`vw`/`vh`), and percentages (`%`). All conversions go through `convert-to-pixels.ts`.
 
@@ -99,14 +106,16 @@ The component uses Mantine's full Styles API (`getStyles`, `classNames`, `styles
 `WindowGroup` provides shared context (`WindowGroupContextValue`) for managing multiple `Window` instances with predefined layouts (`WindowLayout`). Uses React context via `WindowGroup.context.ts`.
 
 ## Testing
-Jest with `jsdom` environment, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Component tests use `@mantine-tests/core` render helper.
+Jest with `jsdom` environment, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Component tests use `@testing-library/react` with a custom `renderWithMantine` helper that wraps components in `MantineProvider`.
 
 Test files:
-- `package/src/Window.test.tsx` — Component tests
+- `package/src/Window.test.tsx` — Component tests (75 tests: rendering, controlled/uncontrolled, collapse, drag/resize callbacks, accessibility, persistence, Window.Group with groupRef API)
 - `package/src/lib/convert-to-pixels.test.ts` — Unit conversion tests
 - `package/src/lib/window-constraints.test.ts` — Constraint logic tests
 
 Run a single test file: `yarn jest --testPathPattern=Window.test`
+
+**Note:** Mantine `Menu` (Popover/floating-ui) does not work in jsdom — menu interaction tests are covered visually via `yarn dev`.
 
 ## Ecosystem
 This repo is part of the Mantine Extensions ecosystem, derived from the `mantine-base-component` template. See the workspace CLAUDE.md at `/Users/giovambattistafazioli/Lavoro/GitHub/Mantine Extensions/CLAUDE.md` for:
