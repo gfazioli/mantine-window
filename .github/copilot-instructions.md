@@ -2,15 +2,15 @@
 
 ## Project Overview
 
-This repository contains a Mantine-based JSON tree viewer component (`@gfazioli/mantine-window`). It's an interactive JSON tree viewer built with Mantine's Tree component, featuring collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations.
+This repository contains a Mantine extension component (`@gfazioli/mantine-window`) that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, z-index management, and flexible control over position, size, and interaction modes. Includes a WindowGroup compound component for coordinated multi-window management with layout presets.
 
 ## Project Purpose
 
 The component is designed for:
-- Debugging API responses
-- Exploring complex data structures
-- Developer tools integration
-- JSON data visualization in React applications
+- Floating window UIs (tool panels, inspectors, chat widgets)
+- Multi-window layouts with drag and resize
+- Persistent window state across sessions (localStorage)
+- Customizable window boundaries and constraints
 
 ## Technology Stack
 

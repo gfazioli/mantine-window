@@ -27,7 +27,7 @@ export interface PackageData {
 export const PACKAGE_DATA: PackageData = {
   packageName: '@gfazioli/mantine-window',
   packageDescription:
-    'A Mantine extension component that renders interactive JSON trees with syntax highlighting, collapsible nodes, copy-to-clipboard, and configurable expansion depth.',
+    'A Mantine extension component that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, z-index management, and flexible control over position, size, and interaction modes. Includes a WindowGroup compound component for coordinated multi-window management with layout presets.',
   mdxFileUrl: 'https://github.com/gfazioli/mantine-window/blob/master/docs/docs.mdx',
   repositoryUrl: 'https://github.com/gfazioli/mantine-window',
   licenseUrl: 'https://github.com/gfazioli/mantine-window/blob/master/LICENSE',
