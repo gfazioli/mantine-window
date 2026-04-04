@@ -103,7 +103,7 @@ Viewport and percentage values are resolved to default pixel values during SSR a
 The component uses Mantine's full Styles API (`getStyles`, `classNames`, `styles`, `unstyled`, `vars`, `varsResolver`) via `factory()` pattern with `useProps`, `useStyles`, and `createVarsResolver`.
 
 ### ScrollArea Control
-`withScrollArea` (default: `true`) — when `false`, the internal `ScrollArea` is replaced with a plain `Box` with `overflow: auto`. Useful when content manages its own scrolling.
+`withScrollArea` (default: `true`) — when `false`, the internal `ScrollArea` is replaced with a plain `Box` with `overflow: hidden`. Content that overflows is clipped. Useful when the consumer provides their own scrolling mechanism.
 
 ### Controls Position & Order
 - `controlsPosition` (`'left'` | `'right'`, default: `'left'`) — macOS-style (left) or Windows-style (right) button placement
