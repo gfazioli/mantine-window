@@ -273,7 +273,7 @@ const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) =
   };
 });
 
-export const Window = factory<WindowFactory>((_props, _) => {
+export const Window = factory<WindowFactory>((_props) => {
   const props = useProps('Window', defaultProps, _props);
 
   const {
@@ -374,11 +374,11 @@ export const Window = factory<WindowFactory>((_props, _) => {
       mod={[{ 'data-with-border': withBorder, 'data-window-draggable': draggableWindow }, mod]}
       onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
       onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
-      bg={color}
       role="dialog"
       aria-label={title || props.id || 'Window'}
       data-mantine-window
       {...others}
+      bg={color}
       {...getStyles('root', {
         style: {
           position: resolvedWithinPortal ? 'fixed' : 'absolute',

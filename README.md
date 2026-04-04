@@ -18,6 +18,7 @@
 ## Overview
 
 This component is created on top of the [Mantine](https://mantine.dev/) library.
+It requires **Mantine 9.x** and **React 19**.
 
 [Mantine Window](https://gfazioli.github.io/mantine-window/) is a versatile UI container that brings a familiar desktop‑like window experience to React applications built with Mantine.
 

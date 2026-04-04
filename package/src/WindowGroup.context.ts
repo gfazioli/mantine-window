@@ -1,4 +1,4 @@
-import { createOptionalContext } from '@mantine/core';
+import { createContext, useContext } from 'react';
 import type { WindowPosition, WindowSize } from './Window';
 
 /** Layouts that operate on a single window (no Group required) */
@@ -74,5 +74,10 @@ export interface WindowGroupContextValue {
   showToolsButton: boolean;
 }
 
-export const [WindowGroupProvider, useWindowGroupContext] =
-  createOptionalContext<WindowGroupContextValue>();
+const WindowGroupContext = createContext<WindowGroupContextValue | null>(null);
+
+export const WindowGroupProvider = WindowGroupContext.Provider;
+
+export function useWindowGroupContext(): WindowGroupContextValue | null {
+  return useContext(WindowGroupContext);
+}
