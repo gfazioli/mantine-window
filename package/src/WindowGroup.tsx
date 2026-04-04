@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Box, factory, Factory, useProps, type BoxProps } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import {
@@ -245,23 +252,42 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
 
   // ─── Context value ──────────────────────────────────────────────────
 
-  const contextValue: WindowGroupContextValue = {
-    groupId,
-    withinPortal,
-    containerWidth,
-    containerHeight,
-    registerWindow,
-    unregisterWindow,
-    updateWindowState,
-    getZIndex,
-    bringToFront,
-    applyLayout,
-    closeAll,
-    collapseAll,
-    expandAll,
-    getWindowIds,
-    showToolsButton,
-  };
+  const contextValue: WindowGroupContextValue = useMemo(
+    () => ({
+      groupId,
+      withinPortal,
+      containerWidth,
+      containerHeight,
+      registerWindow,
+      unregisterWindow,
+      updateWindowState,
+      getZIndex,
+      bringToFront,
+      applyLayout,
+      closeAll,
+      collapseAll,
+      expandAll,
+      getWindowIds,
+      showToolsButton,
+    }),
+    [
+      groupId,
+      withinPortal,
+      containerWidth,
+      containerHeight,
+      registerWindow,
+      unregisterWindow,
+      updateWindowState,
+      getZIndex,
+      bringToFront,
+      applyLayout,
+      closeAll,
+      collapseAll,
+      expandAll,
+      getWindowIds,
+      showToolsButton,
+    ]
+  );
 
   // Expose group API via groupRef for external control
   useImperativeHandle(groupRef, () => contextValue, [contextValue]);
