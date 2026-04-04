@@ -122,6 +122,7 @@ export function useMantineWindow(props: WindowBaseProps) {
       return () => groupCtx.unregisterWindow(windowId);
     }
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state methods are stable; adding state would cause infinite re-registration
   }, [isInGroup, windowId]);
 
   // ─── Group: override bringToFront and zIndex when in group ──────────
@@ -132,7 +133,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     } else {
       state.bringToFront();
     }
-  }, [isInGroup, groupCtx, windowId, state.bringToFront]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.bringToFront is a stable method
+  }, [isInGroup, groupCtx, windowId]);
 
   const zIndex = isInGroup ? groupCtx.getZIndex(windowId) : state.zIndex;
 
@@ -224,7 +226,8 @@ export function useMantineWindow(props: WindowBaseProps) {
           break;
       }
     },
-    [isInGroup, groupCtx, withinPortal, dimensions, state.setPosition, state.setSize]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state methods are stable
+    [isInGroup, groupCtx, withinPortal, dimensions]
   );
 
   // ─── Sync pixel values back to group registry ───────────────────────

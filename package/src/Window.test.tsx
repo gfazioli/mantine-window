@@ -490,11 +490,11 @@ describe('Window', () => {
 
     // Persistence is debounced — check after a tick
     const stored = localStorage.getItem('persist-write-window-state');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      expect(parsed.collapsed).toBe(true);
-    }
-    // If debounce hasn't flushed yet, at minimum the collapse worked
+    expect(stored || 'pending').toBeTruthy(); // may not have flushed yet
+    // If debounce has flushed, verify the persisted state
+    const parsed = stored ? JSON.parse(stored) : null;
+    expect(!parsed || parsed.collapsed === true).toBe(true);
+    // At minimum the collapse worked
     expect(screen.getByLabelText('Expand window')).toBeTruthy();
   });
 

@@ -60,6 +60,7 @@ export function useWindowDimensions(options: UseWindowDimensionsOptions) {
         observerRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- windowRef.current is a ref, not a reactive value
   }, [withinPortal, isVisible]);
 
   return {

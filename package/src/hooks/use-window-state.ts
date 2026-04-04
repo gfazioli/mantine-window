@@ -205,6 +205,7 @@ export function useWindowState(options: UseWindowStateOptions) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on hydration; deps are initial values that should not re-trigger
   }, [isHydrated]);
 
   // ─── Debounced persistence ──────────────────────────────────────────
@@ -344,6 +345,7 @@ export function useWindowState(options: UseWindowStateOptions) {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-persist when collapsed changes; other deps are stable config
   }, [collapsed]);
 
   return {
