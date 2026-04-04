@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Stack, Title } from '@mantine/core';
+import { Button, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Window } from './Window';
 
@@ -1029,5 +1029,80 @@ export function WindowGroupTile() {
         <Title order={4}>Window 4</Title>
       </Window>
     </Window.Group>
+  );
+}
+
+export function WithoutScrollArea() {
+  const lines = Array.from({ length: 10 }, (_, i) => `Line ${i + 1}: Lorem ipsum dolor sit amet`);
+  return (
+    <Stack>
+      <Window title="With ScrollArea" opened defaultWidth={300} defaultHeight={200}>
+        {lines.map((line, i) => (
+          <Text key={i} size="sm">
+            {line}
+          </Text>
+        ))}
+      </Window>
+      <Window
+        title="Without ScrollArea"
+        opened
+        withScrollArea={false}
+        defaultX={320}
+        defaultWidth={300}
+        defaultHeight={200}
+      >
+        {lines.map((line, i) => (
+          <Text key={i} size="sm">
+            {line}
+          </Text>
+        ))}
+      </Window>
+    </Stack>
+  );
+}
+
+export function ControlsRight() {
+  return (
+    <Stack>
+      <Window title="macOS style (left)" opened defaultWidth={300} defaultHeight={150}>
+        <Text size="sm">Controls on the left</Text>
+      </Window>
+      <Window
+        title="Windows style (right)"
+        opened
+        controlsPosition="right"
+        defaultX={320}
+        defaultWidth={300}
+        defaultHeight={150}
+      >
+        <Text size="sm">Controls on the right — auto-reversed order</Text>
+      </Window>
+    </Stack>
+  );
+}
+
+export function CustomControlsOrder() {
+  return (
+    <Stack>
+      <Window
+        title="Custom: tools, close, collapse"
+        opened
+        controlsOrder={['tools', 'close', 'collapse']}
+        defaultWidth={350}
+        defaultHeight={150}
+      >
+        <Text size="sm">Custom button order</Text>
+      </Window>
+      <Window
+        title="Custom: collapse, tools, close"
+        opened
+        controlsOrder={['collapse', 'tools', 'close']}
+        defaultX={370}
+        defaultWidth={350}
+        defaultHeight={150}
+      >
+        <Text size="sm">Another custom order</Text>
+      </Window>
+    </Stack>
   );
 }

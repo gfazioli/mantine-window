@@ -834,4 +834,87 @@ describe('Window.Group', () => {
     expect(getWindowElement(container)).toBeTruthy();
     expect(screen.getByLabelText('Window layout options')).toBeTruthy();
   });
+
+  // ─── withScrollArea ─────────────────────────────────────────────────
+
+  it('renders ScrollArea by default', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="With Scroll">
+        <p>Content</p>
+      </Window>
+    );
+    // ScrollArea renders a div with data-radix-scroll-area or mantine-ScrollArea class
+    const scrollArea = container.querySelector('.mantine-ScrollArea-root');
+    expect(scrollArea).toBeTruthy();
+  });
+
+  it('does not render ScrollArea when withScrollArea is false', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="No Scroll" withScrollArea={false}>
+        <p>Content</p>
+      </Window>
+    );
+    const scrollArea = container.querySelector('.mantine-ScrollArea-root');
+    expect(scrollArea).toBeNull();
+  });
+
+  it('still renders children when withScrollArea is false', () => {
+    renderWithMantine(
+      <Window opened title="No Scroll" withScrollArea={false}>
+        <p>Hello content</p>
+      </Window>
+    );
+    expect(screen.getByText('Hello content')).toBeTruthy();
+  });
+
+  // ─── controlsPosition ──────────────────────────────────────────────
+
+  it('renders controls on the left by default', () => {
+    const { container } = renderWithMantine(<Window opened title="Left Controls" />);
+    const header = container.querySelector('[data-controls-position="left"]');
+    expect(header).toBeTruthy();
+  });
+
+  it('renders controls on the right when controlsPosition="right"', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Right Controls" controlsPosition="right" />
+    );
+    const header = container.querySelector('[data-controls-position="right"]');
+    expect(header).toBeTruthy();
+  });
+
+  it('reverses button order when controlsPosition="right"', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Reversed" controlsPosition="right" />
+    );
+    const buttons = container.querySelectorAll('[aria-label]');
+    const labels = Array.from(buttons).map((b) => b.getAttribute('aria-label'));
+    const toolsIndex = labels.indexOf('Window layout options');
+    const closeIndex = labels.indexOf('Close window');
+    // Both buttons must be present
+    expect(toolsIndex).not.toBe(-1);
+    expect(closeIndex).not.toBe(-1);
+    // Tools should appear before close in DOM order when right-positioned
+    expect(toolsIndex).toBeLessThan(closeIndex);
+  });
+
+  // ─── controlsOrder ─────────────────────────────────────────────────
+
+  it('respects custom controlsOrder', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Custom Order" controlsOrder={['tools', 'close', 'collapse']} />
+    );
+    const buttons = container.querySelectorAll('[aria-label]');
+    const labels = Array.from(buttons).map((b) => b.getAttribute('aria-label'));
+    const toolsIndex = labels.indexOf('Window layout options');
+    const closeIndex = labels.indexOf('Close window');
+    const collapseIndex = labels.indexOf('Collapse window');
+    // All buttons must be present
+    expect(toolsIndex).not.toBe(-1);
+    expect(closeIndex).not.toBe(-1);
+    expect(collapseIndex).not.toBe(-1);
+    // tools → close → collapse
+    expect(toolsIndex).toBeLessThan(closeIndex);
+    expect(closeIndex).toBeLessThan(collapseIndex);
+  });
 });
