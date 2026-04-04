@@ -1,6 +1,7 @@
 export { callbacks } from './Window.demo.callbacks';
 export { centered } from './Window.demo.centered';
 export { configurator } from './Window.demo.configurator';
+export { controlsPositionDemo } from './Window.demo.controlsPosition';
 export { controlled } from './Window.demo.controlled';
 export { controlledPosition } from './Window.demo.controlledPosition';
 export { dragBounds } from './Window.demo.dragBounds';
@@ -18,4 +19,5 @@ export { positionAndSize } from './Window.demo.positionAndSize';
 export { responsive } from './Window.demo.responsive';
 export { stylesApi } from './Window.demo.stylesApi';
 export { unitTypes } from './Window.demo.unitTypes';
+export { withScrollAreaDemo } from './Window.demo.withScrollArea';
 export { withinPortal } from './Window.demo.withinPortal';

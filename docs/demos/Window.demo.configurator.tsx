@@ -94,6 +94,17 @@ export const configurator: MantineDemo = {
     { type: 'boolean', prop: 'withCollapseButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'withCloseButton', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'withToolsButton', initialValue: true, libraryValue: true },
+    { type: 'boolean', prop: 'withScrollArea', initialValue: true, libraryValue: true },
+    {
+      prop: 'controlsPosition',
+      type: 'select',
+      initialValue: 'left',
+      libraryValue: 'left',
+      data: [
+        { label: 'left', value: 'left' },
+        { label: 'right', value: 'right' },
+      ],
+    },
     { type: 'boolean', prop: 'collapsed', initialValue: false, libraryValue: false },
     {
       type: 'boolean',

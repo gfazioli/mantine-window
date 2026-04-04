@@ -44,5 +44,21 @@ export const WindowStylesApi: StylesApiData<WindowFactory> = {
     resizeHandleRight: {},
   },
 
-  //modifiers: [{ selector: 'root' }],
+  modifiers: [
+    {
+      modifier: 'data-controls-position',
+      selector: 'header',
+      condition: 'Controls position: `left` or `right`',
+    },
+    {
+      modifier: 'data-with-border',
+      selector: 'root',
+      condition: '`withBorder` prop is `true`',
+    },
+    {
+      modifier: 'data-window-draggable',
+      selector: 'header',
+      condition: '`draggable` includes header',
+    },
+  ],
 };

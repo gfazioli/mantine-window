@@ -102,8 +102,15 @@ Viewport and percentage values are resolved to default pixel values during SSR a
 ### Mantine Styles API
 The component uses Mantine's full Styles API (`getStyles`, `classNames`, `styles`, `unstyled`, `vars`, `varsResolver`) via `factory()` pattern with `useProps`, `useStyles`, and `createVarsResolver`.
 
+### ScrollArea Control
+`withScrollArea` (default: `true`) — when `false`, the internal `ScrollArea` is replaced with a plain `Box` with `overflow: auto`. Useful when content manages its own scrolling.
+
+### Controls Position & Order
+- `controlsPosition` (`'left'` | `'right'`, default: `'left'`) — macOS-style (left) or Windows-style (right) button placement
+- `controlsOrder` (`('close' | 'collapse' | 'tools')[]`) — custom button ordering. When not set, defaults to `['close', 'collapse', 'tools']` for left and `['tools', 'collapse', 'close']` for right (automatically reversed).
+
 ### WindowGroup Compound Component
-`WindowGroup` provides shared context (`WindowGroupContextValue`) for managing multiple `Window` instances with predefined layouts (`WindowLayout`). Uses React context via `WindowGroup.context.ts`.
+`WindowGroup` provides shared context (`WindowGroupContextValue`) for managing multiple `Window` instances with predefined layouts (`WindowLayout`). Uses standard React `createContext`/`useContext` (replaced `createOptionalContext` which was removed in Mantine 9).
 
 ## Testing
 Jest with `jsdom` environment, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Component tests use `@testing-library/react` with a custom `renderWithMantine` helper that wraps components in `MantineProvider`.

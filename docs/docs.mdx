@@ -166,6 +166,20 @@ Prevent the window from being collapsed by setting `collapsable={false}`. This r
 
 <Demo data={demos.noCollapsable} />
 
+## Disable ScrollArea
+
+By default, the window content is wrapped in a `ScrollArea` component. Set `withScrollArea={false}` to disable it — content that overflows will be clipped instead of scrollable. This is useful when your content already provides its own scrolling mechanism or when the `ScrollArea` interferes with the inner layout.
+
+<Demo data={demos.withScrollAreaDemo} />
+
+## Controls Position
+
+The window title bar buttons (close, collapse, tools) default to the left side (macOS style). Set `controlsPosition="right"` to move them to the right side (Windows style). The button order is automatically reversed when positioned on the right — close moves to the far right, matching platform conventions.
+
+For full control over button ordering, use the `controlsOrder` prop with an array of `'close'`, `'collapse'`, and `'tools'` in your desired sequence. When `controlsOrder` is set, it overrides the automatic ordering.
+
+<Demo data={demos.controlsPositionDemo} />
+
 ## Full Size Resize Handles
 
 By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, providing a larger interaction area.
