@@ -38,6 +38,9 @@ It requires **Mantine 9.x** and **React 19**.
 - Full Mantine Styles API support with fine-grained classNames
 - SSR-safe with hydration-compatible viewport unit resolution
 - `onPositionChange` and `onSizeChange` callbacks
+- `withScrollArea` prop to disable the internal ScrollArea wrapper
+- `controlsPosition` prop for macOS-style (left) or Windows-style (right) button placement
+- `controlsOrder` prop for custom button ordering (close, collapse, tools)
 
 > [!note]
 >

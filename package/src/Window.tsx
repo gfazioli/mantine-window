@@ -147,6 +147,15 @@ export interface WindowBaseProps {
   /** Whether to show the tools button (layout options) in the header. Default: true */
   withToolsButton?: boolean;
 
+  /** Whether to wrap children in ScrollArea. Set to false to manage your own scrolling. @default true */
+  withScrollArea?: boolean;
+
+  /** Position of the window controls (close, collapse, tools). @default "left" */
+  controlsPosition?: 'left' | 'right';
+
+  /** Custom order of window controls. When not set, defaults to ['close', 'collapse', 'tools'] for left position and ['tools', 'collapse', 'close'] for right position. */
+  controlsOrder?: ('close' | 'collapse' | 'tools')[];
+
   /** Called when the window is closed */
   onClose?: () => void;
 
@@ -241,6 +250,8 @@ export const defaultProps: Partial<WindowProps> = {
   withCollapseButton: true,
   collapsable: true,
   withToolsButton: true,
+  withScrollArea: true,
+  controlsPosition: 'left',
   persistState: false,
   withinPortal: true,
   minWidth: 250,
@@ -288,6 +299,9 @@ export const Window = factory<WindowFactory>((_props) => {
     collapsable,
     withCloseButton,
     withToolsButton,
+    withScrollArea,
+    controlsPosition,
+    controlsOrder: controlsOrderProp,
     onClose,
     radius,
     shadow,
@@ -395,15 +409,23 @@ export const Window = factory<WindowFactory>((_props) => {
         <Box
           {...getStyles('header')}
           onClick={bringToFront}
-          mod={{ 'window-draggable': draggableHeader }}
+          mod={{ 'window-draggable': draggableHeader, 'controls-position': controlsPosition }}
           onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
           onTouchStart={draggableHeader ? handleTouchStartDrag : undefined}
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
-          <Flex align="center" gap="xs" miw={0}>
-            <Flex align="center" gap={8}>
-              {withCloseButton && (
+          {(() => {
+            // Default order: left=close,collapse,tools — right=tools,collapse,close
+            const defaultOrder: ('close' | 'collapse' | 'tools')[] =
+              controlsPosition === 'right'
+                ? ['tools', 'collapse', 'close']
+                : ['close', 'collapse', 'tools'];
+            const order = controlsOrderProp ?? defaultOrder;
+
+            const controlElements: Record<string, React.ReactNode> = {
+              close: withCloseButton ? (
                 <ActionIcon
+                  key="close"
                   radius={256}
                   color="red"
                   onClick={handleClose}
@@ -412,140 +434,187 @@ export const Window = factory<WindowFactory>((_props) => {
                 >
                   <IconX size={14} />
                 </ActionIcon>
-              )}
-              {withCollapseButton && collapsable && (
-                <ActionIcon
-                  radius={256}
-                  color="yellow"
-                  onClick={() => setIsCollapsed(!isCollapsed)}
-                  aria-label={isCollapsed ? 'Expand window' : 'Collapse window'}
-                  {...getStyles('collapseButton')}
-                >
-                  {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
-                </ActionIcon>
-              )}
-              {withToolsButton && (groupCtx?.showToolsButton ?? true) && (
-                <Menu shadow="md" width={220} position="bottom-start" withArrow>
-                  <Menu.Target>
-                    <ActionIcon
-                      radius={256}
-                      color="green"
-                      aria-label="Window layout options"
-                      {...getStyles('windowToolsButton')}
-                    >
-                      <FillIcon size={14} />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>Move & Resize</Menu.Label>
-                    <Flex justify="space-between" pb="xs" px="sm">
+              ) : null,
+              collapse:
+                withCollapseButton && collapsable ? (
+                  <ActionIcon
+                    key="collapse"
+                    radius={256}
+                    color="yellow"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    aria-label={isCollapsed ? 'Expand window' : 'Collapse window'}
+                    {...getStyles('collapseButton')}
+                  >
+                    {isCollapsed ? <IconPlus size={14} /> : <IconMinus size={14} />}
+                  </ActionIcon>
+                ) : null,
+              tools:
+                withToolsButton && (groupCtx?.showToolsButton ?? true) ? (
+                  <Menu key="tools" shadow="md" width={220} position="bottom-start" withArrow>
+                    <Menu.Target>
                       <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        aria-label="Snap left"
-                        onClick={() => applySingleLayout('snap-left')}
+                        radius={256}
+                        color="green"
+                        aria-label="Window layout options"
+                        {...getStyles('windowToolsButton')}
                       >
-                        <SnapLeftIcon />
+                        <FillIcon size={14} />
                       </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        aria-label="Snap right"
-                        onClick={() => applySingleLayout('snap-right')}
-                      >
-                        <SnapRightIcon />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        aria-label="Snap top"
-                        onClick={() => applySingleLayout('snap-top')}
-                      >
-                        <SnapTopIcon />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        aria-label="Snap bottom"
-                        onClick={() => applySingleLayout('snap-bottom')}
-                      >
-                        <SnapBottomIcon />
-                      </ActionIcon>
-                    </Flex>
-                    <Menu.Divider />
-                    <Menu.Label>Fill & Arrange</Menu.Label>
-                    <Flex justify="space-between" pb="xs" px="sm">
-                      <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        aria-label="Fill"
-                        onClick={() => applySingleLayout('fill')}
-                      >
-                        <FillIcon />
-                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>Move & Resize</Menu.Label>
+                      <Flex justify="space-between" pb="xs" px="sm">
+                        <ActionIcon
+                          variant="subtle"
+                          size="lg"
+                          aria-label="Snap left"
+                          onClick={() => applySingleLayout('snap-left')}
+                        >
+                          <SnapLeftIcon />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          size="lg"
+                          aria-label="Snap right"
+                          onClick={() => applySingleLayout('snap-right')}
+                        >
+                          <SnapRightIcon />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          size="lg"
+                          aria-label="Snap top"
+                          onClick={() => applySingleLayout('snap-top')}
+                        >
+                          <SnapTopIcon />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          size="lg"
+                          aria-label="Snap bottom"
+                          onClick={() => applySingleLayout('snap-bottom')}
+                        >
+                          <SnapBottomIcon />
+                        </ActionIcon>
+                      </Flex>
+                      <Menu.Divider />
+                      <Menu.Label>Fill & Arrange</Menu.Label>
+                      <Flex justify="space-between" pb="xs" px="sm">
+                        <ActionIcon
+                          variant="subtle"
+                          size="lg"
+                          aria-label="Fill"
+                          onClick={() => applySingleLayout('fill')}
+                        >
+                          <FillIcon />
+                        </ActionIcon>
+                        {groupCtx && (
+                          <>
+                            <ActionIcon
+                              variant="subtle"
+                              size="lg"
+                              aria-label="Arrange columns"
+                              onClick={() => groupCtx.applyLayout('arrange-columns')}
+                            >
+                              <ArrangeColumnsIcon />
+                            </ActionIcon>
+                            <ActionIcon
+                              variant="subtle"
+                              size="lg"
+                              aria-label="Arrange rows"
+                              onClick={() => groupCtx.applyLayout('arrange-rows')}
+                            >
+                              <ArrangeRowsIcon />
+                            </ActionIcon>
+                            <ActionIcon
+                              variant="subtle"
+                              size="lg"
+                              aria-label="Tile"
+                              onClick={() => groupCtx.applyLayout('tile')}
+                            >
+                              <TileIcon />
+                            </ActionIcon>
+                          </>
+                        )}
+                      </Flex>
                       {groupCtx && (
                         <>
-                          <ActionIcon
-                            variant="subtle"
-                            size="lg"
-                            aria-label="Arrange columns"
-                            onClick={() => groupCtx.applyLayout('arrange-columns')}
-                          >
-                            <ArrangeColumnsIcon />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="subtle"
-                            size="lg"
-                            aria-label="Arrange rows"
-                            onClick={() => groupCtx.applyLayout('arrange-rows')}
-                          >
-                            <ArrangeRowsIcon />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="subtle"
-                            size="lg"
-                            aria-label="Tile"
-                            onClick={() => groupCtx.applyLayout('tile')}
-                          >
-                            <TileIcon />
-                          </ActionIcon>
+                          <Menu.Divider />
+                          <Menu.Item onClick={() => groupCtx.collapseAll()}>Collapse all</Menu.Item>
+                          <Menu.Item onClick={() => groupCtx.expandAll()}>Expand all</Menu.Item>
+                          <Menu.Item color="red" onClick={() => groupCtx.closeAll()}>
+                            Close all
+                          </Menu.Item>
                         </>
                       )}
-                    </Flex>
-                    {groupCtx && (
-                      <>
-                        <Menu.Divider />
-                        <Menu.Item onClick={() => groupCtx.collapseAll()}>Collapse all</Menu.Item>
-                        <Menu.Item onClick={() => groupCtx.expandAll()}>Expand all</Menu.Item>
-                        <Menu.Item color="red" onClick={() => groupCtx.closeAll()}>
-                          Close all
-                        </Menu.Item>
-                      </>
-                    )}
-                  </Menu.Dropdown>
-                </Menu>
-              )}
-            </Flex>
-            <Flex align="center" gap="xs" miw={0}>
-              <Text truncate {...getStyles('title')}>
-                {title}
-              </Text>
-            </Flex>
-          </Flex>
+                    </Menu.Dropdown>
+                  </Menu>
+                ) : null,
+            };
+
+            const controlsGroup = (
+              <Flex align="center" gap={8}>
+                {order.map((name) => controlElements[name])}
+              </Flex>
+            );
+
+            const titleGroup = (
+              <Flex align="center" gap="xs" miw={0}>
+                <Text truncate {...getStyles('title')}>
+                  {title}
+                </Text>
+              </Flex>
+            );
+
+            return (
+              <Flex
+                align="center"
+                gap="xs"
+                miw={0}
+                justify={controlsPosition === 'right' ? 'space-between' : undefined}
+                w={controlsPosition === 'right' ? '100%' : undefined}
+              >
+                {controlsPosition === 'left' ? (
+                  <>
+                    {controlsGroup}
+                    {titleGroup}
+                  </>
+                ) : (
+                  <>
+                    {titleGroup}
+                    {controlsGroup}
+                  </>
+                )}
+              </Flex>
+            );
+          })()}
         </Box>
 
         {/* Content */}
         {!isCollapsed && (
           <>
-            <ScrollArea
-              {...getStyles('content', {
-                style: {
-                  height: Math.max(0, size.height - HEADER_HEIGHT),
-                },
-              })}
-            >
-              {children}
-            </ScrollArea>
+            {withScrollArea ? (
+              <ScrollArea
+                {...getStyles('content', {
+                  style: {
+                    height: Math.max(0, size.height - HEADER_HEIGHT),
+                  },
+                })}
+              >
+                {children}
+              </ScrollArea>
+            ) : (
+              <Box
+                {...getStyles('content', {
+                  style: {
+                    height: Math.max(0, size.height - HEADER_HEIGHT),
+                    overflow: 'hidden',
+                  },
+                })}
+              >
+                {children}
+              </Box>
+            )}
 
             {/* Resize handles - only when not collapsed */}
             {resizable !== 'none' && (
