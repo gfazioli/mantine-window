@@ -134,6 +134,7 @@ describe('convertToPixels', () => {
     const originalWindow = global.window;
 
     // Mock SSR environment
+    // @ts-expect-error — simulate SSR by removing window
     delete global.window;
 
     expect(convertToPixels('50vh')).toBeUndefined();

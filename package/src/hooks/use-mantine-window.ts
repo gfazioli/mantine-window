@@ -46,7 +46,7 @@ export function useMantineWindow(props: WindowBaseProps) {
   const windowId = id || title || 'window';
 
   // When inside a group, use the group's withinPortal setting
-  const withinPortal = isInGroup ? groupCtx.withinPortal : withinPortalProp;
+  const withinPortal = isInGroup ? groupCtx.withinPortal : (withinPortalProp ?? true);
 
   // ─── Resolve responsive values ──────────────────────────────────────
 

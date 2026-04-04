@@ -45,7 +45,7 @@ const defaultGroupProps: Partial<WindowGroupProps> = {
   showToolsButton: true,
 };
 
-export const WindowGroup = factory<WindowGroupFactory>((_props, _ref) => {
+export const WindowGroup = factory<WindowGroupFactory>((_props) => {
   const props = useProps('WindowGroup', defaultGroupProps, _props);
   const {
     id: groupId = 'window-group',

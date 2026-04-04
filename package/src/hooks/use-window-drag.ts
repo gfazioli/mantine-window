@@ -12,7 +12,7 @@ export interface UseWindowDragOptions {
   containerWidth: number;
   containerHeight: number;
   isCollapsed: boolean;
-  windowRef: React.RefObject<HTMLDivElement>;
+  windowRef: React.RefObject<HTMLDivElement | null>;
   setPosition: (position: WindowPosition) => void;
   bringToFront: () => void;
 }

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useMounted, useResizeObserver, useViewportSize } from '@mantine/hooks';
+import { useEffect, useRef, useState } from 'react';
+import { useMounted, useViewportSize } from '@mantine/hooks';
 
 export interface UseWindowDimensionsOptions {
   withinPortal?: boolean;
   isVisible: boolean;
-  windowRef: React.RefObject<HTMLDivElement>;
+  windowRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export function useWindowDimensions(options: UseWindowDimensionsOptions) {
@@ -16,39 +16,50 @@ export function useWindowDimensions(options: UseWindowDimensionsOptions) {
   // Track viewport dimensions using Mantine's hook
   const viewportDimensions = useViewportSize();
 
-  // Track container dimensions using Mantine's resize observer
-  const [containerRef, containerRect] = useResizeObserver();
-
-  // Use local state to avoid flicker on first render when containerRect is not yet populated
+  // Track container dimensions with a manual ResizeObserver
   const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
-
-  // Sync containerRect with local state
-  useEffect(() => {
-    if (containerRect.width > 0 || containerRect.height > 0) {
-      setContainerDimensions(containerRect);
-    }
-  }, [containerRect.width, containerRect.height]);
+  const observerRef = useRef<ResizeObserver | null>(null);
 
   // Attach resize observer to parent container when not in portal mode
   useEffect(() => {
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+
     if (!isVisible || !windowRef.current?.offsetParent || withinPortal) {
-      // Reset ref when in portal mode or not visible
-      if (containerRef.current) {
-        containerRef.current = null;
-      }
       setContainerDimensions({ width: 0, height: 0 });
       return;
     }
 
     const parent = windowRef.current.offsetParent;
     if (parent instanceof HTMLElement) {
-      containerRef.current = parent;
       // Get initial dimensions immediately to avoid flicker
       setContainerDimensions({
         width: parent.clientWidth,
         height: parent.clientHeight,
       });
+
+      // Observe for resize changes
+      observerRef.current = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setContainerDimensions({
+            width: entry.contentRect.width,
+            height: entry.contentRect.height,
+          });
+        }
+      });
+      observerRef.current.observe(parent);
     }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
   }, [withinPortal, isVisible]);
 
   return {
