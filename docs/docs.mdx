@@ -1,45 +1,7 @@
 import { InstallScript } from './components/InstallScript/InstallScript';
 import * as demos from './demos';
 
-## Migrating from v1.x
-
-> **Breaking changes:**
->
-> v2.0 replaces the object-based `defaultPosition` and `defaultSize` props with a flat API.
->
-> - `defaultPosition={{ x, y }}` → `defaultX` and `defaultY`
-> - `defaultSize={{ width, height }}` → `defaultWidth` and `defaultHeight`
->
-> **Before (v1.x):**
->
-> ```tsx
-> <Window
->   defaultPosition={{ x: 100, y: 50 }}
->   defaultSize={{ width: 400, height: 300 }}
-> />
-> ```
->
-> **After (v2.0):**
->
-> ```tsx
-> <Window
->   defaultX={100}
->   defaultY={50}
->   defaultWidth={400}
->   defaultHeight={300}
-> />
-> ```
-
-> **New features:**
->
-> - **Controlled position and size** — new `x`, `y`, `width`, `height` props for full external control
-> - **Responsive values** — all dimension props accept Mantine breakpoint objects (`{ base: 280, sm: 350, md: 450 }`)
-> - **Responsive `radius` and `shadow`** — these props now accept breakpoint objects too
-> - **`Window.Group`** — new compound component for coordinated multi-window management with layout presets
-> - **Tools button** — layout menu in the window header with snap, tile, columns, rows, and fill actions
-> - **`withToolsButton` prop** — control tools button visibility per window or per group (`showToolsButton`)
-> - **`groupRef`** — imperative API to apply layouts programmatically
-> - **Accessibility** — `role="dialog"`, `aria-label`, and labeled buttons for close, collapse, and tools
+> **Upgrading from an older major version?** See the [Upgrade guide](/?t=migrations) for breaking changes and step-by-step migration instructions.
 
 ## Installation
 
