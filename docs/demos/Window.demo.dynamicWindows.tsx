@@ -9,12 +9,15 @@ import { Button, Group, Title } from '@mantine/core';
 
 function Demo() {
   const [ids, setIds] = useState<string[]>(['alpha', 'beta']);
-  const nextId = () => String.fromCharCode(97 + ids.length);
 
   return (
     <>
       <Group mb="md">
-        <Button onClick={() => setIds((prev) => [...prev, \`win_\${nextId()}\`])}>
+        <Button
+          onClick={() =>
+            setIds((prev) => [...prev, String.fromCharCode(97 + prev.length)])
+          }
+        >
           Add window
         </Button>
         <Button color="red" onClick={() => setIds((prev) => prev.slice(0, -1))}>
@@ -45,12 +48,13 @@ function Demo() {
 
 function Demo() {
   const [ids, setIds] = useState<string[]>(['alpha', 'beta']);
-  const nextId = () => String.fromCharCode(97 + ids.length);
 
   return (
     <>
       <Group mb="md">
-        <Button onClick={() => setIds((prev) => [...prev, `win_${nextId()}`])}>Add window</Button>
+        <Button onClick={() => setIds((prev) => [...prev, String.fromCharCode(97 + prev.length)])}>
+          Add window
+        </Button>
         <Button color="red" onClick={() => setIds((prev) => prev.slice(0, -1))}>
           Remove last
         </Button>
