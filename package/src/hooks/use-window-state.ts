@@ -1,9 +1,40 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WindowPosition, WindowSize } from '../Window';
 
-// Separate z-index counters for portal (high, above page chrome) and container (low, local stacking)
-let portalZIndex = 200;
-let containerZIndex = 1;
+/** Default z-index starting values. Portal windows stack above container windows. */
+const DEFAULT_PORTAL_Z_INDEX = 200;
+const DEFAULT_CONTAINER_Z_INDEX = 1;
+
+/**
+ * Module-level z-index counters, shared across stand-alone Window instances within the same
+ * scope (portal vs container). Capped via the `maxZIndex` prop on each Window: when the next
+ * increment would exceed the cap, the counter wraps back to `initialZIndex`. This prevents
+ * unbounded escalation that would eventually exceed modals/menus while preserving cross-Window
+ * activation-order coordination for users that don't opt into `WindowGroup`.
+ */
+let portalZIndex = DEFAULT_PORTAL_Z_INDEX;
+let containerZIndex = DEFAULT_CONTAINER_Z_INDEX;
+
+/** @internal — test-only reset helper so counters don't leak across tests */
+export function __resetStandaloneZIndexCounters() {
+  portalZIndex = DEFAULT_PORTAL_Z_INDEX;
+  containerZIndex = DEFAULT_CONTAINER_Z_INDEX;
+}
+
+function nextStandaloneZIndex(
+  scope: 'portal' | 'container',
+  initial: number,
+  max?: number
+): number {
+  if (scope === 'portal') {
+    const next = portalZIndex + 1;
+    portalZIndex = max !== undefined && next > max ? initial : next;
+    return portalZIndex;
+  }
+  const next = containerZIndex + 1;
+  containerZIndex = max !== undefined && next > max ? initial : next;
+  return containerZIndex;
+}
 
 interface WindowPersistedState {
   position: WindowPosition;
@@ -78,6 +109,10 @@ export interface UseWindowStateOptions {
   defaultWidth?: number | string;
   defaultHeight?: number | string;
 
+  // Z-index configuration (stand-alone only — ignored when inside a WindowGroup)
+  initialZIndex?: number;
+  maxZIndex?: number;
+
   onClose?: () => void;
   onPositionChange?: (position: { x: number; y: number }) => void;
   onSizeChange?: (size: { width: number; height: number }) => void;
@@ -101,6 +136,8 @@ export function useWindowState(options: UseWindowStateOptions) {
     defaultY = 100,
     defaultWidth = 400,
     defaultHeight = 400,
+    initialZIndex,
+    maxZIndex,
     onClose,
     onPositionChange,
     onSizeChange,
@@ -111,8 +148,11 @@ export function useWindowState(options: UseWindowStateOptions) {
   const isWidthControlled = controlledWidth !== undefined;
   const isHeightControlled = controlledHeight !== undefined;
 
+  const resolvedInitialZIndex =
+    initialZIndex ?? (withinPortal ? DEFAULT_PORTAL_Z_INDEX : DEFAULT_CONTAINER_Z_INDEX);
+
   const [isVisible, setIsVisible] = useState(opened ?? false);
-  const [zIndex, setZIndex] = useState(withinPortal ? 200 : 1);
+  const [zIndex, setZIndex] = useState(resolvedInitialZIndex);
   const [isHydrated, setIsHydrated] = useState(false);
 
   const key = (id || title)?.toLocaleLowerCase().replace(/\s+/g, '-') || 'window';
@@ -307,17 +347,21 @@ export function useWindowState(options: UseWindowStateOptions) {
     [persistSideEffect]
   );
 
-  const withinPortalRef = useRef(withinPortal);
-  withinPortalRef.current = withinPortal;
+  const zIndexConfigRef = useRef({
+    withinPortal,
+    initialZIndex: resolvedInitialZIndex,
+    maxZIndex,
+  });
+  zIndexConfigRef.current = {
+    withinPortal,
+    initialZIndex: resolvedInitialZIndex,
+    maxZIndex,
+  };
 
   const bringToFront = useCallback(() => {
-    if (withinPortalRef.current) {
-      portalZIndex += 1;
-      setZIndex(portalZIndex);
-    } else {
-      containerZIndex += 1;
-      setZIndex(containerZIndex);
-    }
+    const { withinPortal: wp, initialZIndex: init, maxZIndex: max } = zIndexConfigRef.current;
+    const next = nextStandaloneZIndex(wp ? 'portal' : 'container', init, max);
+    setZIndex(next);
   }, []);
 
   const handleClose = useCallback(() => {

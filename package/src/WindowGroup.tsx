@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useReducer,
   useRef,
   useState,
 } from 'react';
@@ -14,6 +15,7 @@ import {
   type WindowGroupContextValue,
   type WindowGroupWindowState,
   type WindowLayout,
+  type ZIndexStrategy,
 } from './WindowGroup.context';
 
 export interface WindowGroupProps extends BoxProps {
@@ -28,6 +30,31 @@ export interface WindowGroupProps extends BoxProps {
 
   /** Initial layout to apply after windows have registered. Applied once on mount. */
   defaultLayout?: WindowLayout;
+
+  /**
+   * Starting z-index for the stacking context of this group. Defaults to 200 when
+   * `withinPortal` is true, 1 otherwise — matching the previous hardcoded values.
+   */
+  initialZIndex?: number;
+
+  /**
+   * Upper bound for z-index values. When the `'increment'` strategy would exceed this
+   * value, the counter wraps back to `initialZIndex`. When `'normalize'` is in use,
+   * the cap is only enforced if the stack grows larger than `maxZIndex - initialZIndex`.
+   * Recommended when the group coexists with Mantine modals/menus.
+   */
+  maxZIndex?: number;
+
+  /**
+   * How z-indexes are assigned when a window is focused or registered.
+   *
+   * - `'increment'` (default): a counter monotonically increases. Preserves legacy
+   *   behavior. Can exceed modal z-indexes unless `maxZIndex` is set.
+   * - `'normalize'`: z-indexes are derived from the stacking order. Values always
+   *   stay within `initialZIndex .. initialZIndex + N - 1`. Recommended for
+   *   long-running applications or when Mantine modals/menus are used alongside.
+   */
+  zIndexStrategy?: ZIndexStrategy;
 
   /** Ref to access group API imperatively (applyLayout, closeAll, etc.) */
   groupRef?: React.Ref<WindowGroupContextValue>;
@@ -50,6 +77,7 @@ export type WindowGroupFactory = Factory<{
 const defaultGroupProps: Partial<WindowGroupProps> = {
   withinPortal: false,
   showToolsButton: true,
+  zIndexStrategy: 'increment',
 };
 
 export const WindowGroup = factory<WindowGroupFactory>((_props) => {
@@ -59,6 +87,9 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
     withinPortal = false,
     showToolsButton = true,
     defaultLayout,
+    initialZIndex: initialZIndexProp,
+    maxZIndex,
+    zIndexStrategy = 'increment',
     groupRef,
     onLayoutChange,
     children,
@@ -66,14 +97,24 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
     ...others
   } = props;
 
-  // Window registry: state snapshots + callbacks
+  const initialZIndex = initialZIndexProp ?? (withinPortal ? 200 : 1);
+
+  // Registry: state snapshots + callbacks. Kept in refs because we don't want every Window
+  // position update to invalidate consumers of the context. Changes are signaled via
+  // `registryVersion` for callers that must react to registry topology.
   const registryRef = useRef<Map<string, WindowGroupWindowState>>(new Map());
   const callbacksRef = useRef<Map<string, WindowCallbacks>>(new Map());
-  const [registryVersion, forceUpdate] = useState(0);
+  const [registryVersion, bumpRegistry] = useReducer((n: number) => n + 1, 0);
 
-  // Z-index tracking per group
-  const zIndexMapRef = useRef<Map<string, number>>(new Map());
-  const zIndexCounterRef = useRef(withinPortal ? 200 : 1);
+  // Stack order is bottom → top. Always maintained regardless of strategy so consumers can
+  // introspect it and so `'normalize'` can derive z-indexes purely from position in the stack.
+  const [stackOrder, setStackOrder] = useState<string[]>([]);
+
+  // For the `'increment'` strategy: explicit z-index per window, driven by a monotonic counter.
+  // Props `initialZIndex`, `maxZIndex`, `zIndexStrategy` are expected to be stable across
+  // renders — we intentionally don't re-seed the counter when they change.
+  const incrementCounterRef = useRef(initialZIndex);
+  const [incrementMap, setIncrementMap] = useState<Map<string, number>>(() => new Map());
 
   // Container dimensions for layout calculations
   const [containerRef, containerRect] = useResizeObserver();
@@ -83,24 +124,52 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
   const onLayoutChangeRef = useRef(onLayoutChange);
   onLayoutChangeRef.current = onLayoutChange;
 
+  const bumpIncrementCounter = useCallback(
+    (windowId: string) => {
+      incrementCounterRef.current += 1;
+      if (maxZIndex !== undefined && incrementCounterRef.current > maxZIndex) {
+        incrementCounterRef.current = initialZIndex;
+      }
+      const assigned = incrementCounterRef.current;
+      setIncrementMap((prev) => {
+        const next = new Map(prev);
+        next.set(windowId, assigned);
+        return next;
+      });
+    },
+    [initialZIndex, maxZIndex]
+  );
+
   const registerWindow = useCallback(
     (windowId: string, state: WindowGroupWindowState, callbacks: WindowCallbacks) => {
       registryRef.current.set(windowId, state);
       callbacksRef.current.set(windowId, callbacks);
-      if (!zIndexMapRef.current.has(windowId)) {
-        zIndexCounterRef.current += 1;
-        zIndexMapRef.current.set(windowId, zIndexCounterRef.current);
+
+      setStackOrder((prev) => (prev.includes(windowId) ? prev : [...prev, windowId]));
+
+      if (zIndexStrategy === 'increment' && !incrementMap.has(windowId)) {
+        bumpIncrementCounter(windowId);
       }
-      forceUpdate((n) => n + 1);
+      bumpRegistry();
     },
-    []
+    [zIndexStrategy, incrementMap, bumpIncrementCounter]
   );
 
   const unregisterWindow = useCallback((windowId: string) => {
     registryRef.current.delete(windowId);
     callbacksRef.current.delete(windowId);
-    zIndexMapRef.current.delete(windowId);
-    forceUpdate((n) => n + 1);
+    setStackOrder((prev) =>
+      prev.includes(windowId) ? prev.filter((id) => id !== windowId) : prev
+    );
+    setIncrementMap((prev) => {
+      if (!prev.has(windowId)) {
+        return prev;
+      }
+      const next = new Map(prev);
+      next.delete(windowId);
+      return next;
+    });
+    bumpRegistry();
   }, []);
 
   const updateWindowState = useCallback(
@@ -115,16 +184,34 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
 
   const getZIndex = useCallback(
     (windowId: string) => {
-      return zIndexMapRef.current.get(windowId) ?? (withinPortal ? 200 : 1);
+      if (zIndexStrategy === 'normalize') {
+        const idx = stackOrder.indexOf(windowId);
+        return idx < 0 ? initialZIndex : initialZIndex + idx;
+      }
+      return incrementMap.get(windowId) ?? initialZIndex;
     },
-    [withinPortal]
+    [zIndexStrategy, stackOrder, incrementMap, initialZIndex]
   );
 
-  const bringToFront = useCallback((windowId: string) => {
-    zIndexCounterRef.current += 1;
-    zIndexMapRef.current.set(windowId, zIndexCounterRef.current);
-    forceUpdate((n) => n + 1);
-  }, []);
+  const bringToFront = useCallback(
+    (windowId: string) => {
+      setStackOrder((prev) => {
+        if (!prev.includes(windowId)) {
+          return prev;
+        }
+        if (prev[prev.length - 1] === windowId) {
+          return prev;
+        }
+        const filtered = prev.filter((id) => id !== windowId);
+        filtered.push(windowId);
+        return filtered;
+      });
+      if (zIndexStrategy === 'increment') {
+        bumpIncrementCounter(windowId);
+      }
+    },
+    [zIndexStrategy, bumpIncrementCounter]
+  );
 
   const getWindowIds = useCallback(() => {
     return Array.from(registryRef.current.keys());
@@ -132,20 +219,21 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
 
   // ─── Layout presets — call Window callbacks directly ──────────────
 
+  const pendingLayoutRef = useRef<WindowLayout | null>(null);
+
   const applyLayout = useCallback(
     (layout: WindowLayout) => {
       const visibleWindows = Array.from(registryRef.current.entries()).filter(
         ([, state]) => state.isVisible && !state.isCollapsed
       );
 
-      if (visibleWindows.length === 0) {
-        return;
-      }
-
       const w = containerWidth;
       const h = containerHeight;
 
-      if (w <= 0 || h <= 0) {
+      // Defer layout if the registry is empty (dynamic rendering not yet flushed) or the
+      // container hasn't been measured. Flushed by the effect below once both become ready.
+      if (visibleWindows.length === 0 || w <= 0 || h <= 0) {
+        pendingLayoutRef.current = layout;
         return;
       }
 
@@ -201,10 +289,25 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
           // Single-window layouts (snap-left, etc.) are not handled by the Group
           return;
       }
+      pendingLayoutRef.current = null;
       onLayoutChangeRef.current?.(layout);
     },
     [containerWidth, containerHeight, updateWindowState]
   );
+
+  // Flush any deferred layout when registry + container dimensions become ready
+  useEffect(() => {
+    const pending = pendingLayoutRef.current;
+    if (pending && containerWidth > 0 && containerHeight > 0 && registryRef.current.size > 0) {
+      const raf = requestAnimationFrame(() => {
+        if (pendingLayoutRef.current === pending) {
+          applyLayout(pending);
+        }
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    return undefined;
+  }, [registryVersion, containerWidth, containerHeight, applyLayout]);
 
   // ─── Global actions — call Window callbacks directly ──────────────
 
@@ -239,7 +342,6 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
       return;
     }
 
-    // Wait for windows to register and container to be measured
     const raf = requestAnimationFrame(() => {
       if (registryRef.current.size > 0 && containerWidth > 0 && containerHeight > 0) {
         applyLayout(defaultLayout);
@@ -268,6 +370,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
       collapseAll,
       expandAll,
       getWindowIds,
+      stackOrder,
       showToolsButton,
     }),
     [
@@ -285,6 +388,7 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
       collapseAll,
       expandAll,
       getWindowIds,
+      stackOrder,
       showToolsButton,
     ]
   );

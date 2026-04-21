@@ -4,6 +4,41 @@ This page collects the **breaking changes** and **migration steps** for each maj
 
 New features introduced in a release (that do not break anything) are **not** listed here. See the [GitHub Releases](https://github.com/gfazioli/mantine-window/releases) page or the newsletter for the full changelog.
 
+## v3.1
+
+> **Behavioral changes (not API breaking):**
+>
+> v3.1 reworks how z-indexes are coordinated across windows. The public API is backwards compatible, but if your application relied on specific stacking behavior you may want to review the changes below.
+>
+> - **Stand-alone `Window` instances no longer share an unbounded z-index counter.** Before v3.1, every `bringToFront` on any stand-alone `Window` in the page incremented a module-level counter that would eventually exceed Mantine modals and menus. The counter is still shared across stand-alone windows (so activation order is preserved) but each `Window` can now bound it via `maxZIndex`, wrapping back to `initialZIndex` when the cap is reached.
+> - **`Window.Group` stacking is now state-driven.** Internally, the group tracks a reactive `stackOrder` instead of mutating refs. This does not change observable behavior unless you were reading intermediate z-index values via internals.
+>
+> **Recommended migration** — if your app uses Mantine `Modal` or `Menu` alongside `Window`, opt into bounded z-indexes:
+>
+> ```tsx
+> <Window.Group
+>   zIndexStrategy="normalize"
+>   initialZIndex={100}
+>   maxZIndex={199}
+> >
+>   {/* windows */}
+> </Window.Group>
+> ```
+>
+> Or on a stand-alone `Window`:
+>
+> ```tsx
+> <Window initialZIndex={100} maxZIndex={199} />
+> ```
+
+> **New features:**
+>
+> - **`zIndexStrategy`** on `Window.Group` — `'increment'` (default, legacy) or `'normalize'` for compact derived z-indexes
+> - **`initialZIndex`** on `Window` and `Window.Group` — override the starting z-index
+> - **`maxZIndex`** on `Window` and `Window.Group` — cap the counter to avoid escalation above modals
+> - **`stackOrder`** exposed on `WindowGroupContextValue` — read-only snapshot of current stacking order
+> - **Deferred layout application** — `applyLayout` on dynamically rendered windows (`.map()`) now correctly waits for registration and container measurement instead of silently no-oping
+
 ## v2
 
 > **Breaking changes:**

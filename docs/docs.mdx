@@ -204,6 +204,24 @@ Use `defaultLayout` to apply an initial layout when the group mounts. To control
 
 <Demo data={demos.layoutPresets} />
 
+### Dynamic Windows
+
+Windows inside a `Window.Group` can be rendered dynamically from an array — for example via `.map()` over a piece of state. Layout presets and group actions wait until the registry is populated and the container is measured, so a layout triggered before all children have mounted is automatically deferred and flushed when everything is ready.
+
+<Demo data={demos.dynamicWindows} />
+
+### Z-index Management
+
+Both `Window.Group` and stand-alone `Window` expose z-index configuration via three props:
+
+- **`initialZIndex`** — starting value for the stacking context. Defaults to `200` when `withinPortal` is `true`, `1` otherwise.
+- **`maxZIndex`** — upper bound. When the counter would exceed this value it wraps back to `initialZIndex`, preventing unbounded escalation above modals or menus.
+- **`zIndexStrategy`** (`Window.Group` only) — how z-indexes are assigned when a window is focused or registered:
+  - `'increment'` (default): a counter monotonically increases. Preserves legacy behavior. Combine with `maxZIndex` to keep values bounded.
+  - `'normalize'`: z-indexes are derived from the stacking order and always stay within `initialZIndex .. initialZIndex + N - 1`. Recommended for long-running applications or when Mantine modals and menus are used alongside.
+
+<Demo data={demos.zIndexStrategy} />
+
 ## Styles API
 
 `Window` supports [Styles API](https://mantine.dev/styles/styles-api/), you can add styles to any inner element of the component with `classNames` prop. Follow [Styles API](https://mantine.dev/styles/styles-api/) documentation to learn more.

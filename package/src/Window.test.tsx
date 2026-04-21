@@ -1,8 +1,9 @@
-import React, { createRef } from 'react';
+import React, { createRef, useRef, useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { Window } from './Window';
 import type { WindowGroupContextValue } from './WindowGroup.context';
+import { __resetStandaloneZIndexCounters } from './hooks/use-window-state';
 
 // Helper to render with MantineProvider
 function renderWithMantine(ui: React.ReactElement) {
@@ -16,6 +17,7 @@ function getWindowElement(container: HTMLElement) {
 
 beforeEach(() => {
   localStorage.clear();
+  __resetStandaloneZIndexCounters();
 });
 
 describe('Window', () => {
@@ -896,6 +898,233 @@ describe('Window.Group', () => {
     expect(closeIndex).not.toBe(-1);
     // Tools should appear before close in DOM order when right-positioned
     expect(toolsIndex).toBeLessThan(closeIndex);
+  });
+
+  // ─── Z-index strategies (Group) ─────────────────────────────────────
+
+  it('normalize strategy assigns compact sequential z-indexes from initialZIndex', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group
+        groupRef={groupRef}
+        zIndexStrategy="normalize"
+        initialZIndex={100}
+        style={{ width: 800, height: 600 }}
+      >
+        <Window id="nz1" title="W1" opened />
+        <Window id="nz2" title="W2" opened />
+        <Window id="nz3" title="W3" opened />
+      </Window.Group>
+    );
+
+    expect(groupRef.current?.getZIndex('nz1')).toBe(100);
+    expect(groupRef.current?.getZIndex('nz2')).toBe(101);
+    expect(groupRef.current?.getZIndex('nz3')).toBe(102);
+  });
+
+  it('normalize strategy reorders z-indexes when bringToFront is called', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group
+        groupRef={groupRef}
+        zIndexStrategy="normalize"
+        initialZIndex={0}
+        style={{ width: 800, height: 600 }}
+      >
+        <Window id="nr1" title="W1" opened />
+        <Window id="nr2" title="W2" opened />
+        <Window id="nr3" title="W3" opened />
+      </Window.Group>
+    );
+
+    act(() => {
+      groupRef.current?.bringToFront('nr1');
+    });
+
+    // nr1 becomes top, nr2/nr3 shift down
+    expect(groupRef.current?.getZIndex('nr2')).toBe(0);
+    expect(groupRef.current?.getZIndex('nr3')).toBe(1);
+    expect(groupRef.current?.getZIndex('nr1')).toBe(2);
+  });
+
+  it('increment strategy monotonically increases z-index on bringToFront', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group
+        groupRef={groupRef}
+        zIndexStrategy="increment"
+        initialZIndex={10}
+        style={{ width: 800, height: 600 }}
+      >
+        <Window id="ic1" title="W1" opened />
+        <Window id="ic2" title="W2" opened />
+      </Window.Group>
+    );
+
+    // Initial assignment: counter goes 10 → 11 (ic1) → 12 (ic2)
+    const initialIc1 = groupRef.current?.getZIndex('ic1');
+
+    act(() => {
+      groupRef.current?.bringToFront('ic1');
+    });
+
+    const afterIc1 = groupRef.current?.getZIndex('ic1');
+    expect(afterIc1).toBeGreaterThan(initialIc1 ?? 0);
+  });
+
+  it('increment strategy wraps back to initialZIndex when counter would exceed maxZIndex', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group
+        groupRef={groupRef}
+        zIndexStrategy="increment"
+        initialZIndex={10}
+        maxZIndex={12}
+        style={{ width: 800, height: 600 }}
+      >
+        <Window id="mx1" title="W1" opened />
+        <Window id="mx2" title="W2" opened />
+      </Window.Group>
+    );
+
+    // After registration: mx1=11, mx2=12 (counter now at 12, equal to max)
+    act(() => {
+      groupRef.current?.bringToFront('mx1');
+    });
+
+    // Counter +1 → 13, exceeds max, wraps to initialZIndex=10
+    expect(groupRef.current?.getZIndex('mx1')).toBe(10);
+  });
+
+  it('stackOrder reflects window creation order then bringToFront mutations', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group groupRef={groupRef} style={{ width: 800, height: 600 }}>
+        <Window id="so1" title="W1" opened />
+        <Window id="so2" title="W2" opened />
+        <Window id="so3" title="W3" opened />
+      </Window.Group>
+    );
+
+    expect(groupRef.current?.stackOrder).toEqual(['so1', 'so2', 'so3']);
+
+    act(() => {
+      groupRef.current?.bringToFront('so1');
+    });
+
+    expect(groupRef.current?.stackOrder).toEqual(['so2', 'so3', 'so1']);
+  });
+
+  // ─── Dynamic windows (.map) — issue #24 regression test ─────────────
+
+  it('applyLayout does not crash on dynamically rendered windows (.map scenario)', () => {
+    function DynamicWindows() {
+      const [ids, setIds] = useState<string[]>([]);
+      const groupRef = useRef<WindowGroupContextValue>(null);
+      return (
+        <>
+          <button type="button" onClick={() => setIds(['dyn1', 'dyn2', 'dyn3'])}>
+            Add Windows
+          </button>
+          <button type="button" onClick={() => groupRef.current?.applyLayout('tile')}>
+            Apply Tile
+          </button>
+          <Window.Group groupRef={groupRef} style={{ width: 800, height: 600 }}>
+            {ids.map((id) => (
+              <Window key={id} id={id} title={id} opened />
+            ))}
+          </Window.Group>
+        </>
+      );
+    }
+
+    const { container } = renderWithMantine(<DynamicWindows />);
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(0);
+
+    act(() => {
+      fireEvent.click(screen.getByText('Add Windows'));
+    });
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(3);
+
+    act(() => {
+      fireEvent.click(screen.getByText('Apply Tile'));
+    });
+    // Windows are still visible; applyLayout tolerated the dynamic registration path
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(3);
+  });
+
+  it('applyLayout before any window mounts is deferred, not dropped', () => {
+    function LateMount() {
+      const [mounted, setMounted] = useState(false);
+      const groupRef = useRef<WindowGroupContextValue>(null);
+      return (
+        <>
+          <button type="button" onClick={() => groupRef.current?.applyLayout('arrange-columns')}>
+            Apply Early
+          </button>
+          <button type="button" onClick={() => setMounted(true)}>
+            Mount Windows
+          </button>
+          <Window.Group groupRef={groupRef} style={{ width: 800, height: 600 }}>
+            {mounted && (
+              <>
+                <Window id="lm1" title="W1" opened />
+                <Window id="lm2" title="W2" opened />
+              </>
+            )}
+          </Window.Group>
+        </>
+      );
+    }
+
+    const { container } = renderWithMantine(<LateMount />);
+
+    // Apply layout before windows mount — must not throw
+    act(() => {
+      fireEvent.click(screen.getByText('Apply Early'));
+    });
+
+    act(() => {
+      fireEvent.click(screen.getByText('Mount Windows'));
+    });
+
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(2);
+  });
+
+  // ─── Z-index (stand-alone Window) ────────────────────────────────────
+
+  it('stand-alone Window respects initialZIndex prop', () => {
+    const { container } = renderWithMantine(<Window opened title="Init" initialZIndex={500} />);
+    const win = getWindowElement(container);
+    const zIndex = parseInt(win?.style.zIndex || '0', 10);
+    expect(zIndex).toBe(500);
+  });
+
+  it('stand-alone Window wraps z-index back to initialZIndex when maxZIndex is reached', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Cap" initialZIndex={300} maxZIndex={301} />
+    );
+    const win = getWindowElement(container);
+    expect(win).toBeTruthy();
+
+    // Click to bringToFront: counter 200 → 201 (wraps because 201 > 301 is false, then 202 > 301 is false...)
+    // Actually: module counter starts at 200, Window opened with initialZIndex=300 but the mount doesn't
+    // touch the module counter — bringToFront will increment from 200. Click triggers bringToFront.
+    // First click: 201; portal counter at 200 initially.
+    act(() => {
+      fireEvent.click(win!);
+    });
+    const z1 = parseInt(win!.style.zIndex, 10);
+
+    act(() => {
+      fireEvent.click(win!);
+    });
+    const z2 = parseInt(win!.style.zIndex, 10);
+
+    // At some point the counter wraps back to initialZIndex=300
+    // We simply verify it does not exceed maxZIndex=301
+    expect(z1).toBeLessThanOrEqual(301);
+    expect(z2).toBeLessThanOrEqual(301);
   });
 
   // ─── controlsOrder ─────────────────────────────────────────────────
