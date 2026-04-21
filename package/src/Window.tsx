@@ -222,6 +222,21 @@ export interface WindowBaseProps {
   /** Called when the window is resized. Receives pixel values. */
   onSizeChange?: (size: { width: number; height: number }) => void;
 
+  // ─── Z-index management (ignored when inside a WindowGroup) ─────────
+
+  /**
+   * Initial z-index used when the window mounts and after a wrap-around.
+   * Defaults to 200 when `withinPortal` is true, 1 otherwise.
+   */
+  initialZIndex?: number;
+
+  /**
+   * Upper bound for the z-index. When `bringToFront` would exceed this value the
+   * module-level counter wraps back to `initialZIndex`. Recommended when the window
+   * coexists with Mantine modals or menus so it cannot escalate above them.
+   */
+  maxZIndex?: number;
+
   /** Window content */
   children?: React.ReactNode;
 }
@@ -322,6 +337,8 @@ export const Window = factory<WindowFactory>((_props) => {
     defaultHeight,
     onPositionChange,
     onSizeChange,
+    initialZIndex,
+    maxZIndex,
     withBorder,
     fullSizeResizeHandles,
     mod,

@@ -10,6 +10,19 @@ export type GroupLayout = 'arrange-columns' | 'arrange-rows' | 'tile';
 /** All layout types */
 export type WindowLayout = SingleWindowLayout | GroupLayout;
 
+/**
+ * Strategy for assigning z-index when a window is brought to front.
+ *
+ * - `'increment'` (legacy): monotonically increase a counter. Simple and preserves
+ *   history of activation order across mounts, but the counter can grow unbounded
+ *   and eventually exceed modal/menu z-indexes. A `maxZIndex` cap is recommended
+ *   when using this strategy.
+ * - `'normalize'`: derive z-indexes from an ordered stack of window ids. The
+ *   active window always gets the highest z-index and values stay compact
+ *   (`initialZIndex .. initialZIndex + N - 1`). Recommended for long-running apps.
+ */
+export type ZIndexStrategy = 'increment' | 'normalize';
+
 export interface WindowGroupWindowState {
   id: string;
   x: number;
@@ -69,6 +82,9 @@ export interface WindowGroupContextValue {
 
   /** Get all registered window IDs */
   getWindowIds: () => string[];
+
+  /** Current stacking order (bottom to top). Read-only snapshot exposed for introspection. */
+  stackOrder: string[];
 
   /** Whether the tools button should be shown (true when inside a group) */
   showToolsButton: boolean;

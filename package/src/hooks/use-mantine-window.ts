@@ -37,6 +37,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     dragBounds: dragBoundsProp,
     onPositionChange,
     onSizeChange,
+    initialZIndex,
+    maxZIndex,
   } = props;
 
   // ─── Group context (optional) ─────────────────────────────────────
@@ -89,6 +91,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     defaultY: resolvedDefaultY,
     defaultWidth: resolvedDefaultWidth,
     defaultHeight: resolvedDefaultHeight,
+    initialZIndex,
+    maxZIndex,
     onClose,
     onPositionChange,
     onSizeChange,
