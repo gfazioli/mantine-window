@@ -1100,31 +1100,59 @@ describe('Window.Group', () => {
     expect(zIndex).toBe(500);
   });
 
-  it('stand-alone Window wraps z-index back to initialZIndex when maxZIndex is reached', () => {
+  it('stand-alone Window never moves backward from initialZIndex on bringToFront', () => {
+    // Regression for PR #25 review: the module-level counter (starts at 200) must be seeded
+    // up to `initialZIndex` so the first bringToFront doesn't jump the z-index backward.
+    const { container } = renderWithMantine(<Window opened title="Raised" initialZIndex={500} />);
+    const win = getWindowElement(container);
+    expect(parseInt(win!.style.zIndex, 10)).toBe(500);
+
+    act(() => {
+      fireEvent.click(win!);
+    });
+    const afterFirstClick = parseInt(win!.style.zIndex, 10);
+    expect(afterFirstClick).toBeGreaterThanOrEqual(500);
+  });
+
+  it('stand-alone Window wraps back to exactly initialZIndex when maxZIndex is reached', () => {
+    // initialZIndex=100 raises the portal counter from its default (200) to 100 only when it
+    // would step *below* 100 — i.e. never — so the counter starts counting from max(200, 100) = 200.
+    // With maxZIndex=205 we expect a wrap back to 100 after a few clicks.
     const { container } = renderWithMantine(
-      <Window opened title="Cap" initialZIndex={300} maxZIndex={301} />
+      <Window opened title="Wrap" initialZIndex={100} maxZIndex={205} />
     );
     const win = getWindowElement(container);
-    expect(win).toBeTruthy();
+    const seen: number[] = [];
 
-    // Click to bringToFront: counter 200 → 201 (wraps because 201 > 301 is false, then 202 > 301 is false...)
-    // Actually: module counter starts at 200, Window opened with initialZIndex=300 but the mount doesn't
-    // touch the module counter — bringToFront will increment from 200. Click triggers bringToFront.
-    // First click: 201; portal counter at 200 initially.
-    act(() => {
-      fireEvent.click(win!);
-    });
-    const z1 = parseInt(win!.style.zIndex, 10);
+    for (let i = 0; i < 12; i++) {
+      act(() => {
+        fireEvent.click(win!);
+      });
+      seen.push(parseInt(win!.style.zIndex, 10));
+    }
 
-    act(() => {
-      fireEvent.click(win!);
-    });
-    const z2 = parseInt(win!.style.zIndex, 10);
+    // All values must respect the cap, and the wrap must return to initialZIndex at least once.
+    expect(Math.max(...seen)).toBeLessThanOrEqual(205);
+    expect(seen).toContain(100);
+  });
 
-    // At some point the counter wraps back to initialZIndex=300
-    // We simply verify it does not exceed maxZIndex=301
-    expect(z1).toBeLessThanOrEqual(301);
-    expect(z2).toBeLessThanOrEqual(301);
+  // ─── applyLayout with all windows hidden (#5 regression) ───────────
+
+  it('applyLayout with registry populated but no visible windows is a no-op (not deferred)', () => {
+    const groupRef = createRef<WindowGroupContextValue>();
+    renderWithMantine(
+      <Window.Group groupRef={groupRef} style={{ width: 800, height: 600 }}>
+        <Window id="hv1" title="W1" opened={false} />
+        <Window id="hv2" title="W2" opened={false} />
+      </Window.Group>
+    );
+    // Must not throw and must return cleanly; previously this would park the layout in
+    // pendingLayoutRef forever since visibility changes don't bump registryVersion.
+    expect(() => {
+      act(() => {
+        groupRef.current?.applyLayout('tile');
+      });
+    }).not.toThrow();
   });
 
   // ─── controlsOrder ─────────────────────────────────────────────────

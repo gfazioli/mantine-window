@@ -39,9 +39,9 @@ export interface WindowGroupProps extends BoxProps {
 
   /**
    * Upper bound for z-index values. When the `'increment'` strategy would exceed this
-   * value, the counter wraps back to `initialZIndex`. When `'normalize'` is in use,
-   * the cap is only enforced if the stack grows larger than `maxZIndex - initialZIndex`.
-   * Recommended when the group coexists with Mantine modals/menus.
+   * value, the counter wraps back to `initialZIndex`. Ignored when `'normalize'` is in
+   * use, since z-indexes are derived directly from the stacking order and already stay
+   * compact. Recommended when the group coexists with Mantine modals/menus.
    */
   maxZIndex?: number;
 
@@ -147,12 +147,26 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
 
       setStackOrder((prev) => (prev.includes(windowId) ? prev : [...prev, windowId]));
 
-      if (zIndexStrategy === 'increment' && !incrementMap.has(windowId)) {
-        bumpIncrementCounter(windowId);
+      if (zIndexStrategy === 'increment') {
+        // Read the latest map synchronously via functional update so that
+        // unmount + remount cycles in the same commit (StrictMode, .map() churn)
+        // don't skip assignment due to a stale closure snapshot.
+        setIncrementMap((prev) => {
+          if (prev.has(windowId)) {
+            return prev;
+          }
+          incrementCounterRef.current += 1;
+          if (maxZIndex !== undefined && incrementCounterRef.current > maxZIndex) {
+            incrementCounterRef.current = initialZIndex;
+          }
+          const next = new Map(prev);
+          next.set(windowId, incrementCounterRef.current);
+          return next;
+        });
       }
       bumpRegistry();
     },
-    [zIndexStrategy, incrementMap, bumpIncrementCounter]
+    [zIndexStrategy, initialZIndex, maxZIndex]
   );
 
   const unregisterWindow = useCallback((windowId: string) => {
@@ -223,17 +237,25 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
 
   const applyLayout = useCallback(
     (layout: WindowLayout) => {
+      const w = containerWidth;
+      const h = containerHeight;
+
+      // Defer only when the registry is empty (dynamic rendering not yet flushed) or the
+      // container hasn't been measured. Flushed by the effect below once both become ready.
+      if (registryRef.current.size === 0 || w <= 0 || h <= 0) {
+        pendingLayoutRef.current = layout;
+        return;
+      }
+
       const visibleWindows = Array.from(registryRef.current.entries()).filter(
         ([, state]) => state.isVisible && !state.isCollapsed
       );
 
-      const w = containerWidth;
-      const h = containerHeight;
-
-      // Defer layout if the registry is empty (dynamic rendering not yet flushed) or the
-      // container hasn't been measured. Flushed by the effect below once both become ready.
-      if (visibleWindows.length === 0 || w <= 0 || h <= 0) {
-        pendingLayoutRef.current = layout;
+      // Registry is populated but nothing is currently visible — treat as a no-op
+      // (matches pre-v3.1 behavior). Clear any pending layout so a later ready-trigger
+      // doesn't apply a stale choice.
+      if (visibleWindows.length === 0) {
+        pendingLayoutRef.current = null;
         return;
       }
 

@@ -21,18 +21,29 @@ export function __resetStandaloneZIndexCounters() {
   containerZIndex = DEFAULT_CONTAINER_Z_INDEX;
 }
 
+/**
+ * Returns the next z-index, seeding the counter up to `initial` if it currently sits below it.
+ * This ensures that a `Window` with a raised `initialZIndex` never moves backward when
+ * `bringToFront` is called for the first time. When `max` is provided it is also raised to at
+ * least `initial` so the wrap range is always non-degenerate.
+ */
+function stepStandaloneZIndex(current: number, initial: number, max?: number): number {
+  const seeded = Math.max(current, initial);
+  const effectiveMax = max !== undefined ? Math.max(max, initial) : undefined;
+  const next = seeded + 1;
+  return effectiveMax !== undefined && next > effectiveMax ? initial : next;
+}
+
 function nextStandaloneZIndex(
   scope: 'portal' | 'container',
   initial: number,
   max?: number
 ): number {
   if (scope === 'portal') {
-    const next = portalZIndex + 1;
-    portalZIndex = max !== undefined && next > max ? initial : next;
+    portalZIndex = stepStandaloneZIndex(portalZIndex, initial, max);
     return portalZIndex;
   }
-  const next = containerZIndex + 1;
-  containerZIndex = max !== undefined && next > max ? initial : next;
+  containerZIndex = stepStandaloneZIndex(containerZIndex, initial, max);
   return containerZIndex;
 }
 
