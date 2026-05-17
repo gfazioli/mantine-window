@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
 import { useMergedRef } from '@mantine/hooks';
+import { useCallback, useEffect, useRef } from 'react';
 import type { WindowBaseProps, WindowBounds } from '../Window';
 import { useWindowGroupContext } from '../WindowGroup.context';
 import { useResponsiveValue } from './use-responsive-value';

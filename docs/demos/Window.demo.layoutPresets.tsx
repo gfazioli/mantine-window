@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
 import { Window, type WindowGroupContextValue, type WindowLayout } from '@gfazioli/mantine-window';
 import { Select, Stack, Title } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
+import { useRef, useState } from 'react';
 
 const code = `import { useRef, useState } from 'react';
 import { Window, type WindowGroupContextValue, type WindowLayout } from '@gfazioli/mantine-window';

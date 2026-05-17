@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { useMounted, useViewportSize } from '@mantine/hooks';
+import { useEffect, useRef, useState } from 'react';
 
 export interface UseWindowDimensionsOptions {
   withinPortal?: boolean;

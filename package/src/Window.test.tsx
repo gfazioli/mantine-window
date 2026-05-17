@@ -1,9 +1,9 @@
-import React, { createRef, useRef, useState } from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import React, { createRef, useRef, useState } from 'react';
+import { __resetStandaloneZIndexCounters } from './hooks/use-window-state';
 import { Window } from './Window';
 import type { WindowGroupContextValue } from './WindowGroup.context';
-import { __resetStandaloneZIndexCounters } from './hooks/use-window-state';
 
 // Helper to render with MantineProvider
 function renderWithMantine(ui: React.ReactElement) {

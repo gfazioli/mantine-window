@@ -1,5 +1,3 @@
-import React from 'react';
-import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -20,6 +18,8 @@ import {
   type MantineRadius,
   type MantineShadow,
 } from '@mantine/core';
+import { IconMinus, IconPlus, IconX } from '@tabler/icons-react';
+import React from 'react';
 import { useMantineWindow } from './hooks/use-mantine-window';
 import { useResponsiveValue, type ResponsiveValue } from './hooks/use-responsive-value';
 import {
