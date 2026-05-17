@@ -1,6 +1,6 @@
-import React from 'react';
 import { Button, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import React from 'react';
 import { Window } from './Window';
 
 export default {

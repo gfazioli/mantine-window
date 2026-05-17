@@ -1,3 +1,5 @@
+import { Box, factory, Factory, useProps, type BoxProps } from '@mantine/core';
+import { useResizeObserver } from '@mantine/hooks';
 import React, {
   useCallback,
   useEffect,
@@ -7,8 +9,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Box, factory, Factory, useProps, type BoxProps } from '@mantine/core';
-import { useResizeObserver } from '@mantine/hooks';
 import {
   WindowGroupProvider,
   type WindowCallbacks,

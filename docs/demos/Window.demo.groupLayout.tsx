@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Window, type WindowLayout } from '@gfazioli/mantine-window';
 import { Badge, Group, Stack, Text, Title } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
+import { useState } from 'react';
 
 const code = `import { useState } from 'react';
 import { Window, type WindowLayout } from '@gfazioli/mantine-window';
