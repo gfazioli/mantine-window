@@ -1,6 +1,7 @@
 export { callbacks } from './Window.demo.callbacks';
 export { centered } from './Window.demo.centered';
 export { configurator } from './Window.demo.configurator';
+export { contextMenu } from './Window.demo.contextMenu';
 export { controlsPositionDemo } from './Window.demo.controlsPosition';
 export { controlled } from './Window.demo.controlled';
 export { controlledPosition } from './Window.demo.controlledPosition';
@@ -13,6 +14,7 @@ export { layoutPresets } from './Window.demo.layoutPresets';
 export { minMaxSize } from './Window.demo.minMaxSize';
 export { mixedConstraints } from './Window.demo.mixedConstraints';
 export { mixedDragBounds } from './Window.demo.mixedDragBounds';
+export { menuBar } from './Window.demo.menuBar';
 export { multiple } from './Window.demo.multiple';
 export { noCollapsable } from './Window.demo.noCollapsable';
 export { persistence } from './Window.demo.persistence';
