@@ -1,6 +1,7 @@
 export { callbacks } from './Window.demo.callbacks';
 export { centered } from './Window.demo.centered';
 export { configurator } from './Window.demo.configurator';
+export { contextMenu } from './Window.demo.contextMenu';
 export { controlsPositionDemo } from './Window.demo.controlsPosition';
 export { controlled } from './Window.demo.controlled';
 export { controlledPosition } from './Window.demo.controlledPosition';
@@ -10,6 +11,7 @@ export { fullSizeHandles } from './Window.demo.fullSizeHandles';
 export { group } from './Window.demo.group';
 export { groupLayout } from './Window.demo.groupLayout';
 export { layoutPresets } from './Window.demo.layoutPresets';
+export { menuBar } from './Window.demo.menuBar';
 export { minMaxSize } from './Window.demo.minMaxSize';
 export { mixedConstraints } from './Window.demo.mixedConstraints';
 export { mixedDragBounds } from './Window.demo.mixedDragBounds';

@@ -166,6 +166,24 @@ You can render multiple windows in the same container. Each window maintains its
 
 <Demo data={demos.multiple} />
 
+## Context Menu
+
+Mantine 9.3 introduces the Menu.ContextMenu component: attach desktop-style right-click
+actions to any surface. Inside a Window it completes the desktop metaphor — and in this
+demo the actions are real: duplicate the window or close it, with the windows rendered
+dynamically from state.
+
+<Demo data={demos.contextMenu} />
+
+## Window Menu Bar
+
+The Menu.Search, Menu.CheckboxItem and Menu.RadioGroup components added in Mantine 9.3
+make a compact in-window menu bar straightforward. In this demo every menu entry drives
+the workspace for real: the searchable File menu reports the executed command in the
+status bar, while the View menu toggles the canvas grid and changes the layout density.
+
+<Demo data={demos.menuBar} />
+
 ## Window.Group
 
 Wrap multiple windows in a `Window.Group` to enable coordinated window management. The group provides:
