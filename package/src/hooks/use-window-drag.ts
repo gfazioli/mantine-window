@@ -17,8 +17,8 @@ const INTERACTIVE_TARGET_SELECTOR = [
   'button',
   'a[href]',
   'label',
-  '[contenteditable=""]',
-  '[contenteditable="true"]',
+  // Any editable variant ("" / "true" / "plaintext-only" / bare attribute), but not "false".
+  '[contenteditable]:not([contenteditable="false"])',
   'audio[controls]',
   'video[controls]',
   // ARIA interactive roles (e.g. combobox/menu options rendered inside the window
