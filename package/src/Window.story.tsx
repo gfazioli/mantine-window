@@ -1,4 +1,4 @@
-import { Button, Stack, Text, Title } from '@mantine/core';
+import { Box, Button, Select, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React from 'react';
 import { Window } from './Window';
@@ -8,6 +8,25 @@ export default {
   args: {},
   argTypes: {},
 };
+
+// Interactive form controls (e.g. a searchable Select) must keep their native
+// focus behavior while rendered inside a draggable Window — see issue #33.
+export function SearchableSelectInside() {
+  return (
+    <Stack>
+      <Window title="Searchable Select inside" opened onClose={() => {}}>
+        <Box>
+          <Select
+            label="Your favorite library"
+            placeholder="Pick value"
+            data={['React', 'Angular', 'Vue', 'Svelte']}
+            searchable
+          />
+        </Box>
+      </Window>
+    </Stack>
+  );
+}
 
 export function Usage() {
   return (

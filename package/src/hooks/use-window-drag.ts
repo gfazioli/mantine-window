@@ -2,6 +2,41 @@ import { useCallback, useRef } from 'react';
 import { applyDragBounds, type DragConstraints } from '../lib/window-constraints';
 import type { WindowPosition } from '../Window';
 
+/**
+ * Selector matching interactive / focusable elements that must keep their native
+ * pointer behavior (focus, text selection, value editing). When a drag starts on
+ * one of these, the window must NOT initiate a drag nor call `preventDefault()` —
+ * otherwise the browser never moves focus to the element (e.g. the search input of
+ * a `searchable` Select rendered inside the window). Consumers can also opt a custom
+ * region out of dragging with `data-no-window-drag`.
+ */
+const INTERACTIVE_TARGET_SELECTOR = [
+  'input',
+  'textarea',
+  'select',
+  'button',
+  'a[href]',
+  'label',
+  '[contenteditable=""]',
+  '[contenteditable="true"]',
+  'audio[controls]',
+  'video[controls]',
+  // ARIA interactive roles (e.g. combobox/menu options rendered inside the window
+  // when their dropdown uses withinPortal={false}).
+  '[role="option"]',
+  '[role="menuitem"]',
+  '[role="listbox"]',
+  '[role="menu"]',
+  // Consumer opt-out for custom interactive regions.
+  '[data-no-window-drag]',
+].join(', ');
+
+/** Whether a pointer/touch event started on an element that should keep native focus behavior. */
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  return !!el?.closest?.(INTERACTIVE_TARGET_SELECTOR);
+}
+
 export interface UseWindowDragOptions {
   positionPx: { x: number; y: number };
   sizePx: { width: number; height: number };
@@ -80,6 +115,12 @@ export function useWindowDrag(options: UseWindowDragOptions) {
         return;
       }
 
+      // Don't hijack interactive elements (inputs, buttons, links, …): calling
+      // preventDefault() here would stop the browser from focusing them.
+      if (isInteractiveTarget(e.target)) {
+        return;
+      }
+
       bringToFront();
       isDragging.current = true;
       dragStart.current = {
@@ -95,6 +136,12 @@ export function useWindowDrag(options: UseWindowDragOptions) {
   const handleTouchStartDrag = useCallback(
     (e: React.TouchEvent) => {
       if ((e.target as HTMLElement).closest('[data-resize-handle]')) {
+        return;
+      }
+
+      // Don't hijack interactive elements (inputs, buttons, links, …): calling
+      // preventDefault() here would stop the browser from focusing them.
+      if (isInteractiveTarget(e.target)) {
         return;
       }
 

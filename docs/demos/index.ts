@@ -7,6 +7,7 @@ export { controlled } from './Window.demo.controlled';
 export { controlledPosition } from './Window.demo.controlledPosition';
 export { dragBounds } from './Window.demo.dragBounds';
 export { dynamicWindows } from './Window.demo.dynamicWindows';
+export { formControls } from './Window.demo.formControls';
 export { fullSizeHandles } from './Window.demo.fullSizeHandles';
 export { group } from './Window.demo.group';
 export { groupLayout } from './Window.demo.groupLayout';
