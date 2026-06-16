@@ -184,6 +184,16 @@ status bar, while the View menu toggles the canvas grid and changes the layout d
 
 <Demo data={demos.menuBar} />
 
+## Form Controls
+
+A Window is a regular content surface: any interactive Mantine input works inside it and
+keeps its native behavior. In particular a searchable `Select` can be focused, typed into
+and filtered — the window only starts dragging when you grab a non-interactive area (or the
+header), so form fields never steal the drag and the drag never steals their focus. You can
+opt any custom region out of dragging with the `data-no-window-drag` attribute.
+
+<Demo data={demos.formControls} />
+
 ## Window.Group
 
 Wrap multiple windows in a `Window.Group` to enable coordinated window management. The group provides:

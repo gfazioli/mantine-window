@@ -474,6 +474,85 @@ describe('Window', () => {
     expect(onSizeChange).toHaveBeenCalled();
   });
 
+  // ─── Drag does not hijack interactive content (issue #33) ────────────
+
+  it('does not start a drag nor preventDefault when mousedown originates on an interactive element', () => {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Interactive"
+        defaultX={100}
+        defaultY={100}
+        draggable="both"
+        withinPortal={false}
+        onPositionChange={onPositionChange}
+      >
+        <input aria-label="Inner input" data-testid="inner-input" />
+      </Window>
+    );
+    const input = container.querySelector('[data-testid="inner-input"]') as HTMLElement;
+
+    // mousedown on the input must NOT be prevented, otherwise the browser
+    // never moves focus to it (this broke searchable Select inside Window).
+    const notPrevented = fireEvent.mouseDown(input, { clientX: 120, clientY: 120 });
+    fireEvent.mouseMove(document, { clientX: 220, clientY: 240 });
+    fireEvent.mouseUp(document);
+
+    expect(notPrevented).toBe(true);
+    expect(onPositionChange).not.toHaveBeenCalled();
+  });
+
+  it('does not start a drag when mousedown originates on a data-no-window-drag region', () => {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Opt out"
+        defaultX={100}
+        defaultY={100}
+        draggable="both"
+        withinPortal={false}
+        onPositionChange={onPositionChange}
+      >
+        <div data-no-window-drag data-testid="no-drag">
+          custom interactive region
+        </div>
+      </Window>
+    );
+    const region = container.querySelector('[data-testid="no-drag"]') as HTMLElement;
+
+    fireEvent.mouseDown(region, { clientX: 120, clientY: 120 });
+    fireEvent.mouseMove(document, { clientX: 220, clientY: 240 });
+    fireEvent.mouseUp(document);
+
+    expect(onPositionChange).not.toHaveBeenCalled();
+  });
+
+  it('still starts a drag when mousedown originates on non-interactive content', () => {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Drag Body"
+        defaultX={100}
+        defaultY={100}
+        draggable="both"
+        withinPortal={false}
+        onPositionChange={onPositionChange}
+      >
+        <div data-testid="plain">plain content</div>
+      </Window>
+    );
+    const plain = container.querySelector('[data-testid="plain"]') as HTMLElement;
+
+    fireEvent.mouseDown(plain, { clientX: 120, clientY: 120 });
+    fireEvent.mouseMove(document, { clientX: 220, clientY: 240 });
+    fireEvent.mouseUp(document);
+
+    expect(onPositionChange).toHaveBeenCalled();
+  });
+
   // ─── localStorage write on interaction ──────────────────────────────
 
   it('writes collapsed state to localStorage when persistState is true', () => {
