@@ -121,6 +121,7 @@ export function useMantineWindow(props: WindowBaseProps) {
           setSize: state.setSize,
           setIsCollapsed: (v) => state.setIsCollapsed(v),
           setIsVisible: (v) => state.setIsVisible(v),
+          requestClose: () => state.handleClose(),
         }
       );
       return () => groupCtx.unregisterWindow(windowId);

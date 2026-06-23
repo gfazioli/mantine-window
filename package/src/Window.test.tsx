@@ -861,6 +861,40 @@ describe('Window.Group', () => {
     expect(container.querySelectorAll('[data-mantine-window]').length).toBe(0);
   });
 
+  it('groupRef.closeAll fires onClose and respects controlled opened (issue #36)', () => {
+    const onClose1 = jest.fn();
+    const onClose2 = jest.fn();
+
+    function TestCloseAllControlled() {
+      const groupRef = createRef<WindowGroupContextValue>();
+      return (
+        <>
+          <button type="button" onClick={() => groupRef.current?.closeAll()}>
+            Close All
+          </button>
+          <Window.Group groupRef={groupRef} style={{ width: 800, height: 600 }}>
+            <Window id="cc-1" title="W1" opened onClose={onClose1} />
+            <Window id="cc-2" title="W2" opened onClose={onClose2} />
+          </Window.Group>
+        </>
+      );
+    }
+
+    const { container } = renderWithMantine(<TestCloseAllControlled />);
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(2);
+
+    act(() => {
+      fireEvent.click(screen.getByText('Close All'));
+    });
+
+    // closeAll must notify every window's onClose (regression: previously it bypassed it)...
+    expect(onClose1).toHaveBeenCalledTimes(1);
+    expect(onClose2).toHaveBeenCalledTimes(1);
+    // ...and must NOT force visibility off on controlled windows: `opened` is still true,
+    // so the windows stay mounted until the consumer flips `opened` in response to onClose.
+    expect(container.querySelectorAll('[data-mantine-window]').length).toBe(2);
+  });
+
   // ─── groupRef.applyLayout ───────────────────────────────────────────
 
   it('groupRef.applyLayout does not crash', () => {

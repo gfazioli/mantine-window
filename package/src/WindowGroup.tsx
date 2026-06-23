@@ -334,7 +334,9 @@ export const WindowGroup = factory<WindowGroupFactory>((_props) => {
   // ─── Global actions — call Window callbacks directly ──────────────
 
   const closeAll = useCallback(() => {
-    callbacksRef.current.forEach((cb) => cb.setIsVisible(false));
+    // Route through each window's own close handler (not setIsVisible directly) so that
+    // `onClose` fires and controlled windows (with `opened`) stay in sync — see issue #36.
+    callbacksRef.current.forEach((cb) => cb.requestClose());
   }, []);
 
   const collapseAll = useCallback(() => {

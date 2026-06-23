@@ -40,6 +40,13 @@ export interface WindowCallbacks {
   setSize: (size: WindowSize) => void;
   setIsCollapsed: (collapsed: boolean) => void;
   setIsVisible: (visible: boolean) => void;
+  /**
+   * Mirrors the window's own close handler (the title-bar "✕" button): invokes `onClose`
+   * and, only for uncontrolled windows, hides the window. `Group.closeAll` calls this
+   * instead of `setIsVisible(false)` so it fires `onClose` and respects the controlled
+   * `opened` prop (issue #36).
+   */
+  requestClose: () => void;
 }
 
 export interface WindowGroupContextValue {

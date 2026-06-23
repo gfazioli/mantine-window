@@ -220,6 +220,9 @@ export function useWindowState(options: UseWindowStateOptions) {
   const onSizeChangeRef = useRef(onSizeChange);
   onSizeChangeRef.current = onSizeChange;
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   const positionRef = useRef(position);
   positionRef.current = position;
 
@@ -376,11 +379,15 @@ export function useWindowState(options: UseWindowStateOptions) {
   }, []);
 
   const handleClose = useCallback(() => {
-    if (onClose) {
-      return onClose();
+    // Read onClose from a ref so this handler keeps a stable identity (it is registered
+    // once with a WindowGroup) while always invoking the latest onClose. Controlled windows
+    // (onClose provided) are only notified — the consumer drives `opened`; uncontrolled
+    // windows hide themselves. WindowGroup.closeAll routes through here too (issue #36).
+    if (onCloseRef.current) {
+      return onCloseRef.current();
     }
     setIsVisible(false);
-  }, [onClose]);
+  }, []);
 
   // ─── Sync with props ────────────────────────────────────────────────
 
