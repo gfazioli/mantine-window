@@ -1,53 +1,24 @@
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Button, Group, Menu, Paper, Stack, Text } from '@mantine/core';
+import { Box, Menu, Menubar, Paper, Stack, Text } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
 import { useState } from 'react';
 
 const code = `import { useState } from 'react';
 import { Window } from '@gfazioli/mantine-window';
-import { Box, Button, Group, Menu, Paper, Stack, Text } from '@mantine/core';
+import { Box, Menu, Menubar, Paper, Stack, Text } from '@mantine/core';
 
 const densities = { compact: 'xs', comfortable: 'sm', spacious: 'lg' } as const;
 
 function Demo() {
-  const [query, setQuery] = useState('');
   const [layers, setLayers] = useState(['Layer 1', 'Layer 2']);
   const [nextLayer, setNextLayer] = useState(3);
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [showGrid, setShowGrid] = useState(true);
   const [density, setDensity] = useState<keyof typeof densities>('comfortable');
 
-  // Every File command really operates on the canvas
-  const commands = [
-    {
-      label: 'New layer',
-      action: () => {
-        setLayers((current) => [...current, \`Layer \${nextLayer}\`]);
-        setNextLayer((n) => n + 1);
-      },
-    },
-    {
-      label: 'Duplicate layer',
-      action: () => {
-        setLayers((current) =>
-          current.length > 0 ? [...current, \`\${current[current.length - 1]} copy\`] : current
-        );
-      },
-    },
-    {
-      label: 'Remove layer',
-      action: () => setLayers((current) => current.slice(0, -1)),
-    },
-    { label: 'Export as PNG', action: () => {} },
-  ];
-
-  const filtered = commands.filter((command) =>
-    command.label.toLowerCase().includes(query.trim().toLowerCase())
-  );
-
-  const runCommand = (command: (typeof commands)[number]) => {
-    command.action();
-    setLastAction(command.label);
+  const run = (label: string, fn?: () => void) => {
+    fn?.();
+    setLastAction(label);
   };
 
   return (
@@ -57,48 +28,90 @@ function Demo() {
         opened
         defaultX={30}
         defaultY={30}
-        defaultWidth={440}
-        defaultHeight={340}
+        defaultWidth={460}
+        defaultHeight={360}
         persistState={false}
         withinPortal={false}
         withScrollArea={false}
       >
         <Stack gap="sm" h="100%">
-          {/* The menu bar */}
-          <Group gap={4}>
-            <Menu shadow="md" width={240} position="bottom-start">
-              <Menu.Target>
-                <Button variant="subtle" color="gray" size="compact-sm">
-                  File
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Search
-                  value={query}
-                  onChange={(event) => setQuery(event.currentTarget.value)}
-                  placeholder="Search commands"
-                />
-                {filtered.length > 0 ? (
-                  filtered.map((command) => (
-                    <Menu.Item key={command.label} onClick={() => runCommand(command)}>
-                      {command.label}
-                    </Menu.Item>
-                  ))
-                ) : (
-                  <Text c="dimmed" size="sm" ta="center" py="xs">
-                    Nothing found
-                  </Text>
-                )}
-              </Menu.Dropdown>
-            </Menu>
+          {/* Mantine 9.4 Menubar — a real desktop-style menu bar with keyboard navigation */}
+          <Menubar trigger="click">
+            <Menubar.Menu width={240}>
+              <Menubar.Target>File</Menubar.Target>
+              <Menubar.Dropdown>
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘N
+                    </Text>
+                  }
+                  onClick={() =>
+                    run('New layer', () => {
+                      setLayers((current) => [...current, \`Layer \${nextLayer}\`]);
+                      setNextLayer((n) => n + 1);
+                    })
+                  }
+                >
+                  New layer
+                </Menu.Item>
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘D
+                    </Text>
+                  }
+                  onClick={() =>
+                    run('Duplicate layer', () =>
+                      setLayers((current) =>
+                        current.length > 0
+                          ? [...current, \`\${current[current.length - 1]} copy\`]
+                          : current
+                      )
+                    )
+                  }
+                >
+                  Duplicate layer
+                </Menu.Item>
+                <Menu.Item onClick={() => run('Remove layer', () => setLayers((c) => c.slice(0, -1)))}>
+                  Remove layer
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘E
+                    </Text>
+                  }
+                  onClick={() => run('Export as PNG')}
+                >
+                  Export as PNG
+                </Menu.Item>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
 
-            <Menu shadow="md" width={220} position="bottom-start" closeOnItemClick={false}>
-              <Menu.Target>
-                <Button variant="subtle" color="gray" size="compact-sm">
-                  View
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
+            <Menubar.Menu width={220}>
+              <Menubar.Target>Edit</Menubar.Target>
+              <Menubar.Dropdown>
+                <Menu.Item color="red" onClick={() => run('Clear all layers', () => setLayers([]))}>
+                  Clear all layers
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() =>
+                    run('Reset view', () => {
+                      setShowGrid(true);
+                      setDensity('comfortable');
+                    })
+                  }
+                >
+                  Reset view
+                </Menu.Item>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
+
+            <Menubar.Menu width={220} closeOnItemClick={false}>
+              <Menubar.Target>View</Menubar.Target>
+              <Menubar.Dropdown>
                 <Menu.Label>Canvas</Menu.Label>
                 <Menu.CheckboxItem checked={showGrid} onChange={setShowGrid}>
                   Show grid
@@ -113,11 +126,11 @@ function Demo() {
                   <Menu.RadioItem value="comfortable">Comfortable</Menu.RadioItem>
                   <Menu.RadioItem value="spacious">Spacious</Menu.RadioItem>
                 </Menu.RadioGroup>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
+          </Menubar>
 
-          {/* The canvas: layers, grid and density all react to the menus */}
+          {/* The canvas reacts to every menu action */}
           <Box
             flex={1}
             p="sm"
@@ -146,57 +159,28 @@ function Demo() {
             )}
           </Box>
 
-          {/* Status bar: File menu commands land here */}
+          {/* Status bar: every menu command lands here */}
           <Text size="xs" c="dimmed">
-            {lastAction ? \`Last action: \${lastAction}\` : 'Run a command from the File menu'}
+            {lastAction ? \`Last action: \${lastAction}\` : 'Pick a command from the menu bar'}
           </Text>
         </Stack>
       </Window>
     </Box>
   );
-}
-`;
+}`;
 
 const densities = { compact: 'xs', comfortable: 'sm', spacious: 'lg' } as const;
 
 function Demo() {
-  const [query, setQuery] = useState('');
   const [layers, setLayers] = useState(['Layer 1', 'Layer 2']);
   const [nextLayer, setNextLayer] = useState(3);
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [showGrid, setShowGrid] = useState(true);
   const [density, setDensity] = useState<keyof typeof densities>('comfortable');
 
-  const commands = [
-    {
-      label: 'New layer',
-      action: () => {
-        setLayers((current) => [...current, `Layer ${nextLayer}`]);
-        setNextLayer((n) => n + 1);
-      },
-    },
-    {
-      label: 'Duplicate layer',
-      action: () => {
-        setLayers((current) =>
-          current.length > 0 ? [...current, `${current[current.length - 1]} copy`] : current
-        );
-      },
-    },
-    {
-      label: 'Remove layer',
-      action: () => setLayers((current) => current.slice(0, -1)),
-    },
-    { label: 'Export as PNG', action: () => {} },
-  ];
-
-  const filtered = commands.filter((command) =>
-    command.label.toLowerCase().includes(query.trim().toLowerCase())
-  );
-
-  const runCommand = (command: (typeof commands)[number]) => {
-    command.action();
-    setLastAction(command.label);
+  const run = (label: string, fn?: () => void) => {
+    fn?.();
+    setLastAction(label);
   };
 
   return (
@@ -206,47 +190,92 @@ function Demo() {
         opened
         defaultX={30}
         defaultY={30}
-        defaultWidth={440}
-        defaultHeight={340}
+        defaultWidth={460}
+        defaultHeight={360}
         persistState={false}
         withinPortal={false}
         withScrollArea={false}
       >
         <Stack gap="sm" h="100%">
-          <Group gap={4}>
-            <Menu shadow="md" width={240} position="bottom-start">
-              <Menu.Target>
-                <Button variant="subtle" color="gray" size="compact-sm">
-                  File
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Search
-                  value={query}
-                  onChange={(event) => setQuery(event.currentTarget.value)}
-                  placeholder="Search commands"
-                />
-                {filtered.length > 0 ? (
-                  filtered.map((command) => (
-                    <Menu.Item key={command.label} onClick={() => runCommand(command)}>
-                      {command.label}
-                    </Menu.Item>
-                  ))
-                ) : (
-                  <Text c="dimmed" size="sm" ta="center" py="xs">
-                    Nothing found
-                  </Text>
-                )}
-              </Menu.Dropdown>
-            </Menu>
+          {/* Mantine 9.4 Menubar — a real desktop-style menu bar with keyboard navigation */}
+          <Menubar trigger="click">
+            <Menubar.Menu width={240}>
+              <Menubar.Target>File</Menubar.Target>
+              <Menubar.Dropdown>
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘N
+                    </Text>
+                  }
+                  onClick={() =>
+                    run('New layer', () => {
+                      setLayers((current) => [...current, `Layer ${nextLayer}`]);
+                      setNextLayer((n) => n + 1);
+                    })
+                  }
+                >
+                  New layer
+                </Menu.Item>
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘D
+                    </Text>
+                  }
+                  onClick={() =>
+                    run('Duplicate layer', () =>
+                      setLayers((current) =>
+                        current.length > 0
+                          ? [...current, `${current[current.length - 1]} copy`]
+                          : current
+                      )
+                    )
+                  }
+                >
+                  Duplicate layer
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() => run('Remove layer', () => setLayers((c) => c.slice(0, -1)))}
+                >
+                  Remove layer
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘E
+                    </Text>
+                  }
+                  onClick={() => run('Export as PNG')}
+                >
+                  Export as PNG
+                </Menu.Item>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
 
-            <Menu shadow="md" width={220} position="bottom-start" closeOnItemClick={false}>
-              <Menu.Target>
-                <Button variant="subtle" color="gray" size="compact-sm">
-                  View
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
+            <Menubar.Menu width={220}>
+              <Menubar.Target>Edit</Menubar.Target>
+              <Menubar.Dropdown>
+                <Menu.Item color="red" onClick={() => run('Clear all layers', () => setLayers([]))}>
+                  Clear all layers
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() =>
+                    run('Reset view', () => {
+                      setShowGrid(true);
+                      setDensity('comfortable');
+                    })
+                  }
+                >
+                  Reset view
+                </Menu.Item>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
+
+            <Menubar.Menu width={220} closeOnItemClick={false}>
+              <Menubar.Target>View</Menubar.Target>
+              <Menubar.Dropdown>
                 <Menu.Label>Canvas</Menu.Label>
                 <Menu.CheckboxItem checked={showGrid} onChange={setShowGrid}>
                   Show grid
@@ -261,10 +290,11 @@ function Demo() {
                   <Menu.RadioItem value="comfortable">Comfortable</Menu.RadioItem>
                   <Menu.RadioItem value="spacious">Spacious</Menu.RadioItem>
                 </Menu.RadioGroup>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
+              </Menubar.Dropdown>
+            </Menubar.Menu>
+          </Menubar>
 
+          {/* The canvas reacts to every menu action */}
           <Box
             flex={1}
             p="sm"
@@ -293,8 +323,9 @@ function Demo() {
             )}
           </Box>
 
+          {/* Status bar: every menu command lands here */}
           <Text size="xs" c="dimmed">
-            {lastAction ? `Last action: ${lastAction}` : 'Run a command from the File menu'}
+            {lastAction ? `Last action: ${lastAction}` : 'Pick a command from the menu bar'}
           </Text>
         </Stack>
       </Window>

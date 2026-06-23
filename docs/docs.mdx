@@ -177,10 +177,14 @@ dynamically from state.
 
 ## Window Menu Bar
 
-The Menu.Search, Menu.CheckboxItem and Menu.RadioGroup components added in Mantine 9.3
-make a compact in-window menu bar straightforward. In this demo every menu entry drives
-the workspace for real: the searchable File menu reports the executed command in the
-status bar, while the View menu toggles the canvas grid and changes the layout density.
+Mantine 9.4 ships a real Menubar component — a horizontal row of menus with full keyboard
+navigation (arrow keys move between top-level menus, and once one is open, moving to a sibling
+opens it immediately) and the WAI-ARIA menubar semantics. Dropped into a Window it completes the
+desktop-application metaphor. In this demo every entry drives the workspace for real: the File
+and Edit menus report the executed command in the status bar, while the View menu toggles the
+canvas grid and changes the layout density. Because the Window drag handler ignores interactive
+targets — and the menu triggers carry the `menuitem` role — the menu bar stays fully usable
+inside the draggable surface.
 
 <Demo data={demos.menuBar} />
 
