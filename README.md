@@ -101,6 +101,3 @@ Your help truly matters.
 
 ---
 https://github.com/user-attachments/assets/7f80b2c0-90b1-442f-82c8-fddb75cca14e
-
----
-[![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-window&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-window&Timeline)
