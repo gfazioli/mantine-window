@@ -222,6 +222,22 @@ export interface WindowBaseProps {
   /** Called when the window is resized. Receives pixel values. */
   onSizeChange?: (size: { width: number; height: number }) => void;
 
+  /**
+   * Called once when a drag gesture starts, after the window has decided the pointer
+   * actually starts a drag: a press on a resize handle, on an interactive child
+   * (input, button, link, …) or on a `data-no-window-drag` region does not fire it.
+   */
+  onDragStart?: () => void;
+
+  /** Called once when a drag gesture ends. Always paired with a preceding `onDragStart`. */
+  onDragEnd?: () => void;
+
+  /** Called once when a resize gesture starts. */
+  onResizeStart?: () => void;
+
+  /** Called once when a resize gesture ends. Always paired with a preceding `onResizeStart`. */
+  onResizeEnd?: () => void;
+
   // ─── Z-index management (ignored when inside a WindowGroup) ─────────
 
   /**
@@ -337,6 +353,10 @@ export const Window = factory<WindowFactory>((_props) => {
     defaultHeight,
     onPositionChange,
     onSizeChange,
+    onDragStart,
+    onDragEnd,
+    onResizeStart,
+    onResizeEnd,
     initialZIndex,
     maxZIndex,
     withBorder,

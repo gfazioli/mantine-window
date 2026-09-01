@@ -529,6 +529,179 @@ describe('Window', () => {
     expect(onPositionChange).not.toHaveBeenCalled();
   });
 
+  // ─── Drag / resize lifecycle callbacks ────────────────────────────────
+
+  it('fires onDragStart once and onDragEnd once for a drag gesture, in order', () => {
+    const calls: string[] = [];
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Drag lifecycle"
+        defaultX={100}
+        defaultY={100}
+        draggable="header"
+        withinPortal={false}
+        onDragStart={() => calls.push('start')}
+        onDragEnd={() => calls.push('end')}
+      />
+    );
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 150, clientY: 160 });
+    fireEvent.mouseMove(document, { clientX: 170, clientY: 190 });
+    fireEvent.mouseUp(document);
+
+    // Once each, and never an end before its start — several moves must not multiply them.
+    expect(calls).toEqual(['start', 'end']);
+  });
+
+  it('fires onResizeStart once and onResizeEnd once for a resize gesture, in order', () => {
+    const calls: string[] = [];
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Resize lifecycle"
+        defaultWidth={400}
+        defaultHeight={300}
+        resizable="both"
+        withinPortal={false}
+        onResizeStart={() => calls.push('start')}
+        onResizeEnd={() => calls.push('end')}
+      />
+    );
+    const handle = container.querySelector('[data-resize-handle]') as HTMLElement;
+
+    fireEvent.mouseDown(handle, { clientX: 400, clientY: 300 });
+    fireEvent.mouseMove(document, { clientX: 450, clientY: 350 });
+    fireEvent.mouseUp(document);
+
+    expect(calls).toEqual(['start', 'end']);
+  });
+
+  it('does not fire drag callbacks during a resize, nor resize callbacks during a drag', () => {
+    // The global mouseup listener ends both gestures at once, so without a per-hook
+    // guard a plain resize would emit an unpaired onDragEnd (and vice versa).
+    const onDragStart = jest.fn();
+    const onDragEnd = jest.fn();
+    const onResizeStart = jest.fn();
+    const onResizeEnd = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="No cross talk"
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        defaultHeight={300}
+        draggable="header"
+        resizable="both"
+        withinPortal={false}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onResizeStart={onResizeStart}
+        onResizeEnd={onResizeEnd}
+      />
+    );
+
+    const handle = container.querySelector('[data-resize-handle]') as HTMLElement;
+    fireEvent.mouseDown(handle, { clientX: 400, clientY: 300 });
+    fireEvent.mouseMove(document, { clientX: 450, clientY: 350 });
+    fireEvent.mouseUp(document);
+
+    expect(onResizeStart).toHaveBeenCalledTimes(1);
+    expect(onResizeEnd).toHaveBeenCalledTimes(1);
+    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onDragEnd).not.toHaveBeenCalled();
+
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 150, clientY: 160 });
+    fireEvent.mouseUp(document);
+
+    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onResizeStart).toHaveBeenCalledTimes(1);
+    expect(onResizeEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fire onDragStart when the pointer starts on an interactive child', () => {
+    // Same bail-out that keeps a child input focusable must also keep the gesture
+    // from opening: a start with no matching end leaks consumer state.
+    const onDragStart = jest.fn();
+    const onDragEnd = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Interactive child"
+        defaultX={100}
+        defaultY={100}
+        draggable="both"
+        withinPortal={false}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      >
+        <input aria-label="Inner input" data-testid="lifecycle-input" />
+      </Window>
+    );
+    const input = container.querySelector('[data-testid="lifecycle-input"]') as HTMLElement;
+
+    fireEvent.mouseDown(input, { clientX: 120, clientY: 120 });
+    fireEvent.mouseMove(document, { clientX: 220, clientY: 240 });
+    fireEvent.mouseUp(document);
+
+    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onDragEnd).not.toHaveBeenCalled();
+  });
+
+  it('closes an in-flight drag gesture on unmount', () => {
+    const onDragStart = jest.fn();
+    const onDragEnd = jest.fn();
+    const { container, unmount } = renderWithMantine(
+      <Window
+        opened
+        title="Unmount mid drag"
+        defaultX={100}
+        defaultY={100}
+        draggable="header"
+        withinPortal={false}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      />
+    );
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 150, clientY: 160 });
+    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onDragEnd).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(onDragEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fire any lifecycle callback on unmount without a gesture', () => {
+    const onDragEnd = jest.fn();
+    const onResizeEnd = jest.fn();
+    const { unmount } = renderWithMantine(
+      <Window
+        opened
+        title="Clean unmount"
+        withinPortal={false}
+        draggable="header"
+        resizable="both"
+        onDragEnd={onDragEnd}
+        onResizeEnd={onResizeEnd}
+      />
+    );
+
+    unmount();
+
+    expect(onDragEnd).not.toHaveBeenCalled();
+    expect(onResizeEnd).not.toHaveBeenCalled();
+  });
+
   it('still starts a drag when mousedown originates on non-interactive content', () => {
     const onPositionChange = jest.fn();
     const { container } = renderWithMantine(

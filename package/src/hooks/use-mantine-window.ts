@@ -37,6 +37,10 @@ export function useMantineWindow(props: WindowBaseProps) {
     dragBounds: dragBoundsProp,
     onPositionChange,
     onSizeChange,
+    onDragStart,
+    onDragEnd,
+    onResizeStart,
+    onResizeEnd,
     initialZIndex,
     maxZIndex,
   } = props;
@@ -271,6 +275,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     windowRef,
     setPosition: state.setPosition,
     bringToFront: groupBringToFront,
+    onDragStart,
+    onDragEnd,
   });
 
   // ─── Resize functionality ───────────────────────────────────────────
@@ -282,6 +288,8 @@ export function useMantineWindow(props: WindowBaseProps) {
     setPosition: state.setPosition,
     setSize: state.setSize,
     bringToFront: groupBringToFront,
+    onResizeStart,
+    onResizeEnd,
   });
 
   const mergedRef = useMergedRef(windowRef);
@@ -349,6 +357,11 @@ export function useMantineWindow(props: WindowBaseProps) {
       } as EventListenerOptions);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
+      // Unmounting mid-gesture must still close it: a consumer that paused an expensive
+      // child on onDragStart, or opened an undo entry, would otherwise never be told the
+      // gesture is over. Both helpers no-op when their own gesture was not active.
+      dragRef.current.handleDragEnd();
+      resizeRef.current.handleResizeEnd();
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };

@@ -35,10 +35,28 @@ export interface UseWindowResizeOptions {
   setPosition: (position: WindowPosition) => void;
   setSize: (size: WindowSize) => void;
   bringToFront: () => void;
+  onResizeStart?: () => void;
+  onResizeEnd?: () => void;
 }
 
 export function useWindowResize(options: UseWindowResizeOptions) {
-  const { positionPx, sizePx, constraintsPx, setPosition, setSize, bringToFront } = options;
+  const {
+    positionPx,
+    sizePx,
+    constraintsPx,
+    setPosition,
+    setSize,
+    bringToFront,
+    onResizeStart,
+    onResizeEnd,
+  } = options;
+
+  // Kept in refs so an inline arrow from the consumer does not re-create the
+  // memoized handler map on every render.
+  const onResizeStartRef = useRef(onResizeStart);
+  onResizeStartRef.current = onResizeStart;
+  const onResizeEndRef = useRef(onResizeEnd);
+  onResizeEndRef.current = onResizeEnd;
 
   const isResizing = useRef(false);
   const resizeDirection = useRef<ResizeDirection | ''>('');
@@ -175,6 +193,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
         document.body.style.userSelect = 'none';
         e.preventDefault();
         e.stopPropagation();
+        onResizeStartRef.current?.();
       };
 
       const onTouchStart = (e: React.TouchEvent) => {
@@ -192,6 +211,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
         };
         document.body.style.userSelect = 'none';
         e.stopPropagation();
+        onResizeStartRef.current?.();
       };
 
       return { onMouseDown, onTouchStart };
@@ -214,7 +234,13 @@ export function useWindowResize(options: UseWindowResizeOptions) {
   );
 
   const handleResizeEnd = useCallback(() => {
+    // Same guard as the drag hook: the global listener ends both gestures at once,
+    // so a plain drag must not emit an unpaired onResizeEnd.
+    const wasResizing = isResizing.current;
     isResizing.current = false;
+    if (wasResizing) {
+      onResizeEndRef.current?.();
+    }
   }, []);
 
   return {
