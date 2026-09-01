@@ -160,6 +160,16 @@ Use `onPositionChange` and `onSizeChange` callbacks to respond to window movemen
 
 <Demo data={demos.callbacks} />
 
+### Drag and Resize Lifecycle
+
+`onPositionChange` and `onSizeChange` fire continuously, on every frame of a gesture. Four more callbacks mark its edges instead: `onDragStart`, `onDragEnd`, `onResizeStart` and `onResizeEnd`. They mirror the set that Mantine core's `FloatingWindow` exposes.
+
+The edges are what make a gesture composable. Persist the layout once, on end, instead of debouncing every frame by hand; pause an expensive child, an iframe or a video while the user drags and resume after; show a snap guide or a dimension badge only while the gesture runs; record a single undo entry per gesture rather than one per pixel.
+
+Each start is paired with exactly one end. A press on a resize handle, on an interactive child (input, button, link, …) or on a `data-no-window-drag` region does not open a drag, so no `onDragStart` fires there either — and a resize never emits drag callbacks, nor the other way round. Unmounting mid-gesture still fires the matching end, so a paused child is never left paused.
+
+<Demo data={demos.dragResizeLifecycle} />
+
 ## Multiple Windows
 
 You can render multiple windows in the same container. Each window maintains its own z-index and can be brought to the front by clicking on it. Use unique `id` props to ensure proper state persistence.

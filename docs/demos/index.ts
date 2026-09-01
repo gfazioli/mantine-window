@@ -1,4 +1,5 @@
 export { callbacks } from './Window.demo.callbacks';
+export { dragResizeLifecycle } from './Window.demo.dragResizeLifecycle';
 export { centered } from './Window.demo.centered';
 export { configurator } from './Window.demo.configurator';
 export { contextMenu } from './Window.demo.contextMenu';

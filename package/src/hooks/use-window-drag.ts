@@ -50,6 +50,8 @@ export interface UseWindowDragOptions {
   windowRef: React.RefObject<HTMLDivElement | null>;
   setPosition: (position: WindowPosition) => void;
   bringToFront: () => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export function useWindowDrag(options: UseWindowDragOptions) {
@@ -66,10 +68,19 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     windowRef,
     setPosition,
     bringToFront,
+    onDragStart,
+    onDragEnd,
   } = options;
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
+
+  // Kept in refs so a consumer passing an inline arrow does not re-create the
+  // memoized pointer handlers on every render.
+  const onDragStartRef = useRef(onDragStart);
+  onDragStartRef.current = onDragStart;
+  const onDragEndRef = useRef(onDragEnd);
+  onDragEndRef.current = onDragEnd;
 
   const applyBounds = useCallback(
     (newX: number, newY: number): { x: number; y: number } => {
@@ -129,6 +140,9 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       };
       document.body.style.userSelect = 'none';
       e.preventDefault();
+      // Emitted only past the bail-outs above: a mousedown on a resize handle or on an
+      // interactive child is not a drag, and must not open a gesture that never closes.
+      onDragStartRef.current?.();
     },
     [positionPx, bringToFront]
   );
@@ -154,6 +168,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       };
       document.body.style.userSelect = 'none';
       e.preventDefault();
+      onDragStartRef.current?.();
     },
     [positionPx, bringToFront]
   );
@@ -174,7 +189,13 @@ export function useWindowDrag(options: UseWindowDragOptions) {
   );
 
   const handleDragEnd = useCallback(() => {
+    // The global mouseup/touchend listener calls this whenever EITHER gesture is
+    // active, so a plain resize would otherwise emit an unpaired onDragEnd.
+    const wasDragging = isDragging.current;
     isDragging.current = false;
+    if (wasDragging) {
+      onDragEndRef.current?.();
+    }
   }, []);
 
   return {
