@@ -56,7 +56,7 @@ export const Cap = ({ title, note }) => (
       <Table.Td ta="center"><No /></Table.Td>
     </Table.Tr>
     <Table.Tr>
-      <Table.Td><Cap title="Sizing in any CSS unit" note="px, vw / vh and % for position, size, min / max and drag bounds — core works in px" /></Table.Td>
+      <Table.Td><Cap title="Sizing in px, vw, vh and %" note="For position, size, min / max and drag bounds — other units such as rem are not converted — core works in px" /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
       <Table.Td ta="center"><No /></Table.Td>
     </Table.Tr>
@@ -143,7 +143,7 @@ export const Cap = ({ title, note }) => (
   </Table.Tbody>
 </Table>
 
-**When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — or when you need the headless hook, an axis lock or keyboard resizing. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, a layout that survives a reload, and several windows arranged together with `Window.Group`.
+**When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — or when you need the headless hook, an axis lock or keyboard resizing. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, position and size kept across reloads with `persistState`, and several windows arranged together with `Window.Group`.
 
 ## Usage
 
