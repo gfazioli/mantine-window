@@ -1,3 +1,5 @@
+import { Table, Text } from '@mantine/core';
+import { IconCheck, IconX } from '@tabler/icons-react';
 import { InstallScript } from './components/InstallScript/InstallScript';
 import * as demos from './demos';
 
@@ -18,6 +20,130 @@ You can import styles within a layer `@layer mantine-window` by importing `@gfaz
 ```tsx
 import '@gfazioli/mantine-window/styles.layer.css';
 ```
+
+## Comparison with Mantine core FloatingWindow
+
+Since version 9.0, Mantine core ships a first-party [FloatingWindow](https://mantine.dev/core/floating-window/) component, built on the headless [use-floating-window](https://mantine.dev/hooks/use-floating-window/) hook. The basics overlap — a draggable, resizable surface with size limits and gesture callbacks — but the two make different trade-offs.
+
+export const Yes = () => <IconCheck size={20} stroke={2.5} color="var(--mantine-color-teal-6)" aria-label="Supported" />;
+
+export const No = () => <IconX size={18} stroke={2} color="var(--mantine-color-red-6)" aria-label="Not available" />;
+
+export const Cap = ({ title, note }) => (
+  <>
+    <Text size="sm" fw={500}>{title}</Text>
+    {note && <Text size="xs" c="dimmed">{note}</Text>}
+  </>
+);
+
+<Table striped withTableBorder withColumnBorders verticalSpacing="sm" my="md">
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Capability</Table.Th>
+      <Table.Th ta="center" w={140}>Window</Table.Th>
+      <Table.Th ta="center" w={140}>Core FloatingWindow</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td><Cap title="Window chrome" note="Title bar with close, collapse and a tools menu, in macOS or Windows order (controlsPosition, controlsOrder), plus opened / onClose — core is a bare Paper you fill yourself" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Resize from every edge and corner" note="Eight handles, resizable both / horizontal / vertical, fullSizeResizeHandles for full-length edges — core's single FloatingWindow.ResizeHandle grows the window right and down" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Sizing in any CSS unit" note="px, vw / vh and % for position, size, min / max and drag bounds — core works in px" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Responsive values" note="Position, size, min / max, radius and shadow accept Mantine breakpoint maps" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Confined to a container" note="withinPortal={false} positions the window inside its parent and keeps it there — core is always position: fixed" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Custom drag bounds" note="dragBounds limits the window to any rectangle, in any unit — core can keep it inside the viewport (constrainToViewport, constrainOffset)" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Interactive content left alone" note="A press on an input, a button, a link or a data-no-window-drag region never starts a drag — core drags from the whole window unless you narrow it with dragHandleSelector / excludeDragHandleSelector" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Collapse" note="collapsable, also by double-clicking the header" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Stacking and layouts" note="Click to bring a window to the front; Window.Group adds snap, fill, columns, rows and tile layouts, collapse / close all, and z-index strategies" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Persistence" note="persistState keeps position and size in localStorage across reloads" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Scrollable content" note="Content is wrapped in a ScrollArea unless withScrollArea={false}" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Drag and resize, mouse and touch" note="Both" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Min and max size" note="minWidth / maxWidth / minHeight / maxHeight here, dimensions in core" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Position from code" note="Window: controlled x, y, width and height — core: initialPosition and setPositionRef" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Gesture callbacks" note="Both: onPositionChange and onSizeChange on every frame, plus onDragStart / onDragEnd and onResizeStart / onResizeEnd at the edges of a gesture" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Turn dragging or resizing off" note="draggable / resizable none here — enabled, or no resize handle, in core" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Lock dragging to one axis" note="axis x or y — Window's draggable sets where you grab it (window, header or both), not the direction" /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Keyboard resizing" note="Arrow keys in 10px steps and Home / End to the min / max size, on a role=&quot;separator&quot; handle with aria-valuenow" /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Headless hook" note="use-floating-window makes any element draggable" /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+**When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — or when you need the headless hook, an axis lock or keyboard resizing. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, a layout that survives a reload, and several windows arranged together with `Window.Group`.
 
 ## Usage
 
