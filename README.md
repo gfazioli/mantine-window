@@ -30,6 +30,8 @@ It requires **Mantine 9.x** and **React 19**.
 - Responsive values via Mantine breakpoints for all dimension props
 - Persistent state via localStorage (position, size, collapse state)
 - Configurable drag boundaries to constrain movement
+- `axis` prop to lock dragging to one direction
+- Keyboard resizing on one focusable WAI-ARIA `separator` handle: arrow keys, Shift for a bigger step, Home / End to the min / max size
 - Min/max size constraints with multi-unit support
 - Collapsible content with double-click header toggle
 - Z-index management with bring-to-front on interaction
@@ -37,7 +39,8 @@ It requires **Mantine 9.x** and **React 19**.
 - Layout presets: snap, tile, columns, rows, fill
 - Full Mantine Styles API support with fine-grained classNames
 - SSR-safe with hydration-compatible viewport unit resolution
-- `onPositionChange` and `onSizeChange` callbacks
+- `onPositionChange` and `onSizeChange` callbacks, plus `onDragStart` / `onDragEnd` and `onResizeStart` / `onResizeEnd` at the edges of each gesture
+- Headless `useDragResize` hook: the same drag, resize, units, bounds and keyboard resizing on any element of your own
 - `withScrollArea` prop to disable the internal ScrollArea wrapper
 - `controlsPosition` prop for macOS-style (left) or Windows-style (right) button placement
 - `controlsOrder` prop for custom button ordering (close, collapse, tools)

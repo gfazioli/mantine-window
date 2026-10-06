@@ -1,7 +1,7 @@
 {
   "name": "@gfazioli/mantine-window",
   "version": "3.2.3",
-  "description": "A Mantine extension component that renders draggable, resizable floating windows with persistent state, customizable boundaries, collapsible content, z-index management, and flexible control over position, size, and interaction modes. Includes a WindowGroup compound component for coordinated multi-window management with layout presets.",
+  "description": "A Mantine extension that renders draggable, resizable floating windows with keyboard resizing, persistent state, drag bounds, an axis lock, collapsible content and z-index management. Includes a WindowGroup compound component with layout presets, and a headless useDragResize hook that brings the same drag and resize to any element.",
   "homepage": "https://gfazioli.github.io/mantine-window/",
   "packageManager": "yarn@4.0.1",
   "license": "MIT",
@@ -18,7 +18,9 @@
     "window",
     "draggable",
     "resizable",
-    "floating-window"
+    "floating-window",
+    "headless",
+    "keyboard"
   ],
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
