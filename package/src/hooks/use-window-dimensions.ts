@@ -1,14 +1,16 @@
 import { useMounted, useViewportSize } from '@mantine/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface UseWindowDimensionsOptions {
   withinPortal?: boolean;
-  isVisible: boolean;
-  windowRef: React.RefObject<HTMLDivElement | null>;
+  /** The mounted element, or `null` while it is not rendered. */
+  element: HTMLElement | null;
 }
 
+const UNMEASURED = { width: 0, height: 0 };
+
 export function useWindowDimensions(options: UseWindowDimensionsOptions) {
-  const { withinPortal = true, isVisible, windowRef } = options;
+  const { withinPortal = true, element } = options;
 
   // Use Mantine's useMounted hook to detect client-side mount (SSR-safe)
   const isMounted = useMounted();
@@ -16,52 +18,37 @@ export function useWindowDimensions(options: UseWindowDimensionsOptions) {
   // Track viewport dimensions using Mantine's hook
   const viewportDimensions = useViewportSize();
 
-  // Track container dimensions with a manual ResizeObserver
-  const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
-  const observerRef = useRef<ResizeObserver | null>(null);
+  // Track the positioned parent with a ResizeObserver when not in portal mode
+  const [containerDimensions, setContainerDimensions] = useState(UNMEASURED);
 
-  // Attach resize observer to parent container when not in portal mode
   useEffect(() => {
-    // Cleanup previous observer
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-      observerRef.current = null;
+    const parent = element?.offsetParent;
+
+    if (withinPortal || !(parent instanceof HTMLElement)) {
+      setContainerDimensions(UNMEASURED);
+      return undefined;
     }
 
-    if (!isVisible || !windowRef.current?.offsetParent || withinPortal) {
-      setContainerDimensions({ width: 0, height: 0 });
-      return;
-    }
+    // Get initial dimensions immediately to avoid flicker
+    setContainerDimensions({
+      width: parent.clientWidth,
+      height: parent.clientHeight,
+    });
 
-    const parent = windowRef.current.offsetParent;
-    if (parent instanceof HTMLElement) {
-      // Get initial dimensions immediately to avoid flicker
-      setContainerDimensions({
-        width: parent.clientWidth,
-        height: parent.clientHeight,
-      });
-
-      // Observe for resize changes
-      observerRef.current = new ResizeObserver((entries) => {
-        const entry = entries[0];
-        if (entry) {
-          setContainerDimensions({
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
-          });
-        }
-      });
-      observerRef.current.observe(parent);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
+    // Observe for resize changes
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setContainerDimensions({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
       }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- windowRef.current is a ref, not a reactive value
-  }, [withinPortal, isVisible]);
+    });
+    observer.observe(parent);
+
+    return () => observer.disconnect();
+  }, [withinPortal, element]);
 
   return {
     isMounted,

@@ -1,6 +1,7 @@
 import { Box, Button, Select, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React from 'react';
+import { useDragResize } from './hooks/use-drag-resize';
 import { Window } from './Window';
 
 export default {
@@ -1123,5 +1124,153 @@ export function CustomControlsOrder() {
         <Text size="sm">Another custom order</Text>
       </Window>
     </Stack>
+  );
+}
+
+// Issue #55: dragging locked to one axis.
+export function AxisLock() {
+  return (
+    <Box pos="relative" h={500}>
+      <Window
+        title='axis="x"'
+        opened
+        axis="x"
+        withinPortal={false}
+        defaultX={20}
+        defaultY={20}
+        defaultWidth={260}
+        defaultHeight={160}
+      >
+        <Text size="sm">Slides left and right only.</Text>
+      </Window>
+      <Window
+        title='axis="y"'
+        opened
+        axis="y"
+        withinPortal={false}
+        defaultX={20}
+        defaultY={220}
+        defaultWidth={260}
+        defaultHeight={160}
+      >
+        <Text size="sm">Slides up and down only.</Text>
+      </Window>
+    </Box>
+  );
+}
+
+// Issue #56: one focusable separator per window. Tab to it and use the arrows, Shift, Home, End.
+export function KeyboardResize() {
+  return (
+    <Box pos="relative" h={500}>
+      <Button size="xs">Focus starts here, then Tab</Button>
+      <Window
+        title="Corner (both)"
+        opened
+        withinPortal={false}
+        defaultX={20}
+        defaultY={50}
+        defaultWidth={300}
+        defaultHeight={200}
+      >
+        <Text size="sm">The bottom-right corner takes focus.</Text>
+      </Window>
+      <Window
+        title="Right edge (horizontal)"
+        opened
+        resizable="horizontal"
+        withinPortal={false}
+        defaultX={340}
+        defaultY={50}
+        defaultWidth={300}
+        defaultHeight={200}
+      >
+        <Text size="sm">The right edge takes focus.</Text>
+      </Window>
+      <Window
+        title="Bottom edge (vertical)"
+        opened
+        resizable="vertical"
+        withinPortal={false}
+        defaultX={20}
+        defaultY={280}
+        defaultWidth={300}
+        defaultHeight={180}
+      >
+        <Text size="sm">The bottom edge takes focus.</Text>
+      </Window>
+    </Box>
+  );
+}
+
+// Issue #57: the headless hook on a plain element.
+export function HeadlessHook() {
+  const { ref, position, size, isDragging, getDragHandleProps, getResizeHandleProps } =
+    useDragResize({
+      boundary: 'parent',
+      defaultPosition: { x: 40, y: 40 },
+      defaultSize: { width: 280, height: 180 },
+      minWidth: 160,
+      minHeight: 120,
+    });
+
+  return (
+    <Box pos="relative" h={500} bg="gray.1">
+      <Box
+        ref={ref}
+        {...getDragHandleProps()}
+        p="md"
+        bg="white"
+        bd="1px solid gray.4"
+        style={{
+          position: 'absolute',
+          left: position.x,
+          top: position.y,
+          width: size.width,
+          height: size.height,
+          cursor: isDragging ? 'grabbing' : 'grab',
+        }}
+      >
+        <Text size="sm">
+          {Math.round(size.width)} × {Math.round(size.height)} at {Math.round(position.x)},{' '}
+          {Math.round(position.y)}
+        </Text>
+        <Box
+          {...getResizeHandleProps('left')}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 8,
+            cursor: 'ew-resize',
+          }}
+        />
+        <Box
+          {...getResizeHandleProps('top')}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 8,
+            cursor: 'ns-resize',
+          }}
+        />
+        <Box
+          {...getResizeHandleProps('bottomRight', { keyboard: true, label: 'Resize box' })}
+          className="mantine-focus-auto"
+          bg="gray.5"
+          style={{
+            position: 'absolute',
+            right: 0,
+            bottom: 0,
+            width: 14,
+            height: 14,
+            cursor: 'nwse-resize',
+          }}
+        />
+      </Box>
+    </Box>
   );
 }

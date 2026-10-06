@@ -228,3 +228,27 @@
     transform: none;
   }
 }
+
+/*
+ * Keyboard resize handle. Only the handle with a tabindex can take focus, so these rules
+ * never reach the pointer-only ones. The window clips what is drawn outside it, so the
+ * mark is drawn inside the handle, and the whole window gets the outline.
+ */
+.root:has(> .container > [data-resize-handle]:focus-visible) {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.resizeHandleRight:focus-visible,
+.resizeHandleBottom:focus-visible {
+  outline: none;
+  background-color: var(--mantine-primary-color-filled);
+  border-radius: var(--window-handle-size);
+}
+
+.resizeHandleBottomRight:focus-visible {
+  outline: none;
+  border-right: 3px solid var(--mantine-primary-color-filled);
+  border-bottom: 3px solid var(--mantine-primary-color-filled);
+  border-bottom-right-radius: var(--window-radius);
+}

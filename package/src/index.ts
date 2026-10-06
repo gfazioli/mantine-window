@@ -19,3 +19,14 @@ export type { WindowGroupContextValue, WindowLayout } from './WindowGroup.contex
 
 export { useResponsiveValue } from './hooks/use-responsive-value';
 export type { ResponsiveValue } from './hooks/use-responsive-value';
+
+export { useDragResize } from './hooks/use-drag-resize';
+export type {
+  DragResizeBoundary,
+  DragResizeDragHandleProps,
+  DragResizeHandleOptions,
+  DragResizeHandleProps,
+  UseDragResizeOptions,
+  UseDragResizeReturnValue,
+} from './hooks/use-drag-resize';
+export type { ResizeDirection } from './lib/keyboard-resize';

@@ -18,6 +18,7 @@ import {
   type MantineRadius,
   type MantineShadow,
 } from '@mantine/core';
+import { useMergedRef } from '@mantine/hooks';
 import React from 'react';
 import { IconMinus, IconPlus, IconX } from './ControlIcons';
 import { useMantineWindow } from './hooks/use-mantine-window';
@@ -32,6 +33,7 @@ import {
   SnapTopIcon,
   TileIcon,
 } from './LayoutIcons';
+import type { ResizeDirection } from './lib/keyboard-resize';
 import { WindowGroup } from './WindowGroup';
 import classes from './Window.module.css';
 
@@ -131,6 +133,27 @@ export interface WindowBaseProps {
 
   /** Draggable mode of the window */
   draggable?: DraggableMode;
+
+  /** Restricts dragging to one axis: `'x'` moves the window only horizontally, `'y'` only vertically. Programmatic moves (controlled position, layouts) are not restricted. */
+  axis?: 'x' | 'y';
+
+  /**
+   * Whether one resize handle is focusable and resizes the window from the keyboard: arrow
+   * keys by `resizeStep`, Shift + arrows by `resizeShiftStep`, Home / End to the min / max
+   * size. It is the bottom-right corner (the right edge when collapsed or `resizable="horizontal"`,
+   * the bottom edge when `resizable="vertical"`), exposed as a WAI-ARIA `separator`.
+   * @default true
+   */
+  withKeyboardResize?: boolean;
+
+  /** Pixels added or removed by an arrow key on the keyboard resize handle. @default 10 */
+  resizeStep?: number;
+
+  /** Pixels added or removed by Shift + an arrow key on the keyboard resize handle. @default 50 */
+  resizeShiftStep?: number;
+
+  /** Accessible name of the keyboard resize handle. @default 'Resize window' */
+  resizeHandleLabel?: string;
 
   /** Whether the window is initially collapsed */
   collapsed?: boolean;
@@ -288,6 +311,10 @@ export const defaultProps: Partial<WindowProps> = {
   minWidth: 250,
   minHeight: 100,
   fullSizeResizeHandles: false,
+  withKeyboardResize: true,
+  resizeStep: 10,
+  resizeShiftStep: 50,
+  resizeHandleLabel: 'Resize window',
 };
 
 const varsResolver = createVarsResolver<WindowFactory>((_, { radius, shadow }) => {
@@ -325,6 +352,11 @@ export const Window = factory<WindowFactory>((_props) => {
     children,
     resizable,
     draggable,
+    axis,
+    withKeyboardResize,
+    resizeStep,
+    resizeShiftStep,
+    resizeHandleLabel,
     collapsed,
     withCollapseButton,
     collapsable,
@@ -362,6 +394,7 @@ export const Window = factory<WindowFactory>((_props) => {
     withBorder,
     fullSizeResizeHandles,
     mod,
+    ref,
 
     classNames,
     style,
@@ -403,13 +436,14 @@ export const Window = factory<WindowFactory>((_props) => {
     isVisible,
     zIndex,
     withinPortal: resolvedWithinPortal,
-    handleMouseDownDrag,
-    handleTouchStartDrag,
-    resizeHandlers,
+    getDragHandleProps,
+    getResizeHandleProps,
     handleClose,
     groupCtx,
     applySingleLayout,
   } = useMantineWindow(props);
+
+  const mergedRef = useMergedRef(ref, windowRef);
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
@@ -418,13 +452,36 @@ export const Window = factory<WindowFactory>((_props) => {
     return null;
   }
 
+  // One tab stop per window: the handle that grows it towards the bottom-right, among
+  // those rendered (a collapsed window keeps only its side handles).
+  const keyboardHandle: ResizeDirection | null =
+    !withKeyboardResize || resizable === 'none'
+      ? null
+      : resizable === 'horizontal'
+        ? 'right'
+        : resizable === 'vertical'
+          ? isCollapsed
+            ? null
+            : 'bottom'
+          : isCollapsed
+            ? 'right'
+            : 'bottomRight';
+
+  const resizeHandleProps = (direction: ResizeDirection) =>
+    getResizeHandleProps(
+      direction,
+      direction === keyboardHandle ? { keyboard: true, label: resizeHandleLabel } : undefined
+    );
+
+  const dragHandleProps = getDragHandleProps();
+
   return (
     <Box
-      ref={windowRef}
+      ref={mergedRef}
       onClick={bringToFront}
       mod={[{ 'data-with-border': withBorder, 'data-window-draggable': draggableWindow }, mod]}
-      onMouseDown={draggableWindow ? handleMouseDownDrag : undefined}
-      onTouchStart={draggableWindow ? handleTouchStartDrag : undefined}
+      onMouseDown={draggableWindow ? dragHandleProps.onMouseDown : undefined}
+      onTouchStart={draggableWindow ? dragHandleProps.onTouchStart : undefined}
       role="dialog"
       aria-label={title || props.id || 'Window'}
       data-mantine-window
@@ -447,8 +504,8 @@ export const Window = factory<WindowFactory>((_props) => {
           {...getStyles('header')}
           onClick={bringToFront}
           mod={{ 'window-draggable': draggableHeader, 'controls-position': controlsPosition }}
-          onMouseDown={draggableHeader ? handleMouseDownDrag : undefined}
-          onTouchStart={draggableHeader ? handleTouchStartDrag : undefined}
+          onMouseDown={draggableHeader ? dragHandleProps.onMouseDown : undefined}
+          onTouchStart={draggableHeader ? dragHandleProps.onTouchStart : undefined}
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
           {(() => {
@@ -659,24 +716,17 @@ export const Window = factory<WindowFactory>((_props) => {
                 {/* Corner handles */}
                 {resizable === 'both' && (
                   <>
+                    <Box {...resizeHandleProps('topLeft')} {...getStyles('resizeHandleTopLeft')} />
                     <Box
-                      data-resize-handle
-                      {...resizeHandlers.topLeft}
-                      {...getStyles('resizeHandleTopLeft')}
-                    />
-                    <Box
-                      data-resize-handle
-                      {...resizeHandlers.topRight}
+                      {...resizeHandleProps('topRight')}
                       {...getStyles('resizeHandleTopRight')}
                     />
                     <Box
-                      data-resize-handle
-                      {...resizeHandlers.bottomRight}
+                      {...resizeHandleProps('bottomRight')}
                       {...getStyles('resizeHandleBottomRight')}
                     />
                     <Box
-                      data-resize-handle
-                      {...resizeHandlers.bottomLeft}
+                      {...resizeHandleProps('bottomLeft')}
                       {...getStyles('resizeHandleBottomLeft')}
                     />
                   </>
@@ -686,15 +736,13 @@ export const Window = factory<WindowFactory>((_props) => {
                 {(resizable === 'vertical' || resizable === 'both') && (
                   <>
                     <Box
-                      data-resize-handle
                       data-full-size={fullSizeResizeHandles || undefined}
-                      {...resizeHandlers.top}
+                      {...resizeHandleProps('top')}
                       {...getStyles('resizeHandleTop')}
                     />
                     <Box
-                      data-resize-handle
                       data-full-size={fullSizeResizeHandles || undefined}
-                      {...resizeHandlers.bottom}
+                      {...resizeHandleProps('bottom')}
                       {...getStyles('resizeHandleBottom')}
                     />
                   </>
@@ -708,15 +756,13 @@ export const Window = factory<WindowFactory>((_props) => {
         {resizable !== 'none' && (resizable === 'horizontal' || resizable === 'both') && (
           <>
             <Box
-              data-resize-handle
               data-full-size={fullSizeResizeHandles || undefined}
-              {...resizeHandlers.right}
+              {...resizeHandleProps('right')}
               {...getStyles('resizeHandleRight')}
             />
             <Box
-              data-resize-handle
               data-full-size={fullSizeResizeHandles || undefined}
-              {...resizeHandlers.left}
+              {...resizeHandleProps('left')}
               {...getStyles('resizeHandleLeft')}
             />
           </>

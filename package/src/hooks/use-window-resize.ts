@@ -1,16 +1,8 @@
 import { useCallback, useMemo, useRef } from 'react';
+import type { ResizeDirection } from '../lib/keyboard-resize';
 import { clampHeight, clampWidth, type SizeConstraints } from '../lib/window-constraints';
-import type { WindowPosition, WindowSize } from '../Window';
 
-export type ResizeDirection =
-  | 'topLeft'
-  | 'top'
-  | 'topRight'
-  | 'right'
-  | 'bottomRight'
-  | 'bottom'
-  | 'bottomLeft'
-  | 'left';
+export type { ResizeDirection };
 
 const CURSOR_MAP: Record<ResizeDirection, string> = {
   topLeft: 'nwse-resize',
@@ -32,24 +24,15 @@ export interface UseWindowResizeOptions {
   positionPx: { x: number; y: number };
   sizePx: { width: number; height: number };
   constraintsPx: SizeConstraints;
-  setPosition: (position: WindowPosition) => void;
-  setSize: (size: WindowSize) => void;
-  bringToFront: () => void;
+  setPosition: (position: { x: number; y: number }) => void;
+  setSize: (size: { width: number; height: number }) => void;
   onResizeStart?: () => void;
   onResizeEnd?: () => void;
 }
 
 export function useWindowResize(options: UseWindowResizeOptions) {
-  const {
-    positionPx,
-    sizePx,
-    constraintsPx,
-    setPosition,
-    setSize,
-    bringToFront,
-    onResizeStart,
-    onResizeEnd,
-  } = options;
+  const { positionPx, sizePx, constraintsPx, setPosition, setSize, onResizeStart, onResizeEnd } =
+    options;
 
   // Kept in refs so an inline arrow from the consumer does not re-create the
   // memoized handler map on every render.
@@ -178,7 +161,6 @@ export function useWindowResize(options: UseWindowResizeOptions) {
   const createResizeHandlers = useCallback(
     (direction: ResizeDirection): ResizeHandlers => {
       const onMouseDown = (e: React.MouseEvent) => {
-        bringToFront();
         isResizing.current = true;
         resizeDirection.current = direction;
         resizeStart.current = {
@@ -198,7 +180,6 @@ export function useWindowResize(options: UseWindowResizeOptions) {
 
       const onTouchStart = (e: React.TouchEvent) => {
         const touch = e.touches[0];
-        bringToFront();
         isResizing.current = true;
         resizeDirection.current = direction;
         resizeStart.current = {
@@ -216,7 +197,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
 
       return { onMouseDown, onTouchStart };
     },
-    [sizePx, positionPx, bringToFront]
+    [sizePx, positionPx]
   );
 
   const resizeHandlers = useMemo(

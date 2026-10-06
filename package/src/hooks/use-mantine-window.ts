@@ -1,12 +1,8 @@
-import { useMergedRef } from '@mantine/hooks';
 import { useCallback, useEffect, useRef } from 'react';
 import type { WindowBaseProps, WindowBounds } from '../Window';
 import { useWindowGroupContext } from '../WindowGroup.context';
+import { useDragResize } from './use-drag-resize';
 import { useResponsiveValue } from './use-responsive-value';
-import { useWindowConstraints } from './use-window-constraints';
-import { useWindowDimensions } from './use-window-dimensions';
-import { useWindowDrag } from './use-window-drag';
-import { useWindowResize } from './use-window-resize';
 import { useWindowState } from './use-window-state';
 
 export function useMantineWindow(props: WindowBaseProps) {
@@ -35,6 +31,9 @@ export function useMantineWindow(props: WindowBaseProps) {
     maxWidth: maxWidthProp,
     maxHeight: maxHeightProp,
     dragBounds: dragBoundsProp,
+    axis,
+    resizeStep,
+    resizeShiftStep,
     onPositionChange,
     onSizeChange,
     onDragStart,
@@ -102,8 +101,6 @@ export function useMantineWindow(props: WindowBaseProps) {
     onSizeChange,
   });
 
-  const windowRef = useRef<HTMLDivElement>(null);
-
   // ─── Group integration: register callbacks so Group can control us ──
 
   useEffect(() => {
@@ -166,17 +163,9 @@ export function useMantineWindow(props: WindowBaseProps) {
     }
   }, [isInGroup, groupCtx, windowId, state.isVisible, state.isCollapsed]);
 
-  // ─── Dimensions tracking (viewport and container) ───────────────────
+  // ─── Geometry: units, boundary, drag and resize (the public headless hook) ──
 
-  const dimensions = useWindowDimensions({
-    withinPortal,
-    isVisible: state.isVisible,
-    windowRef,
-  });
-
-  // ─── Constraints and conversions ────────────────────────────────────
-
-  const constraints = useWindowConstraints({
+  const dragResize = useDragResize<HTMLDivElement>({
     position: state.position,
     size: state.size,
     minWidth: resolvedMinWidth,
@@ -184,12 +173,23 @@ export function useMantineWindow(props: WindowBaseProps) {
     minHeight: resolvedMinHeight,
     maxHeight: resolvedMaxHeight,
     dragBounds: resolvedDragBounds,
-    withinPortal,
-    isMounted: dimensions.isMounted,
-    viewportWidth: dimensions.viewportDimensions.width,
-    viewportHeight: dimensions.viewportDimensions.height,
-    containerWidth: dimensions.containerDimensions.width,
-    containerHeight: dimensions.containerDimensions.height,
+    boundary: withinPortal ? 'viewport' : 'parent',
+    axis,
+    resizeStep,
+    resizeShiftStep,
+    // Always controlled: useWindowState owns the values, per-axis control and persistence.
+    onPositionChange: state.setPosition,
+    onSizeChange: state.setSize,
+    onDragStart: () => {
+      groupBringToFront();
+      onDragStart?.();
+    },
+    onDragEnd,
+    onResizeStart: () => {
+      groupBringToFront();
+      onResizeStart?.();
+    },
+    onResizeEnd,
   });
 
   // ─── Single-window layout (works with or without Group) ──────────────
@@ -197,16 +197,8 @@ export function useMantineWindow(props: WindowBaseProps) {
   const applySingleLayout = useCallback(
     (layout: 'snap-left' | 'snap-right' | 'snap-top' | 'snap-bottom' | 'fill') => {
       // Use group container dims if in group, else viewport/container dims
-      const refW = isInGroup
-        ? groupCtx.containerWidth
-        : withinPortal
-          ? dimensions.viewportDimensions.width
-          : dimensions.containerDimensions.width;
-      const refH = isInGroup
-        ? groupCtx.containerHeight
-        : withinPortal
-          ? dimensions.viewportDimensions.height
-          : dimensions.containerDimensions.height;
+      const refW = isInGroup ? groupCtx.containerWidth : dragResize.boundarySize.width;
+      const refH = isInGroup ? groupCtx.containerHeight : dragResize.boundarySize.height;
 
       if (refW === 0 || refH === 0) {
         return;
@@ -236,7 +228,7 @@ export function useMantineWindow(props: WindowBaseProps) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state methods are stable
-    [isInGroup, groupCtx, withinPortal, dimensions]
+    [isInGroup, groupCtx, dragResize.boundarySize]
   );
 
   // ─── Sync pixel values back to group registry ───────────────────────
@@ -244,128 +236,21 @@ export function useMantineWindow(props: WindowBaseProps) {
   useEffect(() => {
     if (isInGroup) {
       groupCtx.updateWindowState(windowId, {
-        x: constraints.positionPx.x,
-        y: constraints.positionPx.y,
-        width: constraints.sizePx.width,
-        height: constraints.sizePx.height,
+        x: dragResize.position.x,
+        y: dragResize.position.y,
+        width: dragResize.size.width,
+        height: dragResize.size.height,
       });
     }
   }, [
     isInGroup,
     groupCtx,
     windowId,
-    constraints.positionPx.x,
-    constraints.positionPx.y,
-    constraints.sizePx.width,
-    constraints.sizePx.height,
+    dragResize.position.x,
+    dragResize.position.y,
+    dragResize.size.width,
+    dragResize.size.height,
   ]);
-
-  // ─── Drag functionality ─────────────────────────────────────────────
-
-  const drag = useWindowDrag({
-    positionPx: constraints.positionPx,
-    sizePx: constraints.sizePx,
-    dragBoundsPx: constraints.dragBoundsPx,
-    withinPortal,
-    viewportWidth: dimensions.viewportDimensions.width,
-    viewportHeight: dimensions.viewportDimensions.height,
-    containerWidth: dimensions.containerDimensions.width,
-    containerHeight: dimensions.containerDimensions.height,
-    isCollapsed: state.isCollapsed,
-    windowRef,
-    setPosition: state.setPosition,
-    bringToFront: groupBringToFront,
-    onDragStart,
-    onDragEnd,
-  });
-
-  // ─── Resize functionality ───────────────────────────────────────────
-
-  const resize = useWindowResize({
-    positionPx: constraints.positionPx,
-    sizePx: constraints.sizePx,
-    constraintsPx: constraints.constraintsPx,
-    setPosition: state.setPosition,
-    setSize: state.setSize,
-    bringToFront: groupBringToFront,
-    onResizeStart,
-    onResizeEnd,
-  });
-
-  const mergedRef = useMergedRef(windowRef);
-
-  // ─── Use refs for drag/resize handlers so global listeners stay stable
-
-  const dragRef = useRef(drag);
-  dragRef.current = drag;
-
-  const resizeRef = useRef(resize);
-  resizeRef.current = resize;
-
-  // ─── Global mouse/touch event handlers — registered once ────────────
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      dragRef.current.handleDragMove(e.clientX, e.clientY);
-
-      if (resizeRef.current.isResizing.current) {
-        resizeRef.current.handleResize(e.clientX, e.clientY);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
-        const touch = e.touches[0];
-        dragRef.current.handleDragMove(touch.clientX, touch.clientY);
-
-        if (resizeRef.current.isResizing.current) {
-          resizeRef.current.handleResize(touch.clientX, touch.clientY);
-        }
-        e.preventDefault();
-      }
-    };
-
-    const handleMouseUp = () => {
-      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
-        dragRef.current.handleDragEnd();
-        resizeRef.current.handleResizeEnd();
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-      }
-    };
-
-    const handleTouchEnd = () => {
-      if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
-        dragRef.current.handleDragEnd();
-        resizeRef.current.handleResizeEnd();
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
-    document.addEventListener('touchcancel', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchmove', handleTouchMove, {
-        passive: false,
-      } as EventListenerOptions);
-      document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('touchcancel', handleTouchEnd);
-      // Unmounting mid-gesture must still close it: a consumer that paused an expensive
-      // child on onDragStart, or opened an undo entry, would otherwise never be told the
-      // gesture is over. Both helpers no-op when their own gesture was not active.
-      dragRef.current.handleDragEnd();
-      resizeRef.current.handleResizeEnd();
-      document.body.style.userSelect = '';
-      document.body.style.cursor = '';
-    };
-  }, []);
 
   return {
     isCollapsed: state.isCollapsed,
@@ -374,12 +259,11 @@ export function useMantineWindow(props: WindowBaseProps) {
     setIsVisible: state.setIsVisible,
     zIndex,
     withinPortal,
-    position: constraints.positionPx,
-    size: constraints.sizePx,
-    windowRef: mergedRef,
-    handleMouseDownDrag: drag.handleMouseDownDrag,
-    handleTouchStartDrag: drag.handleTouchStartDrag,
-    resizeHandlers: resize.resizeHandlers,
+    position: dragResize.position,
+    size: dragResize.size,
+    windowRef: dragResize.ref,
+    getDragHandleProps: dragResize.getDragHandleProps,
+    getResizeHandleProps: dragResize.getResizeHandleProps,
     handleClose: state.handleClose,
     bringToFront: groupBringToFront,
     applySingleLayout,
