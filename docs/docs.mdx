@@ -287,7 +287,11 @@ By default, resize handles (top, bottom, left, right) are centered and have a li
 Every resizable window has one resize handle that takes keyboard focus: the bottom-right corner, or the right edge when the window is collapsed or `resizable="horizontal"`, or the bottom edge with `resizable="vertical"`. One tab stop per window: the other seven handles stay pointer-only. With the handle focused:
 
 - the arrow keys move its edge by `resizeStep` pixels (default `10`), and Shift + arrows by `resizeShiftStep` (default `50`);
-- Home takes the window to its min size, and End to its max size, or to the edge of the viewport or container when there is no max. The arrow keys stop at that edge too.
+- Home takes the window to its min size, and End to its max size.
+
+No key ever takes the edge past the viewport or the container: there the edge wins over the min and max sizes, as it does when you resize with the pointer. End without a max size therefore stops at that edge.
+
+The arrows are physical, as in the WAI-ARIA window splitter pattern: the window is placed with `left` and `top`, so in a right-to-left layout too the right arrow moves the right edge to the right.
 
 The handle is a WAI-ARIA `separator`. Screen readers announce its name, `resizeHandleLabel` (default `'Resize window'`), and its value: the width, or the height on the bottom edge, between `aria-valuemin` and `aria-valuemax`. On the corner, which changes both, `aria-valuetext` reads the width × height. While it has keyboard focus the handle is drawn in the primary color and the window is outlined.
 

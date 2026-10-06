@@ -68,6 +68,8 @@ export function getResizeAxes(direction: ResizeDirection) {
 /**
  * The sizes a keyboard resize may reach from the handle in `direction`: from the min size
  * up to the max size, but never past the edge of the area on the side the handle moves.
+ * When the min does not fit under that cap, the cap wins, as it does for a pointer resize
+ * (`clampWidth` applies the max last, and the container edge after it).
  */
 export function getKeyboardResizeRange(
   direction: ResizeDirection,
@@ -84,7 +86,9 @@ export function getKeyboardResizeRange(
     roomTowardsEdge: number
   ): KeyboardResizeRange => {
     const room = area > 0 ? roomTowardsEdge : Infinity;
-    return { min, max: Math.max(min, Math.min(max ?? Infinity, room)) };
+    // Floored at 0: an origin already past the edge leaves no room, not negative room.
+    const cap = Math.max(0, Math.min(max ?? Infinity, room));
+    return { min: Math.min(min, cap), max: cap };
   };
 
   return {
@@ -119,13 +123,11 @@ function resolveDimension(current: number, range: KeyboardResizeRange, change: C
     // Already past the max (the area shrank, or the max was lowered): End leaves it alone.
     return Number.isFinite(range.max) && range.max > current ? range.max : current;
   }
-  const next = Math.min(Math.max(current + change, range.min), range.max);
-  // A grow key never shrinks and a shrink key never grows, even when the element
-  // already sits outside its range.
-  if ((change > 0 && next < current) || (change < 0 && next > current)) {
-    return current;
-  }
-  return next;
+  // One step in the key's direction, stopping at the limit on that side. A grow key never
+  // shrinks and a shrink key never grows, even when the element sits outside its range.
+  return change > 0
+    ? Math.max(current, Math.min(current + change, range.max))
+    : Math.min(current, Math.max(current + change, range.min));
 }
 
 /**

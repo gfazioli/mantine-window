@@ -1,4 +1,4 @@
-import { MantineProvider } from '@mantine/core';
+import { DirectionProvider, MantineProvider } from '@mantine/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React, { createRef, useRef, useState } from 'react';
 import { __resetStandaloneZIndexCounters } from './hooks/use-window-state';
@@ -1764,6 +1764,32 @@ describe('Window keyboard resizing', () => {
     expect(getSeparators(container)).toHaveLength(0);
     expect(container.querySelectorAll('[data-resize-handle][tabindex]')).toHaveLength(0);
     expect(container.querySelectorAll('[data-resize-handle]')).toHaveLength(8);
+  });
+
+  it('keeps physical arrow keys in a right-to-left layout', () => {
+    // Window positions with left / top and its handles sit on physical edges, so the
+    // arrow moves the edge it points to, as in the WAI-ARIA window splitter pattern.
+    const onSizeChange = jest.fn();
+    const { container } = render(
+      <DirectionProvider initialDirection="rtl">
+        <MantineProvider>
+          <div dir="rtl">
+            <Window
+              opened
+              title="RTL"
+              defaultWidth={400}
+              defaultHeight={300}
+              onSizeChange={onSizeChange}
+            />
+          </div>
+        </MantineProvider>
+      </DirectionProvider>
+    );
+    const [handle] = getSeparators(container);
+
+    expect(handle.getAttribute('data-resize-handle')).toBe('bottomRight');
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 410, height: 300 });
   });
 
   it('takes its accessible name from resizeHandleLabel', () => {
