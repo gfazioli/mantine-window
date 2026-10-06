@@ -54,9 +54,20 @@ describe('getKeyboardResizeRange', () => {
     expect(range.height?.max).toBe(Infinity);
   });
 
-  it('never reports a max below the min', () => {
+  it('lets the edge win over the min size, as a pointer resize does', () => {
+    // 100px of room to the right edge, below the 250px min.
     const range = getKeyboardResizeRange('right', { ...geometry, x: 900 }, limits);
-    expect(range.width).toEqual({ min: 250, max: 250 });
+    expect(range.width).toEqual({ min: 100, max: 100 });
+  });
+
+  it('lets the max size win over the min size, as a pointer resize does', () => {
+    const range = getKeyboardResizeRange('right', geometry, { ...limits, maxWidth: 200 });
+    expect(range.width).toEqual({ min: 200, max: 200 });
+  });
+
+  it('floors the range at 0 when the origin is already past the edge', () => {
+    const range = getKeyboardResizeRange('right', { ...geometry, x: 1200 }, limits);
+    expect(range.width).toEqual({ min: 0, max: 0 });
   });
 });
 
@@ -146,8 +157,23 @@ describe('computeKeyboardResize', () => {
       overflowing
     );
     expect(computeKeyboardResize('right', 'End', 10, overflowing, limits)).toEqual(overflowing);
-    // A shrink key still works from there.
-    expect(computeKeyboardResize('right', 'ArrowLeft', 10, overflowing, limits)!.width).toBe(300);
+    // A shrink key still works from there, one step at a time.
+    expect(computeKeyboardResize('right', 'ArrowLeft', 10, overflowing, limits)!.width).toBe(390);
+  });
+
+  it('never grows past maxWidth, nor makes Home grow, when the max is below the min', () => {
+    const atMax = { ...geometry, width: 200 };
+    const capped = { ...limits, maxWidth: 200 };
+    expect(computeKeyboardResize('right', 'ArrowRight', 10, atMax, capped)).toEqual(atMax);
+    expect(computeKeyboardResize('right', 'Home', 10, atMax, capped)).toEqual(atMax);
+    expect(computeKeyboardResize('right', 'ArrowLeft', 10, atMax, capped)).toEqual(atMax);
+  });
+
+  it('does not push the edge out of the area when there is less room than the min size', () => {
+    // Right edge at exactly 1000, width already under the 250px min.
+    const squeezed = { ...geometry, x: 800, width: 200 };
+    expect(computeKeyboardResize('right', 'ArrowRight', 10, squeezed, limits)).toEqual(squeezed);
+    expect(computeKeyboardResize('right', 'End', 10, squeezed, limits)).toEqual(squeezed);
   });
 
   it('never grows on a shrink key when the element is below its min size', () => {
