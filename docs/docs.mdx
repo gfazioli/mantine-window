@@ -126,24 +126,24 @@ export const Cap = ({ title, note }) => (
       <Table.Td ta="center"><Yes /></Table.Td>
     </Table.Tr>
     <Table.Tr>
-      <Table.Td><Cap title="Lock dragging to one axis" note="axis x or y — Window's draggable sets where you grab it (window, header or both), not the direction" /></Table.Td>
-      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td><Cap title="Lock dragging to one axis" note="axis x or y on both — Window's draggable also sets where you grab it (window, header or both)" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
     </Table.Tr>
     <Table.Tr>
-      <Table.Td><Cap title="Keyboard resizing" note="Arrow keys in 10px steps and Home / End to the min / max size, on a role=&quot;separator&quot; handle with aria-valuenow" /></Table.Td>
-      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td><Cap title="Keyboard resizing" note="Arrow keys and Home / End to the min / max size, on a role=&quot;separator&quot; handle with aria-valuenow — Window adds Shift for a bigger step, configurable steps (resizeStep, resizeShiftStep) and the width × height as aria-valuetext on its corner" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
     </Table.Tr>
     <Table.Tr>
-      <Table.Td><Cap title="Headless hook" note="use-floating-window makes any element draggable" /></Table.Td>
-      <Table.Td ta="center"><No /></Table.Td>
+      <Table.Td><Cap title="Headless hook" note="use-floating-window makes any element draggable — useDragResize makes it draggable and resizable from any edge or corner, with the units, bounds, axis lock and keyboard resizing of Window" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
     </Table.Tr>
   </Table.Tbody>
 </Table>
 
-**When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — or when you need the headless hook, an axis lock or keyboard resizing. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, position and size kept across reloads with `persistState`, and several windows arranged together with `Window.Group`.
+**When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — when you would rather not add a dependency. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, position and size kept across reloads with `persistState`, and several windows arranged together with `Window.Group`. Reach for its [headless hook](#headless-hook) when you want that same geometry on an element of your own.
 
 ## Usage
 
@@ -242,6 +242,14 @@ Combine different unit types (pixels, viewport units, percentages) for drag boun
 
 <Demo data={demos.mixedDragBounds} />
 
+## Axis Lock
+
+Set `axis="x"` or `axis="y"` to restrict dragging to one direction: a window that slides along a dock, a panel that only moves up and down. The locked coordinate stays where the gesture started, while the free one is still kept inside the viewport, the container or `dragBounds`.
+
+Only the user's drag is locked. A controlled `x` / `y`, the layouts of the tools menu and of `Window.Group` still move the window anywhere.
+
+<Demo data={demos.axis} />
+
 ## Centered Window
 
 Create a centered, fixed window that cannot be moved or resized by combining position/size props with `resizable="none"` and `draggable="none"`.
@@ -273,6 +281,19 @@ For full control over button ordering, use the `controlsOrder` prop with an arra
 By default, resize handles (top, bottom, left, right) are centered and have a limited size (40px). Setting `fullSizeResizeHandles={true}` makes these handles span the entire width or height of the window edge, providing a larger interaction area.
 
 <Demo data={demos.fullSizeHandles} />
+
+## Keyboard Resizing
+
+Every resizable window has one resize handle that takes keyboard focus: the bottom-right corner, or the right edge when the window is collapsed or `resizable="horizontal"`, or the bottom edge with `resizable="vertical"`. One tab stop per window: the other seven handles stay pointer-only. With the handle focused:
+
+- the arrow keys move its edge by `resizeStep` pixels (default `10`), and Shift + arrows by `resizeShiftStep` (default `50`);
+- Home takes the window to its min size, and End to its max size, or to the edge of the viewport or container when there is no max. The arrow keys stop at that edge too.
+
+The handle is a WAI-ARIA `separator`. Screen readers announce its name, `resizeHandleLabel` (default `'Resize window'`), and its value: the width, or the height on the bottom edge, between `aria-valuemin` and `aria-valuemax`. On the corner, which changes both, `aria-valuetext` reads the width × height. While it has keyboard focus the handle is drawn in the primary color and the window is outlined.
+
+Each key press is a complete resize gesture: it brings the window to the front, fires `onResizeStart`, `onSizeChange` and `onResizeEnd` like a pointer resize, and is saved by `persistState`. Set `withKeyboardResize={false}` to keep every handle pointer-only.
+
+<Demo data={demos.keyboardResize} />
 
 ## Persistence
 
@@ -389,6 +410,58 @@ Both `Window.Group` and stand-alone `Window` expose z-index configuration via th
   - `'normalize'`: z-indexes are derived from the stacking order and always stay within `initialZIndex .. initialZIndex + N - 1`. Recommended for long-running applications or when Mantine modals and menus are used alongside.
 
 <Demo data={demos.zIndexStrategy} />
+
+## Headless Hook
+
+`useDragResize` is the engine `Window` is built on, exported so you can put the same geometry on any element: a card, a sticky note, an image, a floating toolbar. Core's `use-floating-window` drags an element; this hook also resizes it, from any edge or corner.
+
+```tsx
+import { useDragResize } from '@gfazioli/mantine-window';
+
+function Note() {
+  const { ref, position, size, getDragHandleProps, getResizeHandleProps } = useDragResize({
+    boundary: 'parent',
+    defaultSize: { width: 240, height: 160 },
+  });
+
+  return (
+    <div
+      ref={ref}
+      {...getDragHandleProps()}
+      style={{ position: 'absolute', left: position.x, top: position.y, ...size }}
+    >
+      Drag me
+      <div {...getResizeHandleProps('bottomRight', { keyboard: true })} className="grip" />
+    </div>
+  );
+}
+```
+
+The hook computes, and you render: put `position` on `left` / `top` and `size` on `width` / `height`, with `position: fixed` for `boundary: 'viewport'` (the default) or `position: absolute` in a positioned parent for `boundary: 'parent'`.
+
+**Options.** Everything is optional.
+
+- `position` / `defaultPosition` and `size` / `defaultSize`: controlled or uncontrolled, in pixels, `vw`, `vh` or a percentage of the boundary. The defaults are those of `Window`: `{ x: 20, y: 100 }` and `400 × 400`.
+- `minWidth`, `maxWidth`, `minHeight`, `maxHeight`: the same units. The mins default to `250` and `100`, like `Window`'s.
+- `boundary`: `'viewport'` or `'parent'`. The element is kept inside it while dragging, and a parent also limits resizing.
+- `dragBounds`: a narrower rectangle for the position, in the same units.
+- `axis`: `'x'` or `'y'`, to lock dragging to one direction.
+- `resizeStep` and `resizeShiftStep`: the keyboard steps, `10` and `50` pixels by default.
+- `onPositionChange` and `onSizeChange`, with pixel values, and `onDragStart`, `onDragEnd`, `onResizeStart` and `onResizeEnd`, at the edges of each gesture.
+
+**Returns.**
+
+- `ref`: for the element that moves.
+- `position` and `size`: the current values, in pixels.
+- `setPosition` and `setSize`: move or resize it from code, in pixels.
+- `isDragging` and `isResizing`: `true` while a pointer gesture runs.
+- `boundarySize`: the size of the viewport or of the parent, `0` until it has been measured.
+- `getDragHandleProps()`: spread it on the area that starts a drag. A press on an input, a button, a link or a `data-no-window-drag` region never starts one, as in `Window`.
+- `getResizeHandleProps(direction, options)`: spread it on a resize handle for `'top'`, `'right'`, `'bottom'`, `'left'` or a corner such as `'bottomRight'`. Pass `{ keyboard: true, label }` to one handle to make it the focusable `separator` described in [Keyboard Resizing](#keyboard-resizing).
+
+Persistence, collapsing, stacking, the title bar and `Window.Group` stay in `Window`: the hook is only the geometry.
+
+<Demo data={demos.useDragResizeDemo} />
 
 ## Styles API
 

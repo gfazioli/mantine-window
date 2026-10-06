@@ -40,21 +40,25 @@ package/src/
 ├── Window.test.tsx             # Component tests
 ├── Window.story.tsx            # Storybook stories
 ├── hooks/
-│   ├── use-mantine-window.ts       # Orchestrator — composes all hooks into unified API
-│   ├── use-window-drag.ts          # Mouse/touch drag handling
-│   ├── use-window-resize.ts        # Resize handle interaction (all 8 directions)
-│   ├── use-window-state.ts         # Visibility, collapse, localStorage persistence
-│   ├── use-window-dimensions.ts    # Position and size state management
-│   ├── use-window-constraints.ts   # Min/max width/height enforcement
+│   ├── use-mantine-window.ts       # Window orchestrator: responsive values, state, group, on top of use-drag-resize
+│   ├── use-drag-resize.ts          # PUBLIC headless hook: units, boundary, drag, resize, keyboard (exported)
+│   ├── use-drag-resize.test.tsx
+│   ├── use-window-drag.ts          # Mouse/touch drag handling, axis lock
+│   ├── use-window-resize.ts        # Pointer resize for all 8 directions
+│   ├── use-window-state.ts         # Visibility, collapse, z-index, localStorage persistence
+│   ├── use-window-dimensions.ts    # Viewport size + offset-parent ResizeObserver
+│   ├── use-window-constraints.ts   # Unit conversion of position, size, min/max, drag bounds
 │   └── use-responsive-value.ts     # Responsive value utility (exported publicly)
 └── lib/
     ├── convert-to-pixels.ts        # Converts vw/vh/% to px (SSR-safe)
     ├── convert-to-pixels.test.ts
+    ├── keyboard-resize.ts          # Pure keyboard-resize math: key map, ranges, clamps
+    ├── keyboard-resize.test.ts
     ├── window-constraints.ts       # Constraint resolution (clamp within bounds)
     └── window-constraints.test.ts
 ```
 
-Public exports: `Window`, `WindowGroup`, `useResponsiveValue`, plus all associated types (`WindowProps`, `WindowFactory`, `WindowStylesNames`, `WindowGroupProps`, `WindowGroupFactory`, `WindowGroupContextValue`, `WindowLayout`, `ResponsiveValue`, etc.).
+Public exports: `Window`, `WindowGroup`, `useResponsiveValue`, `useDragResize`, plus all associated types (`WindowProps`, `WindowFactory`, `WindowStylesNames`, `WindowGroupProps`, `WindowGroupFactory`, `WindowGroupContextValue`, `WindowLayout`, `ResponsiveValue`, `UseDragResizeOptions`, `UseDragResizeReturnValue`, `ResizeDirection`, etc.).
 
 ### Build Pipeline
 Rollup bundles to dual ESM (`dist/esm/`) and CJS (`dist/cjs/`) with `'use client'` banner. CSS modules are hashed with `hash-css-selector` (prefix `me`). TypeScript declarations via `rollup-plugin-dts`. CSS is split into `styles.css` and `styles.layer.css` (layered version).
@@ -64,17 +68,23 @@ Next.js 16 site with interactive demos in `docs/demos/`. Each demo is a `Window.
 
 ## Component Details
 
-### 6-Hook Architecture
-The window logic is split into composable hooks, all orchestrated by `use-mantine-window`:
+### Hook Architecture
+`Window` is built on the public headless hook, so the hook and the component cannot drift apart:
 
 | Hook | Responsibility |
 |------|---------------|
-| `use-mantine-window` | Orchestrator — composes all other hooks, returns the unified API used by `Window.tsx` |
-| `use-window-drag` | Mouse/touch drag handling |
-| `use-window-resize` | Resize handle interaction for all 8 directions |
-| `use-window-state` | Visibility, collapse state, localStorage persistence |
-| `use-window-dimensions` | Position and size state management |
-| `use-window-constraints` | Min/max width/height enforcement |
+| `use-mantine-window` | Window orchestrator: resolves responsive props, owns `use-window-state`, the `Window.Group` wiring and the single-window layouts; feeds `use-drag-resize` in controlled mode |
+| `use-drag-resize` | **Public** (`useDragResize`): element ref, controlled/uncontrolled position and size in any unit, boundary tracking, drag, pointer and keyboard resize, the document listeners, prop getters |
+| `use-window-drag` | Mouse/touch drag, the interactive-target bail-out, the `axis` lock; measures the element once per gesture for the bounds |
+| `use-window-resize` | Pointer resize for all 8 directions |
+| `use-window-state` | Visibility, collapse, z-index, localStorage persistence |
+| `use-window-dimensions` | Viewport size and the offset parent's size (`0` until measured; jsdom never has an offset parent) |
+| `use-window-constraints` | Converts position, size, min/max and drag bounds to px |
+
+`bringToFront` runs from `Window`'s `onDragStart` / `onResizeStart` wrappers, not inside the gesture hooks.
+
+### Keyboard Resizing
+One handle per window is a focusable WAI-ARIA `separator` (`withKeyboardResize`, default on): bottom-right corner, the right edge when collapsed or `resizable="horizontal"`, the bottom edge for `resizable="vertical"`. Arrows move the handle's edge in the arrow's direction by `resizeStep` (10), Shift by `resizeShiftStep` (50), Home/End to min/max; the boundary (viewport or parent) is the hard limit. Each key press fires `onResizeStart` → `onSizeChange` → `onResizeEnd`. The focus mark is drawn inside the window (the root clips with `overflow: hidden`) plus a `:has()` outline on the root.
 
 ### Utility Library (`package/src/lib/`)
 - **`convert-to-pixels.ts`** — Converts viewport units (`vw`, `vh`), percentages (`%`), and raw numbers to pixel values. Critical for SSR hydration safety: returns defaults during SSR and converts client-side after mount.
@@ -116,7 +126,9 @@ The component uses Mantine's full Styles API (`getStyles`, `classNames`, `styles
 Jest with `jsdom` environment, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Component tests use `@testing-library/react` with a custom `renderWithMantine` helper that wraps components in `MantineProvider`.
 
 Test files:
-- `package/src/Window.test.tsx` — Component tests (75 tests: rendering, controlled/uncontrolled, collapse, drag/resize callbacks, accessibility, persistence, Window.Group with groupRef API)
+- `package/src/Window.test.tsx` — Component tests (rendering, controlled/uncontrolled, collapse, drag/resize callbacks, axis lock, keyboard resizing, accessibility, persistence, Window.Group with groupRef API)
+- `package/src/hooks/use-drag-resize.test.tsx` — The headless hook on a plain element
+- `package/src/lib/keyboard-resize.test.ts` — Keyboard-resize math
 - `package/src/lib/convert-to-pixels.test.ts` — Unit conversion tests
 - `package/src/lib/window-constraints.test.ts` — Constraint logic tests
 
