@@ -1461,3 +1461,372 @@ describe('Window.Group', () => {
     expect(closeIndex).toBeLessThan(collapseIndex);
   });
 });
+
+describe('Window axis lock', () => {
+  function dragHeader(axis?: 'x' | 'y') {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Axis"
+        defaultX={100}
+        defaultY={100}
+        draggable="header"
+        axis={axis}
+        onPositionChange={onPositionChange}
+      />
+    );
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 150, clientY: 160 });
+    fireEvent.mouseMove(document, { clientX: 180, clientY: 200 });
+    fireEvent.mouseUp(document);
+
+    return onPositionChange.mock.calls.map(([position]) => position);
+  }
+
+  it('moves freely without axis', () => {
+    expect(dragHeader()).toEqual([
+      { x: 150, y: 160 },
+      { x: 180, y: 200 },
+    ]);
+  });
+
+  it('keeps y where the gesture started with axis="x"', () => {
+    expect(dragHeader('x')).toEqual([
+      { x: 150, y: 100 },
+      { x: 180, y: 100 },
+    ]);
+  });
+
+  it('keeps x where the gesture started with axis="y"', () => {
+    expect(dragHeader('y')).toEqual([
+      { x: 100, y: 160 },
+      { x: 100, y: 200 },
+    ]);
+  });
+
+  it('still clamps the free axis to the viewport', () => {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Axis clamp"
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        draggable="header"
+        axis="x"
+        onPositionChange={onPositionChange}
+      />
+    );
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 5000, clientY: 5000 });
+    fireEvent.mouseUp(document);
+
+    // jsdom's viewport is 1024px wide: the window stops at 1024 - 400.
+    expect(onPositionChange).toHaveBeenLastCalledWith({ x: 624, y: 100 });
+  });
+});
+
+describe('Window keyboard resizing', () => {
+  function getSeparators(container: HTMLElement) {
+    return Array.from(container.querySelectorAll('[role="separator"]')) as HTMLElement[];
+  }
+
+  it('exposes exactly one focusable separator, on the bottom-right corner', () => {
+    const { container } = renderWithMantine(<Window opened title="Keys" />);
+    const separators = getSeparators(container);
+
+    expect(separators).toHaveLength(1);
+    expect(separators[0].getAttribute('data-resize-handle')).toBe('bottomRight');
+    expect(separators[0].getAttribute('tabindex')).toBe('0');
+    expect(separators[0].getAttribute('aria-label')).toBe('Resize window');
+    expect(separators[0].className).toContain('resizeHandleBottomRight');
+    // The other seven handles stay pointer-only.
+    expect(container.querySelectorAll('[data-resize-handle]:not([tabindex])')).toHaveLength(7);
+  });
+
+  it('reports the width as its value, within the min size and the room to the viewport edge', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Values" defaultX={20} defaultWidth={400} defaultHeight={300} />
+    );
+    const [handle] = getSeparators(container);
+
+    expect(handle.getAttribute('aria-orientation')).toBe('vertical');
+    expect(handle.getAttribute('aria-valuenow')).toBe('400');
+    expect(handle.getAttribute('aria-valuemin')).toBe('250');
+    // jsdom's viewport is 1024px wide and the window starts at x = 20.
+    expect(handle.getAttribute('aria-valuemax')).toBe('1004');
+    expect(handle.getAttribute('aria-valuetext')).toBe('400 × 300');
+  });
+
+  it('resizes with the arrow keys, by resizeStep and by resizeShiftStep with Shift', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Arrows"
+        defaultWidth={400}
+        defaultHeight={300}
+        resizeStep={20}
+        resizeShiftStep={100}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 420, height: 300 });
+
+    fireEvent.keyDown(handle, { key: 'ArrowDown', shiftKey: true });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 420, height: 400 });
+
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    fireEvent.keyDown(handle, { key: 'ArrowUp' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 400, height: 380 });
+
+    // The rendered window follows, and so does the separator's value.
+    expect(getWindowElement(container)!.style.width).toBe('400px');
+    expect(getWindowElement(container)!.style.height).toBe('380px');
+    expect(handle.getAttribute('aria-valuenow')).toBe('400');
+  });
+
+  it('uses 10px and 50px steps by default', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Default steps"
+        defaultWidth={400}
+        defaultHeight={300}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 410, height: 300 });
+    fireEvent.keyDown(handle, { key: 'ArrowRight', shiftKey: true });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 460, height: 300 });
+  });
+
+  it('takes Home to the min size and End to the max size', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Home End"
+        defaultX={24}
+        defaultY={68}
+        defaultWidth={400}
+        defaultHeight={300}
+        minWidth={300}
+        minHeight={200}
+        maxWidth={700}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    fireEvent.keyDown(handle, { key: 'Home' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 300, height: 200 });
+
+    // Width stops at maxWidth; height, with no max, at the viewport's bottom edge (768 - 68).
+    fireEvent.keyDown(handle, { key: 'End' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 700, height: 700 });
+  });
+
+  it('stays within the min size and does not report a change at the limit', () => {
+    const onSizeChange = jest.fn();
+    const onResizeStart = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Clamp"
+        defaultWidth={255}
+        defaultHeight={300}
+        minWidth={250}
+        onSizeChange={onSizeChange}
+        onResizeStart={onResizeStart}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 250, height: 300 });
+
+    onSizeChange.mockClear();
+    onResizeStart.mockClear();
+    const notPrevented = fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+
+    expect(onSizeChange).not.toHaveBeenCalled();
+    expect(onResizeStart).not.toHaveBeenCalled();
+    // Still our key: it must not scroll the page.
+    expect(notPrevented).toBe(false);
+  });
+
+  it('leaves keys it does not use alone', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window opened title="Other keys" onSizeChange={onSizeChange} />
+    );
+    const [handle] = getSeparators(container);
+
+    expect(fireEvent.keyDown(handle, { key: 'Enter' })).toBe(true);
+    expect(fireEvent.keyDown(handle, { key: 'a' })).toBe(true);
+    expect(onSizeChange).not.toHaveBeenCalled();
+  });
+
+  it('wraps each key press in onResizeStart / onResizeEnd, like a pointer gesture', () => {
+    const calls: string[] = [];
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Key lifecycle"
+        onResizeStart={() => calls.push('start')}
+        onSizeChange={() => calls.push('size')}
+        onResizeEnd={() => calls.push('end')}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    fireEvent.keyDown(handle, { key: 'ArrowDown' });
+
+    expect(calls).toEqual(['start', 'size', 'end', 'start', 'size', 'end']);
+  });
+
+  it('brings the window to the front on a keyboard resize', () => {
+    const { container } = renderWithMantine(<Window opened title="Front" initialZIndex={300} />);
+    const [handle] = getSeparators(container);
+    const before = Number(getWindowElement(container)!.style.zIndex);
+
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+
+    expect(Number(getWindowElement(container)!.style.zIndex)).toBeGreaterThan(before);
+  });
+
+  it('uses the right edge for resizable="horizontal" and when collapsed', () => {
+    const horizontal = renderWithMantine(<Window opened title="H" resizable="horizontal" />);
+    const [h] = getSeparators(horizontal.container);
+    expect(h.getAttribute('data-resize-handle')).toBe('right');
+    expect(h.getAttribute('aria-orientation')).toBe('vertical');
+    expect(h.getAttribute('aria-valuetext')).toBeNull();
+    horizontal.unmount();
+
+    const collapsed = renderWithMantine(<Window opened title="C" collapsed />);
+    const separators = getSeparators(collapsed.container);
+    expect(separators).toHaveLength(1);
+    expect(separators[0].getAttribute('data-resize-handle')).toBe('right');
+  });
+
+  it('uses the bottom edge for resizable="vertical", valued by the height', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="V"
+        resizable="vertical"
+        defaultWidth={400}
+        defaultHeight={300}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const [handle] = getSeparators(container);
+
+    expect(handle.getAttribute('data-resize-handle')).toBe('bottom');
+    expect(handle.getAttribute('aria-orientation')).toBe('horizontal');
+    expect(handle.getAttribute('aria-valuenow')).toBe('300');
+
+    // Left / right do nothing on a horizontal edge.
+    expect(fireEvent.keyDown(handle, { key: 'ArrowRight' })).toBe(true);
+    fireEvent.keyDown(handle, { key: 'ArrowDown' });
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 400, height: 310 });
+  });
+
+  it('has no focusable handle when resizable="none", collapsed vertical, or withKeyboardResize={false}', () => {
+    expect(
+      getSeparators(renderWithMantine(<Window opened title="N" resizable="none" />).container)
+    ).toHaveLength(0);
+    expect(
+      getSeparators(
+        renderWithMantine(<Window opened title="CV" resizable="vertical" collapsed />).container
+      )
+    ).toHaveLength(0);
+
+    const { container } = renderWithMantine(
+      <Window opened title="Off" withKeyboardResize={false} />
+    );
+    expect(getSeparators(container)).toHaveLength(0);
+    expect(container.querySelectorAll('[data-resize-handle][tabindex]')).toHaveLength(0);
+    expect(container.querySelectorAll('[data-resize-handle]')).toHaveLength(8);
+  });
+
+  it('takes its accessible name from resizeHandleLabel', () => {
+    const { container } = renderWithMantine(
+      <Window opened title="Label" resizeHandleLabel="Redimensionner la fenêtre" />
+    );
+    expect(getSeparators(container)[0].getAttribute('aria-label')).toBe(
+      'Redimensionner la fenêtre'
+    );
+  });
+
+  it('persists a keyboard resize like a pointer one', () => {
+    jest.useFakeTimers();
+    try {
+      const { container } = renderWithMantine(
+        <Window
+          opened
+          title="Persist keys"
+          id="persist-keys"
+          persistState
+          defaultWidth={400}
+          defaultHeight={300}
+        />
+      );
+      // Let the hydration effect mark the window as hydrated before the key press.
+      act(() => {
+        jest.runOnlyPendingTimers();
+      });
+      const [handle] = getSeparators(container);
+
+      fireEvent.keyDown(handle, { key: 'ArrowRight' });
+      act(() => {
+        jest.advanceTimersByTime(200);
+      });
+
+      const stored = JSON.parse(localStorage.getItem('persist-keys-window-state')!);
+      expect(stored.size).toEqual({ width: 410, height: 300 });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('forwards its ref to the root element and still drags', () => {
+    const ref = createRef<HTMLDivElement>();
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Ref"
+        ref={ref}
+        defaultX={100}
+        defaultY={100}
+        draggable="header"
+        onPositionChange={onPositionChange}
+      />
+    );
+
+    expect(ref.current).toBe(getWindowElement(container));
+
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 150, clientY: 160 });
+    fireEvent.mouseUp(document);
+    expect(onPositionChange).toHaveBeenCalledWith({ x: 150, y: 160 });
+  });
+});

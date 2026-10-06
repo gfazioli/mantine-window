@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react';
 import { applyDragBounds, type DragConstraints } from '../lib/window-constraints';
-import type { WindowPosition } from '../Window';
 
 /**
  * Selector matching interactive / focusable elements that must keep their native
@@ -46,10 +45,11 @@ export interface UseWindowDragOptions {
   viewportHeight: number;
   containerWidth: number;
   containerHeight: number;
-  isCollapsed: boolean;
-  windowRef: React.RefObject<HTMLDivElement | null>;
-  setPosition: (position: WindowPosition) => void;
-  bringToFront: () => void;
+  /** Restricts the user's drag to one axis; the other keeps its value from the gesture start. */
+  axis?: 'x' | 'y';
+  /** The dragged element, measured once per gesture so the bounds use its rendered size. */
+  elementRef: React.RefObject<HTMLElement | null>;
+  setPosition: (position: { x: number; y: number }) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
 }
@@ -64,16 +64,19 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     viewportHeight,
     containerWidth,
     containerHeight,
-    isCollapsed,
-    windowRef,
+    axis,
+    elementRef,
     setPosition,
-    bringToFront,
     onDragStart,
     onDragEnd,
   } = options;
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
+  // Where the element was when the gesture started: the locked axis of `axis` stays there.
+  const dragOrigin = useRef({ x: 0, y: 0 });
+  // The element's rendered size for this gesture (0 = not measured, use sizePx).
+  const dragSize = useRef({ width: 0, height: 0 });
 
   // Kept in refs so a consumer passing an inline arrow does not re-create the
   // memoized pointer handlers on every render.
@@ -82,23 +85,24 @@ export function useWindowDrag(options: UseWindowDragOptions) {
   const onDragEndRef = useRef(onDragEnd);
   onDragEndRef.current = onDragEnd;
 
+  /**
+   * Measures the element once at the start of a gesture. Its rendered size is what has
+   * to stay inside the bounds: a collapsed window is only as tall as its header, and an
+   * element driven by the headless hook may not use `size` at all. Layout sizes, not
+   * `getBoundingClientRect`, so a transformed ancestor does not skew them.
+   */
+  const measureElement = useCallback(() => {
+    const el = elementRef.current;
+    dragSize.current = { width: el?.offsetWidth ?? 0, height: el?.offsetHeight ?? 0 };
+  }, [elementRef]);
+
   const applyBounds = useCallback(
     (newX: number, newY: number): { x: number; y: number } => {
-      // When collapsed, use the actual measured height from the DOM
-      // This ensures we account for all borders, paddings, and margins
-      let effectiveHeight = sizePx.height;
-
-      if (isCollapsed && windowRef.current) {
-        // Get the actual rendered height of the window element
-        const rect = windowRef.current.getBoundingClientRect();
-        effectiveHeight = rect.height;
-      }
-
       const constraints: DragConstraints = {
         dragBounds: dragBoundsPx,
         withinPortal,
-        windowWidth: sizePx.width,
-        windowHeight: effectiveHeight,
+        windowWidth: dragSize.current.width || sizePx.width,
+        windowHeight: dragSize.current.height || sizePx.height,
         viewportWidth,
         viewportHeight,
         containerWidth,
@@ -111,8 +115,6 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       dragBoundsPx,
       withinPortal,
       sizePx,
-      isCollapsed,
-      windowRef,
       viewportWidth,
       viewportHeight,
       containerWidth,
@@ -132,19 +134,20 @@ export function useWindowDrag(options: UseWindowDragOptions) {
         return;
       }
 
-      bringToFront();
       isDragging.current = true;
       dragStart.current = {
         x: e.clientX - positionPx.x,
         y: e.clientY - positionPx.y,
       };
+      dragOrigin.current = { x: positionPx.x, y: positionPx.y };
+      measureElement();
       document.body.style.userSelect = 'none';
       e.preventDefault();
       // Emitted only past the bail-outs above: a mousedown on a resize handle or on an
       // interactive child is not a drag, and must not open a gesture that never closes.
       onDragStartRef.current?.();
     },
-    [positionPx, bringToFront]
+    [positionPx, measureElement]
   );
 
   const handleTouchStartDrag = useCallback(
@@ -160,17 +163,18 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       }
 
       const touch = e.touches[0];
-      bringToFront();
       isDragging.current = true;
       dragStart.current = {
         x: touch.clientX - positionPx.x,
         y: touch.clientY - positionPx.y,
       };
+      dragOrigin.current = { x: positionPx.x, y: positionPx.y };
+      measureElement();
       document.body.style.userSelect = 'none';
       e.preventDefault();
       onDragStartRef.current?.();
     },
-    [positionPx, bringToFront]
+    [positionPx, measureElement]
   );
 
   const handleDragMove = useCallback(
@@ -183,9 +187,12 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       const newY = clientY - dragStart.current.y;
       const bounded = applyBounds(newX, newY);
 
-      setPosition({ x: bounded.x, y: bounded.y });
+      setPosition({
+        x: axis === 'y' ? dragOrigin.current.x : bounded.x,
+        y: axis === 'x' ? dragOrigin.current.y : bounded.y,
+      });
     },
-    [applyBounds, setPosition]
+    [applyBounds, setPosition, axis]
   );
 
   const handleDragEnd = useCallback(() => {
