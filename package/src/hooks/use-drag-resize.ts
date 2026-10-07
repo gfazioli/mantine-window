@@ -152,10 +152,16 @@ const DEFAULT_POSITION: WindowPosition = { x: 20, y: 100 };
 const DEFAULT_SIZE: WindowSize = { width: 400, height: 400 };
 
 /**
- * After a tap, browsers emulate mousemove / mousedown / mouseup on the same spot. Mouse presses
- * this soon after a touch ended are those, and must not start a second gesture.
+ * After a tap, browsers emulate mousemove / mousedown / mouseup on the same spot. A mouse press
+ * this soon after a touch ended, this close to where it ended, is one of those and must not start
+ * a second gesture. A real mouse on a touch laptop presses elsewhere, or later.
  */
 const EMULATED_MOUSE_WINDOW_MS = 800;
+const EMULATED_MOUSE_DISTANCE_PX = 16;
+
+interface SourceCapabilities {
+  firesTouchEvents?: boolean;
+}
 
 /** The touch with this identifier in a touch list, if it is there. */
 function findTouch(list: TouchList, identifier: number): Touch | null {
@@ -328,8 +334,8 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
   const resizeRef = useRef(resize);
   resizeRef.current = resize;
 
-  // When the last touch ended anywhere on the page: see EMULATED_MOUSE_WINDOW_MS.
-  const lastTouchEndRef = useRef(-Infinity);
+  // When and where the last touch ended anywhere on the page: see EMULATED_MOUSE_WINDOW_MS.
+  const lastTouchEndRef = useRef({ time: -Infinity, x: 0, y: 0 });
 
   useEffect(() => {
     // The finger the current gesture follows, or `null` when there is none or it is a mouse one.
@@ -403,7 +409,10 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      lastTouchEndRef.current = Date.now();
+      const ended = e.changedTouches[0];
+      if (ended) {
+        lastTouchEndRef.current = { time: Date.now(), x: ended.clientX, y: ended.clientY };
+      }
 
       const id = activeTouchId();
       if (id !== null && findTouch(e.changedTouches, id)) {
@@ -439,35 +448,30 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
 
   // ─── Keep in bounds ─────────────────────────────────────────────────
 
-  const geometryRef = useRef({
-    positionPx: constraints.positionPx,
-    sizePx: constraints.sizePx,
-    dragBoundsPx: constraints.dragBoundsPx,
-  });
-  geometryRef.current = {
-    positionPx: constraints.positionPx,
-    sizePx: constraints.sizePx,
-    dragBoundsPx: constraints.dragBoundsPx,
-  };
-
-  useEffect(() => {
+  const fitRef = useRef(() => {});
+  fitRef.current = () => {
     if (!keepInBounds || boundarySize.width <= 0 || boundarySize.height <= 0) {
       return;
     }
 
-    const { positionPx: pos, sizePx: sz, dragBoundsPx } = geometryRef.current;
+    const { positionPx: pos, sizePx: sz, dragBoundsPx } = constraints;
 
-    // The boundary wins over the min size here, as it does for keyboard resizing.
-    const width = Math.min(sz.width, boundarySize.width);
-    const height = Math.min(sz.height, boundarySize.height);
-
-    // What must fit is the rendered box: a collapsed window is only as tall as its header.
+    // What must fit is the rendered box: a collapsed window is only as tall as its header, and
+    // its expanded height is kept for when it opens again. `0` means not laid out: use the size.
     const el = elementRef.current;
+    const renderedWidth = el?.offsetWidth || sz.width;
+    const renderedHeight = el?.offsetHeight || sz.height;
+
+    // Only what overflows as rendered shrinks. The boundary wins over the min size here, as it
+    // does for keyboard resizing.
+    const width = renderedWidth > boundarySize.width ? boundarySize.width : sz.width;
+    const height = renderedHeight > boundarySize.height ? boundarySize.height : sz.height;
+
     const next = applyDragBounds(pos.x, pos.y, {
       dragBounds: dragBoundsPx,
       withinPortal,
-      windowWidth: el?.offsetWidth ? Math.min(el.offsetWidth, width) : width,
-      windowHeight: el?.offsetHeight ? Math.min(el.offsetHeight, height) : height,
+      windowWidth: Math.min(renderedWidth, boundarySize.width),
+      windowHeight: Math.min(renderedHeight, boundarySize.height),
       viewportWidth: boundarySize.width,
       viewportHeight: boundarySize.height,
       containerWidth: boundarySize.width,
@@ -481,19 +485,60 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     if (next.x !== pos.x || next.y !== pos.y) {
       setPosition(next);
     }
-  }, [keepInBounds, withinPortal, boundarySize.width, boundarySize.height, setPosition, setSize]);
+  };
+
+  // When the boundary is measured and whenever it changes size.
+  useEffect(() => {
+    fitRef.current();
+  }, [keepInBounds, withinPortal, boundarySize.width, boundarySize.height]);
+
+  // And when the element itself changes size: a collapsed window that opens again.
+  useEffect(() => {
+    if (!element || !keepInBounds || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(() => fitRef.current());
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [element, keepInBounds]);
 
   // ─── Prop getters ───────────────────────────────────────────────────
 
-  const isEmulatedMouse = () => Date.now() - lastTouchEndRef.current < EMULATED_MOUSE_WINDOW_MS;
+  const isEmulatedMouse = (event: React.MouseEvent) => {
+    // Chromium says so outright; elsewhere, an emulated press lands where a touch just ended.
+    const capabilities = (
+      event.nativeEvent as MouseEvent & { sourceCapabilities?: SourceCapabilities }
+    ).sourceCapabilities;
+    if (typeof capabilities?.firesTouchEvents === 'boolean') {
+      return capabilities.firesTouchEvents;
+    }
+
+    const last = lastTouchEndRef.current;
+    return (
+      Date.now() - last.time < EMULATED_MOUSE_WINDOW_MS &&
+      Math.abs(event.clientX - last.x) <= EMULATED_MOUSE_DISTANCE_PX &&
+      Math.abs(event.clientY - last.y) <= EMULATED_MOUSE_DISTANCE_PX
+    );
+  };
+
+  // One touch gesture at a time: a second finger landing on the element while the first one
+  // drags or resizes it must not take the gesture over, nor open a second one.
+  const isTouchGestureActive = () =>
+    (drag.isDragging.current && drag.touchId.current !== null) ||
+    (resize.isResizing.current && resize.touchId.current !== null);
 
   const getDragHandleProps = (): DragResizeDragHandleProps => ({
     onMouseDown: (event: React.MouseEvent) => {
-      if (!isEmulatedMouse()) {
+      if (!isEmulatedMouse(event)) {
         drag.handleMouseDownDrag(event);
       }
     },
-    onTouchStart: drag.handleTouchStartDrag,
+    onTouchStart: (event: React.TouchEvent) => {
+      if (!isTouchGestureActive()) {
+        drag.handleTouchStartDrag(event);
+      }
+    },
   });
 
   const { positionPx, sizePx, constraintsPx } = constraints;
@@ -505,11 +550,18 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     const handlers = resize.resizeHandlers[direction];
     const pointerProps: DragResizeHandleProps = {
       onMouseDown: (event: React.MouseEvent) => {
-        if (!isEmulatedMouse()) {
+        if (!isEmulatedMouse(event)) {
           handlers.onMouseDown(event);
         }
       },
-      onTouchStart: handlers.onTouchStart,
+      onTouchStart: (event: React.TouchEvent) => {
+        if (isTouchGestureActive()) {
+          // Not a resize either: keep the press from reaching the drag handle around it.
+          event.stopPropagation();
+          return;
+        }
+        handlers.onTouchStart(event);
+      },
       'data-resize-handle': direction,
     };
 
