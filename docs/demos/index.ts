@@ -13,6 +13,7 @@ export { formControls } from './Window.demo.formControls';
 export { fullSizeHandles } from './Window.demo.fullSizeHandles';
 export { group } from './Window.demo.group';
 export { keyboardResize } from './Window.demo.keyboardResize';
+export { keepInBounds } from './Window.demo.keepInBounds';
 export { groupLayout } from './Window.demo.groupLayout';
 export { layoutPresets } from './Window.demo.layoutPresets';
 export { menuBar } from './Window.demo.menuBar';
