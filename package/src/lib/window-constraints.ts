@@ -64,7 +64,12 @@ export interface DragConstraints {
    * then only narrow it, and the boundary wins when the two disagree (bounds designed for a wide
    * screen, on a phone). A boundary of `0` (not measured yet) is ignored.
    */
-  keepInBoundary?: boolean;
+  keepInBounds?: boolean;
+}
+
+/** Keeps a coordinate inside an area: never past its far edge, and never below 0. */
+export function clampToArea(value: number, areaSize: number, size: number): number {
+  return Math.max(0, Math.min(value, areaSize - size));
 }
 
 /**
@@ -75,56 +80,44 @@ export function applyDragBounds(
   y: number,
   constraints: DragConstraints
 ): { x: number; y: number } {
+  const { dragBounds, windowWidth, windowHeight } = constraints;
+  const areaWidth = constraints.withinPortal
+    ? constraints.viewportWidth
+    : constraints.containerWidth;
+  const areaHeight = constraints.withinPortal
+    ? constraints.viewportHeight
+    : constraints.containerHeight;
+
+  if (!dragBounds) {
+    return {
+      x: clampToArea(x, areaWidth, windowWidth),
+      y: clampToArea(y, areaHeight, windowHeight),
+    };
+  }
+
   let boundedX = x;
   let boundedY = y;
 
-  if (constraints.dragBounds) {
-    // Use converted bounds
-    if (constraints.dragBounds.minX !== undefined) {
-      boundedX = Math.max(constraints.dragBounds.minX, boundedX);
-    }
-    if (constraints.dragBounds.maxX !== undefined) {
-      boundedX = Math.min(constraints.dragBounds.maxX, boundedX);
-    }
-    if (constraints.dragBounds.minY !== undefined) {
-      boundedY = Math.max(constraints.dragBounds.minY, boundedY);
-    }
-    if (constraints.dragBounds.maxY !== undefined) {
-      boundedY = Math.min(constraints.dragBounds.maxY, boundedY);
-    }
+  if (dragBounds.minX !== undefined) {
+    boundedX = Math.max(dragBounds.minX, boundedX);
+  }
+  if (dragBounds.maxX !== undefined) {
+    boundedX = Math.min(dragBounds.maxX, boundedX);
+  }
+  if (dragBounds.minY !== undefined) {
+    boundedY = Math.max(dragBounds.minY, boundedY);
+  }
+  if (dragBounds.maxY !== undefined) {
+    boundedY = Math.min(dragBounds.maxY, boundedY);
+  }
 
-    if (constraints.keepInBoundary) {
-      const areaWidth = constraints.withinPortal
-        ? constraints.viewportWidth
-        : constraints.containerWidth;
-      const areaHeight = constraints.withinPortal
-        ? constraints.viewportHeight
-        : constraints.containerHeight;
-
-      if (areaWidth > 0) {
-        boundedX = Math.max(0, Math.min(boundedX, areaWidth - constraints.windowWidth));
-      }
-      if (areaHeight > 0) {
-        boundedY = Math.max(0, Math.min(boundedY, areaHeight - constraints.windowHeight));
-      }
+  if (constraints.keepInBounds) {
+    if (areaWidth > 0) {
+      boundedX = clampToArea(boundedX, areaWidth, windowWidth);
     }
-  } else if (constraints.withinPortal) {
-    // Global viewport bounds
-    boundedX = Math.max(0, Math.min(boundedX, constraints.viewportWidth - constraints.windowWidth));
-    boundedY = Math.max(
-      0,
-      Math.min(boundedY, constraints.viewportHeight - constraints.windowHeight)
-    );
-  } else {
-    // Parent container bounds
-    boundedX = Math.max(
-      0,
-      Math.min(boundedX, constraints.containerWidth - constraints.windowWidth)
-    );
-    boundedY = Math.max(
-      0,
-      Math.min(boundedY, constraints.containerHeight - constraints.windowHeight)
-    );
+    if (areaHeight > 0) {
+      boundedY = clampToArea(boundedY, areaHeight, windowHeight);
+    }
   }
 
   return { x: boundedX, y: boundedY };

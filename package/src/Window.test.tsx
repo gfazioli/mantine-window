@@ -1858,11 +1858,20 @@ describe('Window keyboard resizing', () => {
 });
 
 describe('Window on touch screens and small boundaries (issue #61)', () => {
-  const touch = (identifier: number, clientX: number, clientY: number) => ({
+  type Finger = { identifier: number; clientX: number; clientY: number };
+  const touch = (identifier: number, clientX: number, clientY: number): Finger => ({
     identifier,
     clientX,
     clientY,
   });
+
+  // `held`: the other fingers still on the screen, listed before this one in `touches`.
+  const press = (target: Element, finger: Finger, held: Finger[] = []) =>
+    fireEvent.touchStart(target, { touches: [...held, finger], changedTouches: [finger] });
+  const move = (finger: Finger, held: Finger[] = []) =>
+    fireEvent.touchMove(document, { touches: [...held, finger], changedTouches: [finger] });
+  const lift = (finger: Finger, held: Finger[] = []) =>
+    fireEvent.touchEnd(document, { touches: held, changedTouches: [finger] });
 
   function getHeader(container: HTMLElement, title: string) {
     const root = container.querySelector(`[aria-label="${title}"]`) as HTMLElement;
@@ -1877,11 +1886,8 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
 
     fireEvent.mouseDown(getHeader(container, 'Once'), { clientX: 150, clientY: 120 });
     fireEvent.mouseUp(document);
-    fireEvent.touchStart(getHeader(container, 'Once'), {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(1, 150, 120)],
-    });
-    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 120)] });
+    press(getHeader(container, 'Once'), touch(1, 150, 120));
+    lift(touch(1, 150, 120));
 
     expect(onDragStart).toHaveBeenCalledTimes(2);
   });
@@ -1911,31 +1917,16 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     );
 
     // Finger 1 presses A, finger 2 presses B and stays still, finger 1 moves.
-    fireEvent.touchStart(getHeader(container, 'A'), {
-      touches: [touch(1, 100, 120)],
-      changedTouches: [touch(1, 100, 120)],
-    });
-    fireEvent.touchStart(getHeader(container, 'B'), {
-      touches: [touch(1, 100, 120), touch(2, 600, 120)],
-      changedTouches: [touch(2, 600, 120)],
-    });
-    fireEvent.touchMove(document, {
-      touches: [touch(1, 100, 180), touch(2, 600, 120)],
-      changedTouches: [touch(1, 100, 180)],
-    });
+    press(getHeader(container, 'A'), touch(1, 100, 120));
+    press(getHeader(container, 'B'), touch(2, 600, 120), [touch(1, 100, 120)]);
+    move(touch(1, 100, 180), [touch(2, 600, 120)]);
 
     expect(moveA).toHaveBeenLastCalledWith({ x: 20, y: 160 });
     expect(moveB).not.toHaveBeenCalled();
 
     // Finger 2 lifts: B's drag ends, A keeps following finger 1.
-    fireEvent.touchEnd(document, {
-      touches: [touch(1, 100, 180)],
-      changedTouches: [touch(2, 600, 120)],
-    });
-    fireEvent.touchMove(document, {
-      touches: [touch(1, 100, 200)],
-      changedTouches: [touch(1, 100, 200)],
-    });
+    lift(touch(2, 600, 120), [touch(1, 100, 180)]);
+    move(touch(1, 100, 200));
     expect(moveA).toHaveBeenLastCalledWith({ x: 20, y: 180 });
     expect(moveB).not.toHaveBeenCalled();
   });
@@ -1953,15 +1944,9 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
       />
     );
 
-    fireEvent.touchStart(getHeader(container, 'Lost'), {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(1, 150, 120)],
-    });
+    press(getHeader(container, 'Lost'), touch(1, 150, 120));
     // No touchend for finger 1 ever arrives; a new finger touches somewhere else.
-    fireEvent.touchStart(document.body, {
-      touches: [touch(2, 900, 700)],
-      changedTouches: [touch(2, 900, 700)],
-    });
+    press(document.body, touch(2, 900, 700));
 
     expect(calls).toEqual(['start', 'end']);
   });
@@ -1973,11 +1958,8 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     );
     const header = getHeader(container, 'Compat');
 
-    fireEvent.touchStart(header, {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(1, 150, 120)],
-    });
-    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 120)] });
+    press(header, touch(1, 150, 120));
+    lift(touch(1, 150, 120));
     fireEvent.mouseDown(header, { clientX: 150, clientY: 120 });
     fireEvent.mouseUp(document);
 
@@ -2000,29 +1982,14 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     );
     const header = getHeader(container, 'Two fingers');
 
-    fireEvent.touchStart(header, {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(1, 150, 120)],
-    });
-    fireEvent.touchStart(header, {
-      touches: [touch(1, 150, 120), touch(2, 250, 120)],
-      changedTouches: [touch(2, 250, 120)],
-    });
-    fireEvent.touchMove(document, {
-      touches: [touch(1, 150, 120), touch(2, 250, 200)],
-      changedTouches: [touch(2, 250, 200)],
-    });
+    press(header, touch(1, 150, 120));
+    press(header, touch(2, 250, 120), [touch(1, 150, 120)]);
+    move(touch(2, 250, 200), [touch(1, 150, 120)]);
     expect(onPositionChange).not.toHaveBeenCalled();
 
-    fireEvent.touchEnd(document, {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(2, 250, 200)],
-    });
-    fireEvent.touchMove(document, {
-      touches: [touch(1, 150, 160)],
-      changedTouches: [touch(1, 150, 160)],
-    });
-    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 160)] });
+    lift(touch(2, 250, 200), [touch(1, 150, 120)]);
+    move(touch(1, 150, 160));
+    lift(touch(1, 150, 160));
 
     expect(onPositionChange).toHaveBeenLastCalledWith({ x: 100, y: 140 });
     expect(calls).toEqual(['start', 'end']);
@@ -2035,11 +2002,8 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     );
     const header = getHeader(container, 'Hybrid');
 
-    fireEvent.touchStart(header, {
-      touches: [touch(1, 150, 120)],
-      changedTouches: [touch(1, 150, 120)],
-    });
-    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 120)] });
+    press(header, touch(1, 150, 120));
+    lift(touch(1, 150, 120));
     fireEvent.mouseDown(header, { clientX: 400, clientY: 125 });
     fireEvent.mouseUp(document);
 
@@ -2065,11 +2029,8 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     it('lets a finger scroll content that overflows instead of dragging the window', () => {
       const { row, onDragStart } = renderScrollable(500);
 
-      fireEvent.touchStart(row, {
-        touches: [touch(1, 100, 200)],
-        changedTouches: [touch(1, 100, 200)],
-      });
-      fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 100, 200)] });
+      press(row, touch(1, 100, 200));
+      lift(touch(1, 100, 200));
 
       expect(onDragStart).not.toHaveBeenCalled();
     });
@@ -2077,11 +2038,8 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
     it('still drags from content that does not overflow', () => {
       const { row, onDragStart } = renderScrollable(50);
 
-      fireEvent.touchStart(row, {
-        touches: [touch(1, 100, 200)],
-        changedTouches: [touch(1, 100, 200)],
-      });
-      fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 100, 200)] });
+      press(row, touch(1, 100, 200));
+      lift(touch(1, 100, 200));
 
       expect(onDragStart).toHaveBeenCalledTimes(1);
     });
@@ -2233,29 +2191,6 @@ describe('Window on touch screens and small boundaries (issue #61)', () => {
       expect(getWindowElement(container)!.style.left).toBe('900px');
     });
   });
-
-  it('stops a pointer resize at the viewport edge, as keyboard resizing does', () => {
-    const onSizeChange = jest.fn();
-    const { container } = renderWithMantine(
-      <Window
-        opened
-        title="Edge"
-        defaultX={600}
-        defaultY={100}
-        defaultWidth={300}
-        defaultHeight={300}
-        onSizeChange={onSizeChange}
-      />
-    );
-    const handle = container.querySelector('[data-resize-handle="right"]') as HTMLElement;
-
-    fireEvent.mouseDown(handle, { clientX: 900, clientY: 250 });
-    fireEvent.mouseMove(document, { clientX: 1500, clientY: 250 });
-    fireEvent.mouseUp(document);
-
-    // jsdom's viewport is 1024px wide: the right edge stops there.
-    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 424, height: 300 });
-  });
 });
 
 describe('Window keepInBounds with drags and resizes', () => {
@@ -2291,13 +2226,13 @@ describe('Window keepInBounds with drags and resizes', () => {
     expect(dragFarRight(false)).toEqual({ x: 1900, y: 100 });
   });
 
-  it('resizes past the viewport edge with keepInBounds={false}', () => {
+  function resizeFarRight(keepInBounds?: boolean) {
     const onSizeChange = jest.fn();
     const { container } = renderWithMantine(
       <Window
         opened
-        title="Past"
-        keepInBounds={false}
+        title="Edge"
+        keepInBounds={keepInBounds}
         defaultX={600}
         defaultY={100}
         defaultWidth={300}
@@ -2311,6 +2246,15 @@ describe('Window keepInBounds with drags and resizes', () => {
     fireEvent.mouseMove(document, { clientX: 1500, clientY: 250 });
     fireEvent.mouseUp(document);
 
-    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 900, height: 300 });
+    return onSizeChange.mock.calls.at(-1)?.[0];
+  }
+
+  it('stops a pointer resize at the viewport edge, as keyboard resizing does', () => {
+    // jsdom's viewport is 1024px wide: the right edge stops there.
+    expect(resizeFarRight()).toEqual({ width: 424, height: 300 });
+  });
+
+  it('resizes past the viewport edge with keepInBounds={false}', () => {
+    expect(resizeFarRight(false)).toEqual({ width: 900, height: 300 });
   });
 });

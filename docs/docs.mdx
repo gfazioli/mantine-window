@@ -271,7 +271,7 @@ On a phone or a tablet, a window behaves as a finger expects:
 - `dragBounds` can only narrow the boundary: bounds written for a wide screen no longer let a window out of a phone's.
 - Resizing with the pointer stops at the boundary, the viewport included, as keyboard resizing does.
 
-Set `keepInBounds={false}` for the 3.3 behavior, for example to let a window hide partly off-screen through `dragBounds`. Moves made from code (a controlled `x` / `y`, the layouts) are never restricted.
+Set `keepInBounds={false}` for the 3.3 behavior, for example to let a window hide partly off-screen through `dragBounds`. Moves made from code (a controlled `x` / `y`, the layouts) are applied as given: only a later change in the size of the boundary or of the window fits them again.
 
 <Demo data={demos.keepInBounds} />
 

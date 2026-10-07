@@ -399,7 +399,7 @@ describe('window-constraints', () => {
   });
 });
 
-describe('applyDragBounds with keepInBoundary', () => {
+describe('applyDragBounds with keepInBounds', () => {
   const base = {
     windowWidth: 300,
     windowHeight: 200,
@@ -414,7 +414,7 @@ describe('applyDragBounds with keepInBoundary', () => {
       ...base,
       dragBounds: { minX: 50, maxX: 500, minY: 50, maxY: 400 },
       withinPortal: false,
-      keepInBoundary: true,
+      keepInBounds: true,
     };
 
     expect(applyDragBounds(500, 400, constraints)).toEqual({ x: 24, y: 300 });
@@ -425,7 +425,7 @@ describe('applyDragBounds with keepInBoundary', () => {
       ...base,
       dragBounds: { minX: -100, maxX: 1000 },
       withinPortal: true,
-      keepInBoundary: true,
+      keepInBounds: true,
     };
 
     expect(applyDragBounds(-100, 0, constraints)).toEqual({ x: 0, y: 0 });
@@ -449,7 +449,7 @@ describe('applyDragBounds with keepInBoundary', () => {
       containerHeight: 0,
       dragBounds: { minX: 50, maxX: 500 },
       withinPortal: false,
-      keepInBoundary: true,
+      keepInBounds: true,
     };
 
     expect(applyDragBounds(500, 0, constraints)).toEqual({ x: 500, y: 0 });
