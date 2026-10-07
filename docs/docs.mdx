@@ -36,7 +36,8 @@ export const Cap = ({ title, note }) => (
   </>
 );
 
-<Table striped withTableBorder withColumnBorders verticalSpacing="sm" my="md">
+<Table.ScrollContainer minWidth={420} my="md">
+<Table striped withTableBorder withColumnBorders verticalSpacing="sm">
   <Table.Thead>
     <Table.Tr>
       <Table.Th>Capability</Table.Th>
@@ -101,9 +102,14 @@ export const Cap = ({ title, note }) => (
       <Table.Td ta="center"><No /></Table.Td>
     </Table.Tr>
     <Table.Tr>
-      <Table.Td><Cap title="Drag and resize, mouse and touch" note="Both" /></Table.Td>
+      <Table.Td><Cap title="Drag and resize, mouse and touch" note="Both — on a touch screen Window also lets a swipe scroll overflowing content, moves each window only with the finger that pressed it, and enlarges its handles and buttons" /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
       <Table.Td ta="center"><Yes /></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Cap title="Stays on screen when the boundary shrinks" note="keepInBounds moves the window back inside, and shrinks it to fit, when a phone rotates or the viewport or container gets smaller — core re-clamps when the window itself changes size" /></Table.Td>
+      <Table.Td ta="center"><Yes /></Table.Td>
+      <Table.Td ta="center"><No /></Table.Td>
     </Table.Tr>
     <Table.Tr>
       <Table.Td><Cap title="Min and max size" note="minWidth / maxWidth / minHeight / maxHeight here, dimensions in core" /></Table.Td>
@@ -142,6 +148,7 @@ export const Cap = ({ title, note }) => (
     </Table.Tr>
   </Table.Tbody>
 </Table>
+</Table.ScrollContainer>
 
 **When to use which.** Reach for the core `FloatingWindow` for a light draggable panel you style yourself — a floating toolbar, a chat box, a picture-in-picture player — when you would rather not add a dependency. Reach for `Window` when you want desktop-style windows: a title bar with its controls, resizing from any edge, sizes in viewport units or percentages that follow the breakpoints, a window confined to a container, position and size kept across reloads with `persistState`, and several windows arranged together with `Window.Group`. Reach for its [headless hook](#headless-hook) when you want that same geometry on an element of your own.
 
@@ -249,6 +256,24 @@ Set `axis="x"` or `axis="y"` to restrict dragging to one direction: a window tha
 Only the user's drag is locked. A controlled `x` / `y`, the layouts of the tools menu and of `Window.Group` still move the window anywhere.
 
 <Demo data={demos.axis} />
+
+## Touch Screens and Small Boundaries
+
+On a phone or a tablet, a window behaves as a finger expects:
+
+- A swipe on content that overflows scrolls it, because a finger has no wheel. A swipe on the title bar, or on content that fits, drags the window as before. The mouse is unchanged: it still drags from anywhere and scrolls with the wheel.
+- Each window follows only the finger that pressed it, so a second finger resting on another window does not drag that one too.
+- The resize handles and the title-bar buttons get bigger hit areas on a coarse pointer, and the buttons show their glyphs, since there is no hover to reveal them.
+
+`keepInBounds` (on by default) keeps every window reachable inside its boundary, the viewport or its container:
+
+- When the boundary is measured, and whenever it changes size (a phone rotating, a browser window or a container getting narrower), a window that sticks out moves back inside it, and within `dragBounds`, and one larger than the boundary shrinks to fit.
+- `dragBounds` can only narrow the boundary: bounds written for a wide screen no longer let a window out of a phone's.
+- Resizing with the pointer stops at the boundary, the viewport included, as keyboard resizing does.
+
+Set `keepInBounds={false}` for the 3.3 behavior, for example to let a window hide partly off-screen through `dragBounds`. Moves made from code (a controlled `x` / `y`, the layouts) are never restricted.
+
+<Demo data={demos.keepInBounds} />
 
 ## Centered Window
 
@@ -450,6 +475,7 @@ The hook computes, and you render: put `position` on `left` / `top` and `size` o
 - `boundary`: `'viewport'` or `'parent'`. The element is kept inside it while dragging, and a parent also limits resizing.
 - `dragBounds`: a narrower rectangle for the position, in the same units.
 - `axis`: `'x'` or `'y'`, to lock dragging to one direction.
+- `keepInBounds`: keeps the element inside the boundary. It moves back inside, and shrinks to fit, when the boundary is measured or changes size; `dragBounds` can only narrow the boundary; a pointer resize stops at the viewport edge. `true` by default.
 - `resizeStep` and `resizeShiftStep`: the keyboard steps, `10` and `50` pixels by default.
 - `onPositionChange` and `onSizeChange`, with pixel values, and `onDragStart`, `onDragEnd`, `onResizeStart` and `onResizeEnd`, at the edges of each gesture.
 

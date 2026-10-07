@@ -86,6 +86,16 @@ Next.js 16 site with interactive demos in `docs/demos/`. Each demo is a `Window.
 ### Keyboard Resizing
 One handle per window is a focusable WAI-ARIA `separator` (`withKeyboardResize`, default on): bottom-right corner, the right edge when collapsed or `resizable="horizontal"`, the bottom edge for `resizable="vertical"`. Arrows move the handle's edge in the arrow's direction by `resizeStep` (10), Shift by `resizeShiftStep` (50), Home/End to min/max; the boundary (viewport or parent) is the hard limit. Each key press fires `onResizeStart` → `onSizeChange` → `onResizeEnd`. The focus mark is drawn inside the window (the root clips with `overflow: hidden`) plus a `:has()` outline on the root.
 
+### Touch Screens and Small Boundaries (issue #61)
+- **One finger per gesture**: a touch gesture records `changedTouches[0].identifier` at its start and follows only that finger (`touchmove` / `touchend` look it up in `changedTouches`). `touches[0]` was the bug: a finger resting on window B made B follow the finger dragging window A. A `touchstart` (document, capture) ends a touch gesture whose finger is gone, i.e. whose end was lost.
+- **Mouse events emulated after a tap** (within 800 ms of a `touchend`) never start a gesture, and mouse events never move a touch gesture.
+- **A swipe on overflowing content scrolls it** (touch only): `isInScrollableContent` walks from the target to the drag handle looking for an element with `overflow` auto / scroll / overlay that actually overflows. The mouse still drags from anywhere.
+- **No `preventDefault()` on `touchstart`**: React registers it as passive, so it was ignored and logged an error. The header's `touch-action: none` and the document's non-passive `touchmove` listener stop the page scrolling.
+- **One drag handler per press**: with `draggable="both"` only the root has the handlers (the header is inside it); a header handler too started every gesture twice. The header has no `onClick` either, for the same reason.
+- **`keepInBounds`** (default `true`, in `useDragResize`; `false` = the 3.3 behavior): when the boundary is measured or changes size, the element moves back inside it, and within `dragBounds` (`applyDragBounds` on the rendered box), and shrinks to fit. `dragBounds` can only narrow the boundary (`keepInBoundary` in `applyDragBounds`: the docs' bounds of 50-500px let a window out of a 324px phone container). Pointer resizing stops at the viewport too (`containerMaxWidth` is the viewport in portal mode; `0` = unmeasured = no limit). Programmatic moves are not restricted.
+- **Coarse pointers** (CSS): bigger handle hit areas (inward), 20px title-bar buttons, glyphs visible under `(hover: none)`.
+- To check on a real engine: the Chrome probes under the job's scratchpad are not kept; puppeteer-core's `KnownDevices['iPhone 13']` with `page.touchscreen` (multi-touch via the returned `TouchHandle`) reproduces all of the above.
+
 ### Utility Library (`package/src/lib/`)
 - **`convert-to-pixels.ts`** — Converts viewport units (`vw`, `vh`), percentages (`%`), and raw numbers to pixel values. Critical for SSR hydration safety: returns defaults during SSR and converts client-side after mount.
 - **`window-constraints.ts`** — Constraint resolution logic (clamp values within min/max bounds).

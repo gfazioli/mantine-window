@@ -31,6 +31,8 @@ It requires **Mantine 9.x** and **React 19**.
 - Persistent state via localStorage (position, size, collapse state)
 - Configurable drag boundaries to constrain movement
 - `axis` prop to lock dragging to one direction
+- Touch-friendly: a swipe scrolls overflowing content, each window follows only its own finger, bigger touch targets on coarse pointers
+- `keepInBounds`: windows move back inside, and shrink to fit, when a phone rotates or the viewport or container shrinks
 - Keyboard resizing on one focusable WAI-ARIA `separator` handle: arrow keys, Shift for a bigger step, Home / End to the min / max size
 - Min/max size constraints with multi-unit support
 - Collapsible content with double-click header toggle
