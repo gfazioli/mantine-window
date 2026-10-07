@@ -183,3 +183,28 @@ describe('useDragResize', () => {
     expect(api.boundarySize).toEqual({ width: 0, height: 0 });
   });
 });
+
+describe('useDragResize keepInBounds', () => {
+  it('moves an element that starts outside the viewport back inside, and shrinks one larger than it', () => {
+    const { getByTestId } = render(
+      <Box defaultPosition={{ x: 900, y: 0 }} defaultSize={{ width: 2000, height: 200 }} />
+    );
+    const box = getByTestId('box');
+
+    // jsdom's viewport is 1024 × 768.
+    expect(box.style.width).toBe('1024px');
+    expect(box.style.left).toBe('0px');
+  });
+
+  it('leaves it where it is with keepInBounds: false', () => {
+    const { getByTestId } = render(
+      <Box
+        keepInBounds={false}
+        defaultPosition={{ x: 900, y: 0 }}
+        defaultSize={{ width: 400, height: 200 }}
+      />
+    );
+
+    expect(getByTestId('box').style.left).toBe('900px');
+  });
+});

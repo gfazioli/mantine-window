@@ -1856,3 +1856,350 @@ describe('Window keyboard resizing', () => {
     expect(onPositionChange).toHaveBeenCalledWith({ x: 150, y: 160 });
   });
 });
+
+describe('Window on touch screens and small boundaries (issue #61)', () => {
+  const touch = (identifier: number, clientX: number, clientY: number) => ({
+    identifier,
+    clientX,
+    clientY,
+  });
+
+  function getHeader(container: HTMLElement, title: string) {
+    const root = container.querySelector(`[aria-label="${title}"]`) as HTMLElement;
+    return root.querySelector('.mantine-Window-header') as HTMLElement;
+  }
+
+  it('starts one drag per press on the header of a window draggable from anywhere', () => {
+    const onDragStart = jest.fn();
+    const { container } = renderWithMantine(
+      <Window opened title="Once" defaultX={100} defaultY={100} onDragStart={onDragStart} />
+    );
+
+    fireEvent.mouseDown(getHeader(container, 'Once'), { clientX: 150, clientY: 120 });
+    fireEvent.mouseUp(document);
+    fireEvent.touchStart(getHeader(container, 'Once'), {
+      touches: [touch(1, 150, 120)],
+      changedTouches: [touch(1, 150, 120)],
+    });
+    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 120)] });
+
+    expect(onDragStart).toHaveBeenCalledTimes(2);
+  });
+
+  it('moves a window only with the finger that pressed it', () => {
+    const moveA = jest.fn();
+    const moveB = jest.fn();
+    const { container } = renderWithMantine(
+      <>
+        <Window
+          opened
+          title="A"
+          defaultX={20}
+          defaultY={100}
+          defaultWidth={300}
+          onPositionChange={moveA}
+        />
+        <Window
+          opened
+          title="B"
+          defaultX={500}
+          defaultY={100}
+          defaultWidth={300}
+          onPositionChange={moveB}
+        />
+      </>
+    );
+
+    // Finger 1 presses A, finger 2 presses B and stays still, finger 1 moves.
+    fireEvent.touchStart(getHeader(container, 'A'), {
+      touches: [touch(1, 100, 120)],
+      changedTouches: [touch(1, 100, 120)],
+    });
+    fireEvent.touchStart(getHeader(container, 'B'), {
+      touches: [touch(1, 100, 120), touch(2, 600, 120)],
+      changedTouches: [touch(2, 600, 120)],
+    });
+    fireEvent.touchMove(document, {
+      touches: [touch(1, 100, 180), touch(2, 600, 120)],
+      changedTouches: [touch(1, 100, 180)],
+    });
+
+    expect(moveA).toHaveBeenLastCalledWith({ x: 20, y: 160 });
+    expect(moveB).not.toHaveBeenCalled();
+
+    // Finger 2 lifts: B's drag ends, A keeps following finger 1.
+    fireEvent.touchEnd(document, {
+      touches: [touch(1, 100, 180)],
+      changedTouches: [touch(2, 600, 120)],
+    });
+    fireEvent.touchMove(document, {
+      touches: [touch(1, 100, 200)],
+      changedTouches: [touch(1, 100, 200)],
+    });
+    expect(moveA).toHaveBeenLastCalledWith({ x: 20, y: 180 });
+    expect(moveB).not.toHaveBeenCalled();
+  });
+
+  it('ends a touch drag whose end was lost when the next touch starts', () => {
+    const calls: string[] = [];
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Lost"
+        defaultX={100}
+        defaultY={100}
+        onDragStart={() => calls.push('start')}
+        onDragEnd={() => calls.push('end')}
+      />
+    );
+
+    fireEvent.touchStart(getHeader(container, 'Lost'), {
+      touches: [touch(1, 150, 120)],
+      changedTouches: [touch(1, 150, 120)],
+    });
+    // No touchend for finger 1 ever arrives; a new finger touches somewhere else.
+    fireEvent.touchStart(document.body, {
+      touches: [touch(2, 900, 700)],
+      changedTouches: [touch(2, 900, 700)],
+    });
+
+    expect(calls).toEqual(['start', 'end']);
+  });
+
+  it('ignores the mouse events a browser emulates right after a tap', () => {
+    const onDragStart = jest.fn();
+    const { container } = renderWithMantine(
+      <Window opened title="Compat" defaultX={100} defaultY={100} onDragStart={onDragStart} />
+    );
+    const header = getHeader(container, 'Compat');
+
+    fireEvent.touchStart(header, {
+      touches: [touch(1, 150, 120)],
+      changedTouches: [touch(1, 150, 120)],
+    });
+    fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 150, 120)] });
+    fireEvent.mouseDown(header, { clientX: 150, clientY: 120 });
+    fireEvent.mouseUp(document);
+
+    expect(onDragStart).toHaveBeenCalledTimes(1);
+  });
+
+  describe('scrollable content', () => {
+    function renderScrollable(scrollHeight: number) {
+      const onDragStart = jest.fn();
+      const utils = renderWithMantine(
+        <Window opened title="Scroll" withScrollArea={false} onDragStart={onDragStart}>
+          <div data-testid="list" style={{ overflowY: 'auto', height: 50 }}>
+            <p data-testid="row">row</p>
+          </div>
+        </Window>
+      );
+      const list = utils.getByTestId('list');
+      Object.defineProperty(list, 'scrollHeight', { configurable: true, value: scrollHeight });
+      Object.defineProperty(list, 'clientHeight', { configurable: true, value: 50 });
+      return { ...utils, onDragStart, row: utils.getByTestId('row') };
+    }
+
+    it('lets a finger scroll content that overflows instead of dragging the window', () => {
+      const { row, onDragStart } = renderScrollable(500);
+
+      fireEvent.touchStart(row, {
+        touches: [touch(1, 100, 200)],
+        changedTouches: [touch(1, 100, 200)],
+      });
+      fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 100, 200)] });
+
+      expect(onDragStart).not.toHaveBeenCalled();
+    });
+
+    it('still drags from content that does not overflow', () => {
+      const { row, onDragStart } = renderScrollable(50);
+
+      fireEvent.touchStart(row, {
+        touches: [touch(1, 100, 200)],
+        changedTouches: [touch(1, 100, 200)],
+      });
+      fireEvent.touchEnd(document, { touches: [], changedTouches: [touch(1, 100, 200)] });
+
+      expect(onDragStart).toHaveBeenCalledTimes(1);
+    });
+
+    it('still drags from overflowing content with the mouse, which scrolls with the wheel', () => {
+      const { row, onDragStart } = renderScrollable(500);
+
+      fireEvent.mouseDown(row, { clientX: 100, clientY: 200 });
+      fireEvent.mouseUp(document);
+
+      expect(onDragStart).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('keepInBounds', () => {
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+
+    function setViewport(width: number, height: number) {
+      act(() => {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+        Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
+        window.dispatchEvent(new Event('resize'));
+      });
+    }
+
+    afterEach(() => {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: viewport.width });
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: viewport.height });
+    });
+
+    it('moves a window that starts partly outside the viewport back inside', () => {
+      const { container } = renderWithMantine(
+        <Window
+          opened
+          title="Outside"
+          defaultX={900}
+          defaultY={700}
+          defaultWidth={400}
+          defaultHeight={300}
+        />
+      );
+      const win = getWindowElement(container)!;
+
+      // jsdom's viewport is 1024 × 768.
+      expect(win.style.left).toBe('624px');
+      expect(win.style.top).toBe('468px');
+    });
+
+    it('shrinks a window larger than the viewport to fit it', () => {
+      const onSizeChange = jest.fn();
+      const { container } = renderWithMantine(
+        <Window
+          opened
+          title="Huge"
+          defaultX={0}
+          defaultY={0}
+          defaultWidth={2000}
+          defaultHeight={300}
+          onSizeChange={onSizeChange}
+        />
+      );
+
+      expect(getWindowElement(container)!.style.width).toBe('1024px');
+      expect(onSizeChange).toHaveBeenLastCalledWith({ width: 1024, height: 300 });
+    });
+
+    it('brings a window back inside after the viewport shrinks, as when a phone rotates', () => {
+      const { container } = renderWithMantine(
+        <Window
+          opened
+          title="Rotate"
+          defaultX={500}
+          defaultY={100}
+          defaultWidth={400}
+          defaultHeight={300}
+        />
+      );
+      const win = getWindowElement(container)!;
+      expect(win.style.left).toBe('500px');
+
+      setViewport(390, 844);
+
+      expect(win.style.left).toBe('0px');
+      expect(win.style.width).toBe('390px');
+    });
+
+    it('leaves the window where it is with keepInBounds={false}', () => {
+      const { container } = renderWithMantine(
+        <Window
+          opened
+          title="Free"
+          keepInBounds={false}
+          defaultX={900}
+          defaultY={700}
+          defaultWidth={400}
+          defaultHeight={300}
+        />
+      );
+
+      expect(getWindowElement(container)!.style.left).toBe('900px');
+    });
+  });
+
+  it('stops a pointer resize at the viewport edge, as keyboard resizing does', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Edge"
+        defaultX={600}
+        defaultY={100}
+        defaultWidth={300}
+        defaultHeight={300}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const handle = container.querySelector('[data-resize-handle="right"]') as HTMLElement;
+
+    fireEvent.mouseDown(handle, { clientX: 900, clientY: 250 });
+    fireEvent.mouseMove(document, { clientX: 1500, clientY: 250 });
+    fireEvent.mouseUp(document);
+
+    // jsdom's viewport is 1024px wide: the right edge stops there.
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 424, height: 300 });
+  });
+});
+
+describe('Window keepInBounds with drags and resizes', () => {
+  function dragFarRight(keepInBounds?: boolean) {
+    const onPositionChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Far"
+        keepInBounds={keepInBounds}
+        defaultX={100}
+        defaultY={100}
+        defaultWidth={400}
+        dragBounds={{ minX: 0, maxX: 2000 }}
+        onPositionChange={onPositionChange}
+      />
+    );
+    const header = container.querySelector('.mantine-Window-header') as HTMLElement;
+
+    fireEvent.mouseDown(header, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(document, { clientX: 1900, clientY: 100 });
+    fireEvent.mouseUp(document);
+
+    return onPositionChange.mock.calls.at(-1)?.[0];
+  }
+
+  it('keeps a drag inside the viewport even where dragBounds would let it out', () => {
+    // jsdom's viewport is 1024px wide: the window stops at 1024 - 400.
+    expect(dragFarRight()).toEqual({ x: 624, y: 100 });
+  });
+
+  it('follows dragBounds alone with keepInBounds={false}', () => {
+    expect(dragFarRight(false)).toEqual({ x: 1900, y: 100 });
+  });
+
+  it('resizes past the viewport edge with keepInBounds={false}', () => {
+    const onSizeChange = jest.fn();
+    const { container } = renderWithMantine(
+      <Window
+        opened
+        title="Past"
+        keepInBounds={false}
+        defaultX={600}
+        defaultY={100}
+        defaultWidth={300}
+        defaultHeight={300}
+        onSizeChange={onSizeChange}
+      />
+    );
+    const handle = container.querySelector('[data-resize-handle="right"]') as HTMLElement;
+
+    fireEvent.mouseDown(handle, { clientX: 900, clientY: 250 });
+    fireEvent.mouseMove(document, { clientX: 1500, clientY: 250 });
+    fireEvent.mouseUp(document);
+
+    expect(onSizeChange).toHaveBeenLastCalledWith({ width: 900, height: 300 });
+  });
+});

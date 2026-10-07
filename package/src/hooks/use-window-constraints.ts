@@ -11,6 +11,8 @@ export interface UseWindowConstraintsOptions {
   maxHeight?: number | string;
   dragBounds?: WindowBounds;
   withinPortal?: boolean;
+  /** Pointer resizing stops at the viewport too, not only at a container. */
+  keepInBounds?: boolean;
   isMounted: boolean;
   viewportWidth: number;
   viewportHeight: number;
@@ -28,6 +30,7 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
     maxHeight,
     dragBounds,
     withinPortal = true,
+    keepInBounds = false,
     isMounted,
     viewportWidth,
     viewportHeight,
@@ -104,8 +107,14 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
       maxWidth: convertToPixels(maxWidth, refWidth),
       minHeight: convertToPixels(minHeight, refHeight) ?? 100,
       maxHeight: convertToPixels(maxHeight, refHeight),
-      containerMaxWidth: withinPortal ? Infinity : containerWidth,
-      containerMaxHeight: withinPortal ? Infinity : containerHeight,
+      // A container always limits a pointer resize. With keepInBounds the viewport does too: an
+      // edge dragged off-screen can no longer be grabbed. `0` means not measured yet, so no limit.
+      containerMaxWidth: withinPortal
+        ? (keepInBounds && viewportWidth) || Infinity
+        : containerWidth || Infinity,
+      containerMaxHeight: withinPortal
+        ? (keepInBounds && viewportHeight) || Infinity
+        : containerHeight || Infinity,
     };
   }, [
     minWidth,
@@ -113,6 +122,7 @@ export function useWindowConstraints(options: UseWindowConstraintsOptions) {
     minHeight,
     maxHeight,
     withinPortal,
+    keepInBounds,
     viewportWidth,
     viewportHeight,
     containerWidth,
