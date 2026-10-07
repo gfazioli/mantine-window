@@ -59,6 +59,12 @@ export interface DragConstraints {
   viewportHeight: number;
   containerWidth: number;
   containerHeight: number;
+  /**
+   * With `dragBounds`, also keeps the window inside the viewport or container: `dragBounds` can
+   * then only narrow it, and the boundary wins when the two disagree (bounds designed for a wide
+   * screen, on a phone). A boundary of `0` (not measured yet) is ignored.
+   */
+  keepInBoundary?: boolean;
 }
 
 /**
@@ -85,6 +91,22 @@ export function applyDragBounds(
     }
     if (constraints.dragBounds.maxY !== undefined) {
       boundedY = Math.min(constraints.dragBounds.maxY, boundedY);
+    }
+
+    if (constraints.keepInBoundary) {
+      const areaWidth = constraints.withinPortal
+        ? constraints.viewportWidth
+        : constraints.containerWidth;
+      const areaHeight = constraints.withinPortal
+        ? constraints.viewportHeight
+        : constraints.containerHeight;
+
+      if (areaWidth > 0) {
+        boundedX = Math.max(0, Math.min(boundedX, areaWidth - constraints.windowWidth));
+      }
+      if (areaHeight > 0) {
+        boundedY = Math.max(0, Math.min(boundedY, areaHeight - constraints.windowHeight));
+      }
     }
   } else if (constraints.withinPortal) {
     // Global viewport bounds

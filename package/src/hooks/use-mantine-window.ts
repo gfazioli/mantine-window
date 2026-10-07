@@ -31,6 +31,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     maxWidth: maxWidthProp,
     maxHeight: maxHeightProp,
     dragBounds: dragBoundsProp,
+    keepInBounds,
     axis,
     resizeStep,
     resizeShiftStep,
@@ -175,6 +176,7 @@ export function useMantineWindow(props: WindowBaseProps) {
     dragBounds: resolvedDragBounds,
     boundary: withinPortal ? 'viewport' : 'parent',
     axis,
+    keepInBounds,
     resizeStep,
     resizeShiftStep,
     // Always controlled: useWindowState owns the values, per-axis control and persistence.

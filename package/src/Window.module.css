@@ -95,10 +95,45 @@
   }
 }
 
+/*
+ * A finger needs bigger targets than a cursor: on a touch screen the controls grow to 20px, so
+ * with their 8px gap each sits in its own 24px target. Without hover, their glyphs never show,
+ * so they are always visible there.
+ */
+@media (pointer: coarse) {
+  .closeButton,
+  .collapseButton,
+  .windowToolsButton {
+    --ai-size: 20px !important;
+  }
+}
+
+@media (hover: none) {
+  .closeButton,
+  .collapseButton,
+  .windowToolsButton {
+    svg {
+      opacity: 1;
+    }
+  }
+}
+
 .content {
   flex: 1;
   overflow: auto;
   padding: var(--mantine-spacing-sm);
+}
+
+/*
+ * Bigger resize hit areas for a finger. They grow inward, because the root clips with
+ * overflow: hidden.
+ */
+@media (pointer: coarse) {
+  .root {
+    --window-handle-size: 12px;
+    --window-handle-length: 64px;
+    --window-handle-square: 24px;
+  }
 }
 
 .resizeHandleTopLeft {

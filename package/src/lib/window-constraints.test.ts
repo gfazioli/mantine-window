@@ -398,3 +398,60 @@ describe('window-constraints', () => {
     });
   });
 });
+
+describe('applyDragBounds with keepInBoundary', () => {
+  const base = {
+    windowWidth: 300,
+    windowHeight: 200,
+    viewportWidth: 390,
+    viewportHeight: 844,
+    containerWidth: 324,
+    containerHeight: 500,
+  };
+
+  it('lets the container win over dragBounds written for a wider screen', () => {
+    const constraints = {
+      ...base,
+      dragBounds: { minX: 50, maxX: 500, minY: 50, maxY: 400 },
+      withinPortal: false,
+      keepInBoundary: true,
+    };
+
+    expect(applyDragBounds(500, 400, constraints)).toEqual({ x: 24, y: 300 });
+  });
+
+  it('lets the viewport win in portal mode', () => {
+    const constraints = {
+      ...base,
+      dragBounds: { minX: -100, maxX: 1000 },
+      withinPortal: true,
+      keepInBoundary: true,
+    };
+
+    expect(applyDragBounds(-100, 0, constraints)).toEqual({ x: 0, y: 0 });
+    expect(applyDragBounds(1000, 0, constraints)).toEqual({ x: 90, y: 0 });
+  });
+
+  it('follows dragBounds alone without it', () => {
+    const constraints = {
+      ...base,
+      dragBounds: { minX: 50, maxX: 500 },
+      withinPortal: false,
+    };
+
+    expect(applyDragBounds(500, 0, constraints)).toEqual({ x: 500, y: 0 });
+  });
+
+  it('ignores a boundary that has not been measured yet', () => {
+    const constraints = {
+      ...base,
+      containerWidth: 0,
+      containerHeight: 0,
+      dragBounds: { minX: 50, maxX: 500 },
+      withinPortal: false,
+      keepInBoundary: true,
+    };
+
+    expect(applyDragBounds(500, 0, constraints)).toEqual({ x: 500, y: 0 });
+  });
+});

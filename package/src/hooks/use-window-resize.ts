@@ -42,6 +42,8 @@ export function useWindowResize(options: UseWindowResizeOptions) {
   onResizeEndRef.current = onResizeEnd;
 
   const isResizing = useRef(false);
+  // The finger a touch resize follows; `null` for a mouse resize.
+  const touchId = useRef<number | null>(null);
   const resizeDirection = useRef<ResizeDirection | ''>('');
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
 
@@ -162,6 +164,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
     (direction: ResizeDirection): ResizeHandlers => {
       const onMouseDown = (e: React.MouseEvent) => {
         isResizing.current = true;
+        touchId.current = null;
         resizeDirection.current = direction;
         resizeStart.current = {
           x: e.clientX,
@@ -179,8 +182,10 @@ export function useWindowResize(options: UseWindowResizeOptions) {
       };
 
       const onTouchStart = (e: React.TouchEvent) => {
-        const touch = e.touches[0];
+        // The finger that just landed, not `touches[0]`, which may be on another window.
+        const touch = e.changedTouches[0];
         isResizing.current = true;
+        touchId.current = touch.identifier;
         resizeDirection.current = direction;
         resizeStart.current = {
           x: touch.clientX,
@@ -219,6 +224,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
     // so a plain drag must not emit an unpaired onResizeEnd.
     const wasResizing = isResizing.current;
     isResizing.current = false;
+    touchId.current = null;
     if (wasResizing) {
       onResizeEndRef.current?.();
     }
@@ -226,6 +232,7 @@ export function useWindowResize(options: UseWindowResizeOptions) {
 
   return {
     isResizing,
+    touchId,
     resizeHandlers,
     handleResize,
     handleResizeEnd,

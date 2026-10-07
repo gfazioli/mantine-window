@@ -231,6 +231,16 @@ export interface WindowBaseProps {
   /** Boundaries for dragging the window. Supports responsive values. If not provided, window can be dragged anywhere within viewport */
   dragBounds?: ResponsiveValue<WindowBounds>;
 
+  /**
+   * Keeps the window inside its boundary (the viewport or the container). When the boundary is
+   * measured and whenever it changes size (a rotated phone, a resized browser window or
+   * container), the window moves back inside it, and within `dragBounds`, and shrinks to fit. A
+   * drag never leaves it, even where `dragBounds` would allow, and a pointer resize stops at the
+   * viewport edge too. Programmatic moves are not restricted. `false` restores the 3.3 behavior.
+   * @default true
+   */
+  keepInBounds?: boolean;
+
   // ─── Behavior ───────────────────────────────────────────────────────
 
   /** Whether to persist position and size in localStorage. You have to set the `id` or `title` prop for persistence to work. Default: false */
@@ -312,6 +322,7 @@ export const defaultProps: Partial<WindowProps> = {
   minHeight: 100,
   fullSizeResizeHandles: false,
   withKeyboardResize: true,
+  keepInBounds: true,
   resizeStep: 10,
   resizeShiftStep: 50,
   resizeHandleLabel: 'Resize window',
@@ -375,6 +386,7 @@ export const Window = factory<WindowFactory>((_props) => {
     maxWidth,
     maxHeight,
     dragBounds,
+    keepInBounds,
     x,
     y,
     defaultX,
@@ -447,6 +459,9 @@ export const Window = factory<WindowFactory>((_props) => {
 
   const draggableHeader = draggable === 'header' || draggable === 'both';
   const draggableWindow = draggable === 'window' || draggable === 'both';
+  // The header is inside the root: when the whole window drags, the root's handler already
+  // catches a press on the header, and a second one would start the gesture twice.
+  const headerDragHandler = draggableHeader && !draggableWindow;
 
   if (!isVisible) {
     return null;
@@ -502,10 +517,9 @@ export const Window = factory<WindowFactory>((_props) => {
         {/* Header */}
         <Box
           {...getStyles('header')}
-          onClick={bringToFront}
           mod={{ 'window-draggable': draggableHeader, 'controls-position': controlsPosition }}
-          onMouseDown={draggableHeader ? dragHandleProps.onMouseDown : undefined}
-          onTouchStart={draggableHeader ? dragHandleProps.onTouchStart : undefined}
+          onMouseDown={headerDragHandler ? dragHandleProps.onMouseDown : undefined}
+          onTouchStart={headerDragHandler ? dragHandleProps.onTouchStart : undefined}
           onDoubleClick={() => collapsable && setIsCollapsed(!isCollapsed)}
         >
           {(() => {

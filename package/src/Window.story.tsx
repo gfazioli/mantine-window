@@ -1274,3 +1274,54 @@ export function HeadlessHook() {
     </Box>
   );
 }
+
+// Issue #61: open in a phone-sized viewport with touch emulation. A swipe on the long list
+// scrolls it, the title bar drags; narrowing the container brings the windows back inside.
+export function TouchAndSmallBoundaries() {
+  const [width, setWidth] = React.useState(100);
+  const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`);
+
+  return (
+    <Stack>
+      <Button.Group>
+        {[100, 60, 40].map((value) => (
+          <Button
+            key={value}
+            variant={width === value ? 'filled' : 'default'}
+            onClick={() => setWidth(value)}
+          >
+            {value}%
+          </Button>
+        ))}
+      </Button.Group>
+      <Box pos="relative" h={500} w={`${width}%`} bg="gray.1">
+        <Window
+          title="Scroll my content"
+          opened
+          withinPortal={false}
+          defaultX={20}
+          defaultY={20}
+          defaultWidth={300}
+          defaultHeight={260}
+        >
+          {lines.map((line) => (
+            <Text key={line} size="sm">
+              {line}
+            </Text>
+          ))}
+        </Window>
+        <Window
+          title="Overlapping"
+          opened
+          withinPortal={false}
+          defaultX={180}
+          defaultY={160}
+          defaultWidth={300}
+          defaultHeight={220}
+        >
+          <Text size="sm">Drag me with one finger while another rests on the other window.</Text>
+        </Window>
+      </Box>
+    </Stack>
+  );
+}

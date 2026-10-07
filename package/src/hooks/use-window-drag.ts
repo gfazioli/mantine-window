@@ -36,6 +36,31 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
   return !!el?.closest?.(INTERACTIVE_TARGET_SELECTOR);
 }
 
+const SCROLLABLE_OVERFLOW = /(auto|scroll|overlay)/;
+
+/**
+ * Whether a touch started inside content that can scroll, between the target and the drag
+ * handle. A finger has no wheel: on such content the swipe must scroll it, not move the window.
+ */
+function isInScrollableContent(target: EventTarget | null, handle: EventTarget | null): boolean {
+  let el = target instanceof Element ? target : null;
+
+  while (el && el !== handle) {
+    if (el instanceof HTMLElement) {
+      const style = window.getComputedStyle(el);
+      if (
+        (SCROLLABLE_OVERFLOW.test(style.overflowY) && el.scrollHeight > el.clientHeight) ||
+        (SCROLLABLE_OVERFLOW.test(style.overflowX) && el.scrollWidth > el.clientWidth)
+      ) {
+        return true;
+      }
+    }
+    el = el.parentElement;
+  }
+
+  return false;
+}
+
 export interface UseWindowDragOptions {
   positionPx: { x: number; y: number };
   sizePx: { width: number; height: number };
@@ -47,6 +72,8 @@ export interface UseWindowDragOptions {
   containerHeight: number;
   /** Restricts the user's drag to one axis; the other keeps its value from the gesture start. */
   axis?: 'x' | 'y';
+  /** Keeps the element inside the boundary even where `dragBounds` would let it out. */
+  keepInBounds?: boolean;
   /** The dragged element, measured once per gesture so the bounds use its rendered size. */
   elementRef: React.RefObject<HTMLElement | null>;
   setPosition: (position: { x: number; y: number }) => void;
@@ -65,6 +92,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     containerWidth,
     containerHeight,
     axis,
+    keepInBounds = false,
     elementRef,
     setPosition,
     onDragStart,
@@ -72,6 +100,8 @@ export function useWindowDrag(options: UseWindowDragOptions) {
   } = options;
 
   const isDragging = useRef(false);
+  // The finger a touch drag follows; `null` for a mouse drag.
+  const touchId = useRef<number | null>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   // Where the element was when the gesture started: the locked axis of `axis` stays there.
   const dragOrigin = useRef({ x: 0, y: 0 });
@@ -107,6 +137,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
         viewportHeight,
         containerWidth,
         containerHeight,
+        keepInBoundary: keepInBounds,
       };
 
       return applyDragBounds(newX, newY, constraints);
@@ -119,6 +150,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       viewportHeight,
       containerWidth,
       containerHeight,
+      keepInBounds,
     ]
   );
 
@@ -135,6 +167,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       }
 
       isDragging.current = true;
+      touchId.current = null;
       dragStart.current = {
         x: e.clientX - positionPx.x,
         y: e.clientY - positionPx.y,
@@ -156,14 +189,15 @@ export function useWindowDrag(options: UseWindowDragOptions) {
         return;
       }
 
-      // Don't hijack interactive elements (inputs, buttons, links, …): calling
-      // preventDefault() here would stop the browser from focusing them.
-      if (isInteractiveTarget(e.target)) {
+      if (isInteractiveTarget(e.target) || isInScrollableContent(e.target, e.currentTarget)) {
         return;
       }
 
-      const touch = e.touches[0];
+      // The finger that just landed, not `touches[0]`: with a finger already on another
+      // window, that one is first in the list and this window would follow it.
+      const touch = e.changedTouches[0];
       isDragging.current = true;
+      touchId.current = touch.identifier;
       dragStart.current = {
         x: touch.clientX - positionPx.x,
         y: touch.clientY - positionPx.y,
@@ -171,7 +205,9 @@ export function useWindowDrag(options: UseWindowDragOptions) {
       dragOrigin.current = { x: positionPx.x, y: positionPx.y };
       measureElement();
       document.body.style.userSelect = 'none';
-      e.preventDefault();
+      // No preventDefault(): React registers touchstart as a passive listener, so it would be
+      // ignored and only log an error. The header's `touch-action: none` and the document's
+      // non-passive touchmove listener are what keep the page from scrolling.
       onDragStartRef.current?.();
     },
     [positionPx, measureElement]
@@ -200,6 +236,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
     // active, so a plain resize would otherwise emit an unpaired onDragEnd.
     const wasDragging = isDragging.current;
     isDragging.current = false;
+    touchId.current = null;
     if (wasDragging) {
       onDragEndRef.current?.();
     }
@@ -207,6 +244,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
 
   return {
     isDragging,
+    touchId,
     handleMouseDownDrag,
     handleTouchStartDrag,
     handleDragMove,
