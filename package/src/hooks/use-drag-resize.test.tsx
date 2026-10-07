@@ -207,9 +207,7 @@ describe('useDragResize keepInBounds', () => {
 
     expect(getByTestId('box').style.left).toBe('900px');
   });
-});
 
-describe('useDragResize keepInBounds after programmatic moves', () => {
   it('fits to the boundary, not to dragBounds, so a layout keeps its place when the element resizes', () => {
     const observed: (() => void)[] = [];
     const OriginalResizeObserver = window.ResizeObserver;

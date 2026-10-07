@@ -137,7 +137,7 @@ export function useWindowDrag(options: UseWindowDragOptions) {
         viewportHeight,
         containerWidth,
         containerHeight,
-        keepInBoundary: keepInBounds,
+        keepInBounds,
       };
 
       return applyDragBounds(newX, newY, constraints);

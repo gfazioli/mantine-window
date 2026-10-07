@@ -6,7 +6,7 @@ import {
   type KeyboardResizeLimits,
   type ResizeDirection,
 } from '../lib/keyboard-resize';
-import { applyDragBounds } from '../lib/window-constraints';
+import { clampToArea } from '../lib/window-constraints';
 import type { WindowBounds, WindowPosition, WindowSize } from '../Window';
 import { useWindowConstraints } from './use-window-constraints';
 import { useWindowDimensions } from './use-window-dimensions';
@@ -55,8 +55,8 @@ export interface UseDragResizeOptions {
    * element changes size (a rotated phone, a resized browser window or container, a collapsed
    * window opening), the element moves back inside it and shrinks to fit. A drag never leaves it,
    * even where `dragBounds` would allow, and a pointer resize stops at the viewport edge too.
-   * Programmatic moves are not restricted, and `dragBounds` only limits the user's drag.
-   * `false` restores the 3.3 behavior.
+   * `setPosition` / `setSize` are applied as given, until the next such size change fits them
+   * too; `dragBounds` only limits the user's drag. `false` restores the 3.3 behavior.
    * @default true
    */
   keepInBounds?: boolean;
@@ -160,19 +160,9 @@ const DEFAULT_SIZE: WindowSize = { width: 400, height: 400 };
 const EMULATED_MOUSE_WINDOW_MS = 800;
 const EMULATED_MOUSE_DISTANCE_PX = 16;
 
-interface SourceCapabilities {
-  firesTouchEvents?: boolean;
-}
-
 /** The touch with this identifier in a touch list, if it is there. */
-function findTouch(list: TouchList, identifier: number): Touch | null {
-  for (let i = 0; i < list.length; i++) {
-    if (list[i].identifier === identifier) {
-      return list[i];
-    }
-  }
-  return null;
-}
+const findTouch = (list: TouchList, identifier: number) =>
+  Array.from(list).find((touch) => touch.identifier === identifier);
 
 /**
  * Makes any element draggable and resizable from any edge or corner, with the same
@@ -338,18 +328,14 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
   // When and where the last touch ended anywhere on the page: see EMULATED_MOUSE_WINDOW_MS.
   const lastTouchEndRef = useRef({ time: -Infinity, x: 0, y: 0 });
 
-  useEffect(() => {
-    // The finger the current gesture follows, or `null` when there is none or it is a mouse one.
-    const activeTouchId = () => {
-      if (dragRef.current.isDragging.current) {
-        return dragRef.current.touchId.current;
-      }
-      if (resizeRef.current.isResizing.current) {
-        return resizeRef.current.touchId.current;
-      }
-      return null;
-    };
+  // The finger the current gesture follows, or `null` when there is none or it is a mouse one.
+  // A gesture hook clears its touchId when its gesture ends.
+  const activeTouchId = useCallback(
+    () => dragRef.current.touchId.current ?? resizeRef.current.touchId.current,
+    []
+  );
 
+  useEffect(() => {
     const endGestures = () => {
       if (dragRef.current.isDragging.current || resizeRef.current.isResizing.current) {
         dragRef.current.handleDragEnd();
@@ -445,7 +431,7 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, []);
+  }, [activeTouchId]);
 
   // ─── Keep in bounds ─────────────────────────────────────────────────
 
@@ -470,16 +456,10 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
 
     // The boundary only, not `dragBounds`: those limit the user's drag, while this runs after
     // programmatic moves too, and must not pull a snapped or tiled window off its layout.
-    const next = applyDragBounds(pos.x, pos.y, {
-      dragBounds: null,
-      withinPortal,
-      windowWidth: Math.min(renderedWidth, boundarySize.width),
-      windowHeight: Math.min(renderedHeight, boundarySize.height),
-      viewportWidth: boundarySize.width,
-      viewportHeight: boundarySize.height,
-      containerWidth: boundarySize.width,
-      containerHeight: boundarySize.height,
-    });
+    const next = {
+      x: clampToArea(pos.x, boundarySize.width, Math.min(renderedWidth, boundarySize.width)),
+      y: clampToArea(pos.y, boundarySize.height, Math.min(renderedHeight, boundarySize.height)),
+    };
 
     if (width !== sz.width || height !== sz.height) {
       setSize({ width, height });
@@ -492,7 +472,7 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
   // When the boundary is measured and whenever it changes size.
   useEffect(() => {
     fitRef.current();
-  }, [keepInBounds, withinPortal, boundarySize.width, boundarySize.height]);
+  }, [keepInBounds, boundarySize.width, boundarySize.height]);
 
   // And when the element itself changes size: a collapsed window that opens again.
   useEffect(() => {
@@ -509,9 +489,9 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
 
   const isEmulatedMouse = (event: React.MouseEvent) => {
     // Chromium says so outright; elsewhere, an emulated press lands where a touch just ended.
-    const capabilities = (
-      event.nativeEvent as MouseEvent & { sourceCapabilities?: SourceCapabilities }
-    ).sourceCapabilities;
+    const { sourceCapabilities: capabilities } = event.nativeEvent as MouseEvent & {
+      sourceCapabilities?: { firesTouchEvents?: boolean };
+    };
     if (typeof capabilities?.firesTouchEvents === 'boolean') {
       return capabilities.firesTouchEvents;
     }
@@ -524,24 +504,23 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     );
   };
 
-  // One touch gesture at a time: a second finger landing on the element while the first one
-  // drags or resizes it must not take the gesture over, nor open a second one.
-  const isTouchGestureActive = () =>
-    (drag.isDragging.current && drag.touchId.current !== null) ||
-    (resize.isResizing.current && resize.touchId.current !== null);
-
-  const getDragHandleProps = (): DragResizeDragHandleProps => ({
-    onMouseDown: (event: React.MouseEvent) => {
+  // A press starts a gesture unless it is a mouse press emulated from a tap, or a second finger
+  // landing while a touch gesture runs: that one must not take the gesture over, nor open another.
+  const guardPress = (handlers: DragResizeDragHandleProps): DragResizeDragHandleProps => ({
+    onMouseDown: (event) => {
       if (!isEmulatedMouse(event)) {
-        drag.handleMouseDownDrag(event);
+        handlers.onMouseDown(event);
       }
     },
-    onTouchStart: (event: React.TouchEvent) => {
-      if (!isTouchGestureActive()) {
-        drag.handleTouchStartDrag(event);
+    onTouchStart: (event) => {
+      if (activeTouchId() === null) {
+        handlers.onTouchStart(event);
       }
     },
   });
+
+  const getDragHandleProps = (): DragResizeDragHandleProps =>
+    guardPress({ onMouseDown: drag.handleMouseDownDrag, onTouchStart: drag.handleTouchStartDrag });
 
   const { positionPx, sizePx, constraintsPx } = constraints;
 
@@ -549,21 +528,8 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     direction: ResizeDirection,
     handleOptions: DragResizeHandleOptions = {}
   ): DragResizeHandleProps => {
-    const handlers = resize.resizeHandlers[direction];
     const pointerProps: DragResizeHandleProps = {
-      onMouseDown: (event: React.MouseEvent) => {
-        if (!isEmulatedMouse(event)) {
-          handlers.onMouseDown(event);
-        }
-      },
-      onTouchStart: (event: React.TouchEvent) => {
-        if (isTouchGestureActive()) {
-          // Not a resize either: keep the press from reaching the drag handle around it.
-          event.stopPropagation();
-          return;
-        }
-        handlers.onTouchStart(event);
-      },
+      ...guardPress(resize.resizeHandlers[direction]),
       'data-resize-handle': direction,
     };
 

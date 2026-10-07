@@ -236,8 +236,9 @@ export interface WindowBaseProps {
    * measured and whenever it or the window changes size (a rotated phone, a resized browser
    * window or container, a collapsed window opening), the window moves back inside it and shrinks
    * to fit. A drag never leaves it, even where `dragBounds` would allow, and a pointer resize
-   * stops at the viewport edge too. Programmatic moves (controlled `x` / `y`, layouts) are not
-   * restricted, and `dragBounds` only limits the user's drag. `false` restores the 3.3 behavior.
+   * stops at the viewport edge too. Programmatic moves (controlled `x` / `y`, layouts) are
+   * applied as given, until the next such size change fits them too; `dragBounds` only limits
+   * the user's drag. `false` restores the 3.3 behavior.
    * @default true
    */
   keepInBounds?: boolean;
@@ -462,7 +463,7 @@ export const Window = factory<WindowFactory>((_props) => {
   const draggableWindow = draggable === 'window' || draggable === 'both';
   // The header is inside the root: when the whole window drags, the root's handler already
   // catches a press on the header, and a second one would start the gesture twice.
-  const headerDragHandler = draggableHeader && !draggableWindow;
+  const headerDragHandler = draggable === 'header';
 
   if (!isVisible) {
     return null;
