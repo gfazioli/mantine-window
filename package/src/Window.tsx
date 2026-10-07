@@ -233,10 +233,11 @@ export interface WindowBaseProps {
 
   /**
    * Keeps the window inside its boundary (the viewport or the container). When the boundary is
-   * measured and whenever it changes size (a rotated phone, a resized browser window or
-   * container), the window moves back inside it, and within `dragBounds`, and shrinks to fit. A
-   * drag never leaves it, even where `dragBounds` would allow, and a pointer resize stops at the
-   * viewport edge too. Programmatic moves are not restricted. `false` restores the 3.3 behavior.
+   * measured and whenever it or the window changes size (a rotated phone, a resized browser
+   * window or container, a collapsed window opening), the window moves back inside it and shrinks
+   * to fit. A drag never leaves it, even where `dragBounds` would allow, and a pointer resize
+   * stops at the viewport edge too. Programmatic moves (controlled `x` / `y`, layouts) are not
+   * restricted, and `dragBounds` only limits the user's drag. `false` restores the 3.3 behavior.
    * @default true
    */
   keepInBounds?: boolean;

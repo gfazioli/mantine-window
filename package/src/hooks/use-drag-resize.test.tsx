@@ -208,3 +208,35 @@ describe('useDragResize keepInBounds', () => {
     expect(getByTestId('box').style.left).toBe('900px');
   });
 });
+
+describe('useDragResize keepInBounds after programmatic moves', () => {
+  it('fits to the boundary, not to dragBounds, so a layout keeps its place when the element resizes', () => {
+    const observed: (() => void)[] = [];
+    const OriginalResizeObserver = window.ResizeObserver;
+    window.ResizeObserver = class {
+      constructor(callback: () => void) {
+        observed.push(callback);
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+
+    try {
+      const { getByTestId } = render(
+        <Box defaultPosition={{ x: 100, y: 100 }} dragBounds={{ minX: 50 }} />
+      );
+
+      // A snap-left layout: x = 0 and half the viewport, from code.
+      act(() => {
+        api.setPosition({ x: 0, y: 0 });
+        api.setSize({ width: 512, height: 768 });
+      });
+      act(() => observed.forEach((callback) => callback()));
+
+      expect(getByTestId('box').style.left).toBe('0px');
+    } finally {
+      window.ResizeObserver = OriginalResizeObserver;
+    }
+  });
+});

@@ -267,7 +267,7 @@ On a phone or a tablet, a window behaves as a finger expects:
 
 `keepInBounds` (on by default) keeps every window reachable inside its boundary, the viewport or its container:
 
-- When the boundary is measured, and whenever it changes size (a phone rotating, a browser window or a container getting narrower), a window that sticks out moves back inside it, and within `dragBounds`, and one larger than the boundary shrinks to fit.
+- When the boundary is measured, and whenever it or the window changes size (a phone rotating, a browser window or a container getting narrower, a collapsed window opening), a window that sticks out moves back inside it, and one larger than the boundary shrinks to fit. A collapsed window keeps its expanded height until it opens.
 - `dragBounds` can only narrow the boundary: bounds written for a wide screen no longer let a window out of a phone's.
 - Resizing with the pointer stops at the boundary, the viewport included, as keyboard resizing does.
 

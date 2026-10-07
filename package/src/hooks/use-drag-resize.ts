@@ -51,11 +51,12 @@ export interface UseDragResizeOptions {
   axis?: 'x' | 'y';
 
   /**
-   * Keeps the element inside the boundary. When the boundary is measured and whenever it changes
-   * size (a rotated phone, a resized browser window or container), the element moves back inside
-   * it, and within `dragBounds`, and shrinks to fit. A drag never leaves it, even where
-   * `dragBounds` would allow, and a pointer resize stops at the viewport edge too. Programmatic
-   * moves are not restricted. `false` restores the 3.3 behavior.
+   * Keeps the element inside the boundary. When the boundary is measured and whenever it or the
+   * element changes size (a rotated phone, a resized browser window or container, a collapsed
+   * window opening), the element moves back inside it and shrinks to fit. A drag never leaves it,
+   * even where `dragBounds` would allow, and a pointer resize stops at the viewport edge too.
+   * Programmatic moves are not restricted, and `dragBounds` only limits the user's drag.
+   * `false` restores the 3.3 behavior.
    * @default true
    */
   keepInBounds?: boolean;
@@ -454,7 +455,7 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
       return;
     }
 
-    const { positionPx: pos, sizePx: sz, dragBoundsPx } = constraints;
+    const { positionPx: pos, sizePx: sz } = constraints;
 
     // What must fit is the rendered box: a collapsed window is only as tall as its header, and
     // its expanded height is kept for when it opens again. `0` means not laid out: use the size.
@@ -467,8 +468,10 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
     const width = renderedWidth > boundarySize.width ? boundarySize.width : sz.width;
     const height = renderedHeight > boundarySize.height ? boundarySize.height : sz.height;
 
+    // The boundary only, not `dragBounds`: those limit the user's drag, while this runs after
+    // programmatic moves too, and must not pull a snapped or tiled window off its layout.
     const next = applyDragBounds(pos.x, pos.y, {
-      dragBounds: dragBoundsPx,
+      dragBounds: null,
       withinPortal,
       windowWidth: Math.min(renderedWidth, boundarySize.width),
       windowHeight: Math.min(renderedHeight, boundarySize.height),
@@ -476,7 +479,6 @@ export function useDragResize<T extends HTMLElement = HTMLDivElement>(
       viewportHeight: boundarySize.height,
       containerWidth: boundarySize.width,
       containerHeight: boundarySize.height,
-      keepInBoundary: true,
     });
 
     if (width !== sz.width || height !== sz.height) {
