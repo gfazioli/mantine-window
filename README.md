@@ -27,6 +27,12 @@ It requires **Mantine 9.x** and **React 19**.
 
 [Mantine Window](https://gfazioli.github.io/mantine-window/) is a versatile UI container that brings a familiar desktop‑like window experience to React applications built with Mantine.
 
+## Video tutorial
+
+[![Add a draggable, resizable window | Mantine Extensions Tutorial 04](https://i.ytimg.com/vi/47iEEJZgdXE/maxresdefault.jpg)](https://www.youtube.com/watch?v=47iEEJZgdXE)
+
+**Add a draggable, resizable window** (1:54): install Window, open a floating window on your page, let people drag and resize it within limits, collapse and close it from your own state, and snap it to half the page or fill it. More in the [Mantine Extensions Tutorials](https://www.youtube.com/playlist?list=PLdYqZHmBU1Bk) playlist.
+
 ## Features
 
 - Draggable and resizable floating windows with 8-direction resize handles
